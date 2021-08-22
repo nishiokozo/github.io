@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>pys</title>
+		<style>
+
+			.group
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:center;
+				vertical-align: top;
+			}
+			.readme
+			{
+				display:inline-block; 
+				text-align:center;
+				font-size:12px;
+				font-family:monospace;
+			}
+			.readme-left
+			{
+				display:inline-block; 
+				text-align:left;
+				font-size:12px;
+				font-family:monospace;
+			}
+		</style>
+	</head>
+	<body align="center">
+		<H1>物理シミュレーション v1.1</H1>
+		<canvas id="html_canvas"  width="384" height="384" style="border:1px solid" ></canvas>
+		<script src="lib.js"></script>
+		<script src="main.js"></script>
+		<br>
+			<input type="button" value="reset" onClick="main()" >
+		<div class="group">
+			速度計算
+			<br>
+			<input type="radio" name="html_reso" value="1" onchange="html_onchange('v^2');" checked 	>衝撃＝速度の二乗
+			<br>
+			<input type="radio" name="html_reso" value="0.5" onchange="html_onchange('v');" 	>衝撃＝速度
+		</div>
+
+<!--
+			<input type="button" value="play/stop" onClick="html_onchange('play/stop')" >
+			<input type="button" value="info" onClick="html_onchange('info')" >
+-->
+			
+			<br>
+
+	<br>～概要～<br>
+		衝突シミュレーションが正しいかどうかを検証するために<br>
+		衝突前と衝突後の運動量と運動エネルギーを計測する実験<br>
+
+	<br>～2021/06/14 v1.1～<br>
+		『運動エネルギー保存則』と言う言葉が見つからないけど、弾性衝突状態の衝突法則のこと<br>
+		結果は前回と同じ。運動量から速度を算出した方が期待した値が得られてる<br>
+
+	<br>～2021/06/14 v1～<br>
+		衝突後の速度を、速度の二乗に比例（運動エネルギー）で計算→上手く行っておらず<br>
+		衝突後の速度を、速度に比例→上手く行っておらず→正しい感じ<br>
+
+
+	<br>～メモ～<br>
+		質量:m 速度:v 質量:m <br>
+		運動量:p=mv<br>
+		運動エネルギー:k=1/2mv^2<br>
+		運動量保存則:m1v1 + m2v2 = m1v1' + m2v2'<br>
+		？『運動エネルギー保存則』:1/2m1v1^2 + 1/2m2v2^2 = 1/2m1v1'^2 + 1/2m2v2'^2 +Δ<br>
+	<br>
+	</body>
+</html>

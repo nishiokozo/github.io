@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>wgl</title>
+		<style>
+			.group
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:right;
+			}
+			.readme
+			{
+				display:inline-block; 
+				text-align:center;
+				font-size:12px;
+				font-family:monospace;
+			}
+		</style>
+	</head>
+	<body align="center" style="font-family:monospace">
+		<H2 style="font-family:sans-serif">webGL でワイヤーフレームv2</H2>
+
+
+		<canvas id="html_canvas" width="520" height="360"  style="border: 1px solid" ></canvas>
+
+		<br>
+		<div class="group">
+			色
+			<input type="radio" name="html_param" value="BW" onchange="html_click();"checked >黒
+			<input type="radio" name="html_param" value="RB" onchange="html_click();" 		>赤
+			<input type="radio" name="html_param" value="GB" onchange="html_click();" 		>緑
+		</div>
+
+<br>
+		<script src="main.js"></script>
+		<br>
+
+		<div class="readme">
+			<p>～概要 2021/05/03 ～</p>
+			<p>GLSLでのProjection matrix / View matrix / Model matrix の計算と同等の処理をCPUで行う実験</p>
+			<p>ハードウェア側でnear&farクリップの後.z値で透視変換だけが行われる</p>
+			<p>可能な限りCPU側で計算することで自由な部分を増やす試み</p>
+		</div>
+
+	</body>
+</html>

@@ -1,0 +1,54 @@
+<title>Z80 Assembler</title>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" media="screen" href="style.css" />
+
+
+	<body>
+			<h2>Z80 Assembler</h2>
+		<input type="button" value="Assemble" onClick="assemble(1)">
+
+	<br>
+
+<textarea id="src" cols="52" rows="16">
+; Z80アセンブリsample
+L000 equ 22h
+	JP	MAIN
+	DEFB	L000 
+MAIN:
+	ld	A,12h
+	jp	RMC00D
+	HALT
+RMC00D:
+	LD	A,(IX+04h)
+	CP	02h
+	JR	C,RMC00D
+	CP	D
+	RET	C
+
+
+</textarea>
+
+			<textarea id="dst" cols="52" rows="16"></textarea>
+
+		<script type="text/javascript" src="asm.js"></script>
+		<script type="text/javascript" >assemble(1)</script>
+
+		<div align="center" style="font-family:monospace">
+
+			<p>《概要》</p>
+<p>Z80アセンブリをIntelHexに変換<p>
+<p>構文解析を正規解析で行うというシンプル実装を思いついて実験的に作ってみたもの。<p>
+			<br>
+			<p>《機能》</p>
+			<p>IntelHEX出力<p>
+			<p>ラベル機能<p>
+			<p>EQU擬似命令<p>
+			<p>DEFB擬似命令<p>
+			<p>『;』コメント<p>
+			<p>『:』セパレータ<p>
+			<br>	
+
+
+		</div>
+	</body>
+</html>

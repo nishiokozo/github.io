@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>wf3</title>
+		<style>
+			.group
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:right;
+			}
+			.readme
+			{
+				display:inline-block; 
+				text-align:left;
+				font-size:12px;
+				font-family:monospace;
+			}
+		</style>
+	</head>
+	<body align="center" style="font-family:monospace">
+		<H2 style="font-family:sans-serif">webGL でワイヤーフレーム+ブルーム実験 v3</H2>
+
+
+		<canvas id="html_canvas" width="640" height="360"  style="border: 1px solid" ></canvas>
+		<br>
+		<input type="checkbox" name="html_noblur">ブラーを使わない
+		<input type="checkbox" name="html_small64">縮小バッファ(1/64)を使う
+		<input type="button" value="1920x1080"      onClick="html_set1920x1080()" >
+<!--
+		<input type="button" value="フルスクリーン" onClick="html_setFullscreen()" >
+-->
+		<br>
+
+		<br>
+		<script src="lib.js"></script>
+		<script src="main.js"></script>
+		<br>
+
+							<p>～web2.0メモ　2021/05/09～</p>
+		<div class="readme">
+			<p>・浮動小数点バッファへのレンダリングはデフォルトでは使えない</p>
+			<p>・拡張仕様EXT_color_buffer_floatにて可</p>
+			<p>・浮動小数点バッファテクスチャはLINEAR未対応（バイリニアフィルタが使えない）</p>
+			<p>・FBOも浮動小数点バッファに未対応っぽい</p>
+			<p>・結果浮動小数点バッファを縮小バッファに使えない</p>
+			<p>・GLSL/ver300esが新たに使えるが命令名が所々変わっている</p>
+			<p>・ver300esだと可変長のfor文が使える</p>
+			<p>・1オブジェクト16bit長以上の頂点数が使える</p>
+			<p>・webgl2だと1オブジェクト16bit長以上の頂点数が使える</p>
+			<p>・webgl2だとiOSではデフォルト対応していない</p>
+			<p>　　Safariの場合は設定>Safari>詳細>ExperimentalFeatures>webGL2.0をon</p>
+			<p>・ガウシアンブラーの半径を調整できるくらいにしかwebgl2の効果がなかった</p>
+			<br>
+		</div>
+			<p>～アルゴリズム～</p>
+		<div class="readme">
+			<p>①ワイヤー画像をテクスチャ(Framebuffer object)に描画（ノーマルのシェーダー）</p>
+			<p>②ブラー用ワイヤー画像をテクスチャに描画（ノーマルのシェーダー）</p>
+			<p>　※太さ1dotのラインだとブラー処理をすると薄くなりすぎるので太くする</p>
+			<p>　※浮動小数点バッファが使えたら1ドットラインでも問題ない</p>
+			<p>　※glLineWide()がwebglでは1.0しか使えない制限があるので、何度も描いて太くする</p>
+			<p>③↑を1/4に縮小しテクスチャに描画（コピーシェーダー）※計1/4</p>
+			<p>④↑を1/4に縮小しテクスチャに描画（コピーシェーダー）※計1/16</p>
+			<p>⑤↑を1/4に縮小しテクスチャに描画（コピーシェーダー）※計1/64</p>
+			<p>⑥↑を縦方向にぼかしテクスチャに描画（縦ガウシアンブラーシェーダー）</p>
+			<p>⑦↑を横方向にぼかしテクスチャに描画（横ガウシアンブラーシェーダー）</p>
+			<p>　※半径20ドットのガウシアンブラーを掛ける</p>
+			<p>⑧フレームバッファに①と⑦を合成描画（加算合成シェーダー）</p>
+		</div>
+
+	</body>
+</html>

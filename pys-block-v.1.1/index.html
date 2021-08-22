@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>丸いブロック崩しv1.1</title>
+		<style>
+
+			.group
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:center;
+				vertical-align: top;
+			}
+			.group-left
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:left;
+				vertical-align: top;
+			}
+			.group-right
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:right;
+				vertical-align: top;
+			}
+			.left
+			{
+				display:inline-block; 
+				text-align:center;
+				vertical-align: top;
+			}
+			.readme
+			{
+				display:inline-block; 
+				text-align:center;
+				font-size:12px;
+				font-family:monospace;
+			}
+			.readme-left
+			{
+				display:inline-block; 
+				text-align:left;
+				font-size:12px;
+				font-family:monospace;
+			}
+
+//			table,td,thead,tfoot 
+//			{
+//				border: 1px solid;
+//			}
+.gamearea
+ {
+  cursor: none;
+}
+/*
+html,body,a{
+  cursor: none;
+}
+#cursor{
+  transform: translate(0,0);
+    pointer-events: none;
+    position: fixed;
+    top: -4px;    //座標調節（カーソル位置と円の中心を合わせる）
+    left: -4px;   //座標調節（カーソル位置と円の中心を合わせる）
+    width: 8px;   //カーソルの直径
+    height: 8px;  //カーソルの直径
+    background: rgba(0,0,0,0.75);
+    border-radius: 50%;
+    z-index: 999;
+    transition: width .3s, height .3s, top .3s, left .3s;
+  
+  &.hov_{
+    top: -12px;    //大きくなった分の座標調節
+    left: -12px;   //大きくなった分の座標調節
+    width: 32px;   //カーソルの直径
+    height: 32px;  //カーソルの直径
+    background: rgba(200,50,50,0.75);
+  }
+}
+
+// 以下、カーソルに関係ない部分
+.btn {
+    display: block;
+    width: 160px;
+    margin: 40px auto;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1;
+
+    a {
+      display: block;
+      color: #fff;
+      text-decoration: none;
+      padding: 8px;
+      background-color: #007adf;
+    }
+
+}
+*/
+
+		</style>
+	</head>
+	<body align="center">
+		<H1>丸いブロック崩しv1.1</H1>
+			<div class="group">
+				<canvas class="gamearea" id="html_canvas"  width="756" height="640" style="border:1px solid" ></canvas>
+				<script src="lib.js"></script>
+				<script src="main.js"></script>
+				<br>
+
+		
+					<input type="button" value="RESET" onClick="html_onchange('reset')" >
+					<input type="button" value="フルスクリーン" onClick="html_onchange('fullscreen')" >
+				
+			</div>
+			<div id="html_table" class="group-right">
+				<table style="width:100%">
+				<tr>	<th></th><th>GAME:</th>	<th>ハイスコア</th>  </tr>
+				<!-- id:書き換えるのに使う name:radioボタンを読むのに使う
+				-->
+					<tr> <td><input type="radio" name="html_game" onchange="html_onchange('multi');		"></td>			
+						<td>Multi:<br>	</td>	<td "><a id="html_multi" ></a></td> <tr>
+					<tr> <td><input type="radio" name="html_game" onchange="html_onchange('moves');		"checked></td>		
+						<td>Moves:<br>	</td>	<td><a id="html_moves" ></a></td> <tr>
+					<tr> <td><input type="radio" name="html_game" onchange="html_onchange('dots');		"></td>			
+						<td>Dots:<br>		</td>	<td><a id="html_dots" ></a></td> <tr>
+
+				</table>
+			</div> 
+
+			<br>
+		<br>
+
+ 
+			<br>
+			<input type="checkbox" name="html_debug"  >debug
+
+
+
+			
+			<br>
+
+	<br>～概要 2021/07/31～<br>
+			物理演算をブロック崩しに適用して新しいゲーム性を模索する実験<br>
+
+	<br>～ゲームモード～<br>
+		
+			<div id="html_table" class="group-left">
+				Multi:クリアするとボールが増える<br>
+				Moves:動く壊せないブロックがある。クリアすると増える<br>
+				Dots :隙間の多いブロック。クリアすると壊せないブロックが増える<br>
+			</div>
+			
+			<br>
+				
+
+	<br>～操作方法～<br>
+
+			<div id="html_table" class="group">
+				<table style="width:100%">
+				<tr>	<th>デバイス　　　　</th> <th>左右移動　　　　　　</th>	<th>サーブ　　　　　　　</th>	<th>ポーズ　　　　　　</th>  </tr>
+					<tr> <td>キーボード</td>	<td>カーソルキー←→</td>	<td>スペースバー</td>	<td>Pキー</td>	<tr>
+					<tr> <td>ゲームパッド</td>	<td>アナログレバー</td>	<td>Ａボタン</td>	<td>スタートボタン</td>	<tr>
+					<tr> <td>マウス</td>	<td>本体左右</td>	<td>左ボタン</td>	<td>右ボタン</td>	<tr>
+
+				</table>
+			</div> 
+			<br>
+
+	</body>
+</html>
