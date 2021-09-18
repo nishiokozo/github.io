@@ -103,8 +103,6 @@ function lab_create()
 	lab.k = 0;
 	lab.dt = 0;
 	lab.s = 0;
-//	let min_E;
-//	let max_E;
 
 	//-------------------------------------------------------------------------
 	function reset()
@@ -190,24 +188,39 @@ function lab_create()
 		if ( (flgPause == false || flgStep ) )
 		{
 			// 動的なパラメータを計算
-			for ( let ba of balls )
 			{
-				let	r  = lab.l;
-				let	g  = lab.g;
-				let	th = ba.wr;
-				let	wv = ba.wv;
+				let ba = balls[0];
+				
+				if(0)
+				{	// 昔のやり方
+					let vg = vec2( 0, -lab.g * dt);
+					let v0 = vsub2( ba.p, hook.p );
+					let v1 = vadd2( v0, vg );
+					let v2 = vmul_scalar2( normalize2( v1 ), lab.l );
+					let v3 = vsub2( v2, v0 );
+					let v4 = vmul_scalar2( v3, dt );
+					ba.v = vadd2( ba.v, v4 );
+					ba.p = vadd2( ba.p, ba.v );
+				}
+				else
+				{	// 極座標
+					let	r  = lab.l;
+					let	g  = lab.g;
+					let	th = ba.wr;
+					let	wv = ba.wv;
 
-				ba.p.x = r*Math.cos(th);
-				ba.p.y = r*Math.sin(th)+2.5;
+					ba.p.x = r*Math.cos(th);
+					ba.p.y = r*Math.sin(th)+2.5;
 
-				let wa = -g *Math.cos(th)/r;
-				wv += wa*dt;
-				th += wv*dt;
+					let wa = -g *Math.cos(th)/r;
+					wv += wa*dt;
+					th += wv*dt;
 
-				ba.v.x = r*wv;
+					ba.v.x = r*wv;
 
-				ba.wr	= th;
-				ba.wv	= wv;			
+					ba.wr	= th;
+					ba.wv	= wv;			
+				}
 
 			}
 
