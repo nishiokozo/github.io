@@ -357,9 +357,9 @@ function lab_create()
 				// ライン
 				if ( t > 0 )
 				{
-//					gra4.color(0,0,0);gra4.line( t-dt,th0, t, th );
-//					gra4.color(0,0,1);gra4.line( t-dt,v0, t, v );
-//					gra4.color(1,0,0);gra4.line( t-dt,a0, t, a );
+					gra4.color(0,0,0);gra4.line( t-dt,th0, t, th );
+					gra4.color(0,0,1);gra4.line( t-dt,v0, t, v );
+					gra4.color(1,0,0);gra4.line( t-dt,a0, t, a );
 				}
 
 				gra3.color(0.8,0.8,0.8);gra3_drawball( gra3, th,v*dt,a*dt,g*dt, false ); // ボールの残像
