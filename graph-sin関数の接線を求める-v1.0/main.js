@@ -254,7 +254,7 @@ function lab_create()
 		{
 			let y = Math.sin(x*hz);
 
-			let u = 1;
+			let u = 1/hz;
 			let v = Math.cos(x*hz);
 
 			gra4.color(0,1,0);gra4.line( x+u, y+v, x-u, y-v );	// 接線描画
