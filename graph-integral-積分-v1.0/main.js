@@ -118,7 +118,7 @@ function lab_create()
 	//-------------------------------------------------------------------------
 	{
 		console.log('reset:',lab.mode);
-		flgStep = false;
+		flgStep = true;
 		balls=[];
 		//
 		let fs = lab.fs;
@@ -129,7 +129,7 @@ function lab_create()
 	
 		{
 			let th  = lab.th;
-			balls.push( {th:th, v:radians(0), t:0, tbl:[], r:0.18} );
+			balls.push( {next_th:th, th:th, a:radians(0), v:radians(0), t:0, tbl:[], r:0.18} );
 		}
 
 		// 円グラフ3 描画 初期化
@@ -288,7 +288,7 @@ function lab_create()
 	function update_Laboratory4( dt )
 	//-------------------------------------------------------------------------
 	{
-
+		let ba = balls[0];
 		let fs = lab.fs;
 		let r = lab.r;
 		let g = lab.g;
@@ -360,24 +360,20 @@ function lab_create()
 		}
 
 		////	計算
+		if ( ba.t+dt <= time ) if ( !flgPause || flgStep  )
 		{
-			let ba = balls[0];
-
-			if ( ba.t+dt <= time ) if ( !flgPause || flgStep  )
-			{
-				ba.t += dt;
-				let a = -g*Math.sin(ba.th);		// 接線加速度
-				ba.v +=a*dt;	// 角速度
-			
-				ba.tbl.push({v:ba.v,th:ba.th,t:ba.t,a:a});
-				ba.th+=(ba.v/r)*dt;
-			}
+			ba.t += dt;
+			ba.a = -g*Math.sin(ba.th);		// 接線加速度
+			ba.v += ba.a*dt;	// 角速度
+		
+			ba.tbl.push({v:ba.v,th:ba.th,t:ba.t,a:ba.a});
+			ba.th +=(ba.v/r)*dt;
 		}
 
-
 		////	描画
+		gra3.cls();
+		if ( ba.tbl.length > 0 )
 		{
-			let ba = balls[0];
 			let now = ba.tbl[ba.tbl.length-1];
 			let t = now.t;
 			let v = now.v;
@@ -387,7 +383,6 @@ function lab_create()
 
 			// 円グラフ3 リアルタイム描画 
 			{
-				gra3.cls();
 
 				// 原点 cross
 				{
