@@ -111,7 +111,7 @@ function lab_create()
 	lab.k = 0;
 	lab.dt = 0;
 	lab.s = 0;
-//	lab.fs = 0;
+	lab.fs = 14;
 
 	//-------------------------------------------------------------------------
 	function reset()
@@ -121,25 +121,15 @@ function lab_create()
 		flgStep = false;
 		balls=[];
 		//
-		let fs = 16;
-		let ball_r = 0.1;
+		let fs = lab.fs;
 		let r = lab.r;
 		let g = lab.g;
 		let time = lab.time;//5.0/2;	// 計測時間
 		let dt = lab.dt;
 	
 		{
-//			let h	= lab.h;
-//			let m	= lab.m;
-//			let l	= lab.r;
-//			let r	= calc_r(m)/60;
-//			let p0	= vec2(0, h);
-//			let p1	= vec2(l ,h);
-//			let K	= 0;
-//			let U	= lab.g * m * p1.y;
 			let th  = lab.th;
-//			hook	= {p:p0 ,v:0.1,h:0.2}
-			balls.push( {th:th, v:radians(0), t:0, tbl:[]} );
+			balls.push( {th:th, v:radians(0), t:0, tbl:[], r:0.18} );
 		}
 
 		// 円グラフ3 描画 初期化
@@ -177,13 +167,7 @@ function lab_create()
 				gra4.color(0,0,0)
 				gra4.symbol_row( "θ↑",0,gra4.sy,fs,"RT");
 				gra4.symbol_row( "t→",gra4.ex,0,fs,"RT");
-/*
-				let peek = 3.14;
-				gra4.symbol_row( "π",0,peek,fs,"RM");
-				gra4.symbol_row( "-π",0,-peek,fs,"RM");
-				gra4.symbol_row( "2π",0,peek*2,fs,"RM");
-				gra4.symbol_row( "-2π",0,-peek*2,fs,"RM");
-*/
+
 				{
 					let pi = Math.PI;
 					let x =0;
@@ -202,16 +186,8 @@ function lab_create()
 				let h = 0.2;;
 				let cnt  = 0;
 				gra4.line( x,y, x,y-h);gra4.symbol_row( "0", x,y-h,fs,"CT");
-/*
-				for ( let x = 0 ; x < gra4.ex ; x+=dt )
-				{
-					if ( (cnt % 10) == 0 ) gra4.line( x,y+h, x,y-h);
-					cnt++;
-				}
-*/
 
 			}
-//			gra4.color(0,0,0);gra4.locate(75,10);gra4.print( time+"秒間");
 			gra4.color(0,0,0);gra4.locate(72,0);gra4.print( "θ,ω,α-t");
 
 			gra4.locate(6,0);
@@ -238,7 +214,6 @@ function lab_create()
 	
 			// 原点 cross
 			{
-//				let fs = 16;
 				gra5.color(0.8,0.8,0.8)
 				gra5.line(gra5.sx,0,gra5.ex,0);
 				gra5.line(0,gra5.sy,0,gra5.ey);
@@ -314,13 +289,12 @@ function lab_create()
 	//-------------------------------------------------------------------------
 	{
 
-		let fs = 16;
-		let ball_r = 0.1;
+		let fs = lab.fs;
 		let r = lab.r;
 		let g = lab.g;
 		let time = lab.time;//5.0/2;	// 計測時間
 
-		function gra_drawball( gra, th, v,a, g, flgAll )
+		function gra_drawball( gra, ball_r, th, v,a, g, flgAll )
 		{
 
 			let x = r*Math.cos(th+radians(-90));
@@ -424,10 +398,10 @@ function lab_create()
 				// 値
 				{
 					gra3.color(0,0,0)
-					gra3.symbol_row( "π/2" 	, (r+ball_r*4),0,fs);
-					gra3.symbol_row( "-π/2"	,-(r+ball_r*4),0,fs);
-					gra3.symbol_row( "π" 	,0,(r+ball_r*2),fs);
-					gra3.symbol_row( "0"	,0,-(r+ball_r*2),fs);
+					gra3.symbol_row( "π/2" 	, (r+ba.r*2),0,fs,"CM");
+					gra3.symbol_row( "-π/2"	,-(r+ba.r*2),0,fs,"CM");
+					gra3.symbol_row( "π" 		,0,(r+ba.r*2),fs,"CM");
+					gra3.symbol_row( "0"		,0,-(r+ba.r*2),fs,"CM");
 
 	 				gra3.locate(0,20);
 					gra3.color(0,0,0);gra3.print( "黒:角度θ");
@@ -440,15 +414,15 @@ function lab_create()
 				// 軌道描画
 				for ( let d of ba.tbl )
 				{
-					gra3.color(0.8,0.8,0.8);gra_drawball( gra3, d.th, d.v*dt, d.a*dt, g*dt, false ); // ボールの残像
+					gra3.color(0.8,0.8,0.8);gra_drawball( gra3, ba.r, d.th, d.v*dt, d.a*dt, g*dt, false ); // ボールの残像
 				}
 
 				// 振り子描画
 				{
-					gra3.color(0,0,0);gra_drawball( gra3, th,v*dt,a*dt,g*dt, true );
+					gra3.color(0,0,0);gra_drawball( gra3, ba.r, th,v*dt,a*dt,g*dt, true );
 				}
 			
-				gra3.color(0,0,0);gra3.circle(0,0,r+ball_r); // 円の外枠。最後に描画
+				gra3.color(0,0,0);gra3.circle(0,0,r+ba.r); // 円の外枠。最後に描画
 
 			}
 
