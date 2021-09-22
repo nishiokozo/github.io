@@ -111,6 +111,7 @@ function lab_create()
 	lab.k = 0;
 	lab.dt = 0;
 	lab.dth = 0;
+	lab.Hz = 0;
 	lab.s = 0;
 	lab.fs = 16
 
@@ -131,12 +132,6 @@ function lab_create()
 			let th  = lab.th;
 			balls.push( {next_t:0, th:th, v:radians(0), t:0, tbl:[], r:0.18} );
 		}
-
-
-
-
-
-		
 
 
 	}
@@ -253,20 +248,21 @@ function lab_create()
 		let dot_r = 2;
 		let ya =-999;
 		let yb =0;
+		let hz = lab.Hz;
 
 		for ( let x = gra4.sx  ; x < gra4.ex ; x += lab.dth )
 		{
-			let y = Math.sin(x);
+			let y = Math.sin(x*hz);
 
 			let u = 1;
-			let v = Math.cos(x);
+			let v = Math.cos(x*hz);
 
 			gra4.color(0,1,0);gra4.line( x+u, y+v, x-u, y-v );	// 接線描画
 
 		}
 		for ( let x = gra4.sx  ; x < gra4.ex ; x += lab.dth )
 		{
-			let y = Math.sin(x);
+			let y = Math.sin(x*hz);
 			gra4.color(0,0,0);gra4.dot( x, y, dot_r );			// サイン波描画
 
 			if ( ya!=-999 ) {gra4.color(0,0,0);gra4.line( x, y, x-lab.dth, ya );}ya = y;	
@@ -343,6 +339,16 @@ function html_onchange( cmd )
 			document.getElementById( "html_dth" ).value = lab.dth;
 		}
 		lab.dth = radians(lab.dth);
+	}
+	if ( document.getElementById( "html_Hz" ) )
+	{
+		lab.Hz = document.getElementById( "html_Hz" ).value*1;
+		if ( lab.Hz < 0.01 ) 
+		{
+			lab.Hz = 0.01;
+			document.getElementById( "html_Hz" ).value = lab.Hz;
+		}
+		//lab.Hz = radians(lab.Hz);
 	}
 	if ( document.getElementById( "html_k" ) )
 	{
