@@ -283,7 +283,7 @@ function lab_create()
 			gra4.color(0,0,0);
 			gra4.locate( 66,21);
 			gra4.print( "定積分で求めた面積st～en "+s);
-			gra4.print( "区分究理法での面積st～en "+S);
+			gra4.print( "区分求積法での面積st～en "+S);
 		}
 
 
