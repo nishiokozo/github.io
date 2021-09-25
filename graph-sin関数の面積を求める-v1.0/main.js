@@ -271,11 +271,18 @@ function lab_create()
 
 			let S = 0;
 
-			// 接線描画
-			gra4.color(1.0/2,1.0/2,1.2);
-			for ( let x = st  ; x <= en-lab.dth/1 ; x += lab.dth/1	 )
+			// 長方形描画
+			for ( let x = st  ; x <= en-lab.dth ; x += lab.dth	 )
 			{
 				let y = Math.sin(x+lab.dth);
+				if ( y > 0 )
+				{
+					gra4.color(0.4,0.4,1);
+				}
+				else
+				{
+					gra4.color(1,0.4,0.4);
+				}
 				gra4.fill(x,y,x+lab.dth,0);
 				S += lab.dth*y;
 			}
