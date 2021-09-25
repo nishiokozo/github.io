@@ -112,6 +112,7 @@ function lab_create()
 	lab.dt = 0;
 	lab.s = 0;
 	lab.fs = 14;
+	lab.lp = 1;
 
 	//-------------------------------------------------------------------------
 	function reset()
@@ -129,7 +130,7 @@ function lab_create()
 	
 		{
 			let th  = lab.th;
-			balls.push( {next_th:th, th:th, a:radians(0), v:radians(0), t:0, tbl:[], r:0.18} );
+			balls.push( {next_t:0, th:th, a:radians(0), v:radians(0), t:0, tbl:[], r:0.18} );
 		}
 
 		// 円グラフ3 描画 初期化
@@ -360,14 +361,41 @@ function lab_create()
 		}
 
 		////	計算
-		if ( ba.t+dt <= time ) if ( !flgPause || flgStep  )
+		if ( ba.next_t <= time ) if ( !flgPause || flgStep  )
 		{
-			ba.t += dt;
-			ba.a = -g*Math.sin(ba.th);		// 接線加速度
-			ba.v += ba.a*dt;	// 角速度
-		
-			ba.tbl.push({v:ba.v,th:ba.th,t:ba.t,a:ba.a});
-			ba.th +=(ba.v/r)*dt;
+			ba.t = ba.next_t;
+			//--
+			let th;
+if(0)
+{
+				th = ba.th;
+				ba.a = -g*Math.sin(ba.th);	// 接線加速度	a = -gsinθ
+				ba.v += ba.a*dt;			// 速度			v = at +v0
+				ba.th += (ba.v/r)*dt;		// 位置			θ= vt/r +θ0
+}
+else
+{
+			let n = lab.lp;
+			let ddt = dt/n;
+			for ( let i = 0 ; i < n ; i++ )
+			{
+				th = ba.th;
+				ba.a = -g*Math.sin(ba.th);	// 接線加速度	a = -gsinθ
+				ba.v += ba.a*ddt;			// 速度			v = at +v0
+				ba.th += (ba.v/r)*ddt;		// 位置			θ= vt/r +θ0
+			}
+}		
+			ba.tbl.push({t:ba.t, th:th, v:ba.v, a:ba.a});	// 時間t 位置θ 速度v 加速度a
+
+			// next 
+			{
+				// 位置を進める
+
+				// 時間を進める
+				ba.next_t += dt;
+				let m = 10000000000;//百億
+				ba.next_t = Math.round(ba.next_t*m)/m;
+			}
 		}
 
 		////	描画
@@ -402,7 +430,10 @@ function lab_create()
 					gra3.color(0,0,0);gra3.print( "黒:角度θ");
 					gra3.color(0,0,1);gra3.print( "青:接線速度v");
 					gra3.color(1,0,0);gra3.print( "赤:接線加速度a=-gsinθ");
-					gra3.locate(70,22);gra3.color(0,0,0);gra3.print( "fps:"+1/dt);
+//					gra3.locate(70,22);gra3.color(0,0,0);gra3.print( "fps:"+1/dt);
+					gra3.locate(70,20);gra3.color(0,0,0);gra3.print( "fps:"+1/dt);
+					gra3.color(0,0,0);gra3.print( "Δt:"+dt);
+					gra3.color(0,0,0);gra3.print( "time:"+now.t);
 				}
 				gra3.color(0,0,0);
 
@@ -433,6 +464,10 @@ function lab_create()
 				gra4.color(1,0,0);gra4.dot( t,a/r, dot_r );
 				gra4.color(0,0,1);gra4.dot( t,v/r, dot_r );
 
+//				ba.a = -g*Math.sin(ba.th);		// 接線加速度
+//				let b = g*Math.cos(th);//+ba.v*dt;
+//				gra4.color(0,1,0);gra4.dot( t,b/r, dot_r );
+
 				// ライン
 				if ( ba.tbl.length > 1 )
 				{
@@ -445,13 +480,15 @@ function lab_create()
 
 				gra4.setMode('');
 
-				
 			}
 			
 			// ω,α-θグラフ5 描画 プロット
 			{
 				gra5.color(0,0,1);gra5.dot(th,v/r,2);
 				gra5.color(1,0,0);gra5.dot(th,a/r,2);
+//					let b = -g*Math.sin(th);		// 接線加速度
+//					let b = -g*Math.cos(ba.th)		// aをθで微分
+//					gra5.color(0,1,0);gra5.dot( th, b/r, dot_r );
 
 				// ライン
 				if ( ba.tbl.length > 1 )
@@ -459,6 +496,7 @@ function lab_create()
 					let d = ba.tbl[ba.tbl.length-2];
 					gra5.color(0,0,1);gra5.line( d.th, d.v/r, th, v/r );
 					gra5.color(1,0,0);gra5.line( d.th, d.a/r, th, a/r );
+
 				}
 			}
 		
@@ -555,6 +593,10 @@ function html_onchange( cmd )
 	if ( document.getElementById( "html_time" ) )
 	{
 		lab.time = document.getElementById( "html_time" ).value*1;
+	}
+	if ( document.getElementById( "html_lp" ) )
+	{
+		lab.lp = document.getElementById( "html_lp" ).value*1;
 	}
 }
 // キー入力

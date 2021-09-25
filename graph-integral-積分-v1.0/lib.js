@@ -572,9 +572,10 @@ function gra_create( cv )	//2021/06/01
 	{
 		function func( sx,sy, ex,ey )
 		{
+
 			gra.ctx.beginPath();
 		    gra.ctx.rect(sx,sy,ex-sx,ey-sy);
-			gra.ctx.closePath();
+//			gra.ctx.closePath();
 			gra.ctx.fill();
 		}
 
@@ -584,19 +585,7 @@ function gra_create( cv )	//2021/06/01
 		func( x1, y1, x2, y2 );
 	}
 	
-	
-	//-------------------------------------------------------------------------
-	gra.pattern = function( type = 'normal' )
-	//-------------------------------------------------------------------------
-	{
-		switch( type )
-		{
-			case "normal": gra.ctx.setLineDash([]);	break;
-			case "hasen": gra.ctx.setLineDash([2,4]);	break;
-			case "hasen2": gra.ctx.setLineDash([4,8]);	break;
-			default: alert("破線パターン異常 gra.pattern()");
-		}
-	}
+
 	//-------------------------------------------------------------------------
 	gra.line = function( x1, y1, x2, y2 )
 	//-------------------------------------------------------------------------
@@ -606,7 +595,7 @@ function gra_create( cv )	//2021/06/01
 			gra.ctx.beginPath();
 			gra.ctx.moveTo( sx, sy );
 			gra.ctx.lineTo( ex, ey );
-			gra.ctx.closePath();
+//			gra.ctx.closePath();
 			gra.ctx.stroke();
 		}
 
@@ -621,7 +610,19 @@ function gra_create( cv )	//2021/06/01
 	{
 		gra.line( v0.x, v0.y, v1.x, v1.y );
 	}
-
+	
+	//-------------------------------------------------------------------------
+	gra.pattern = function( type = 'normal' )
+	//-------------------------------------------------------------------------
+	{
+		switch( type )
+		{
+			case "normal": gra.ctx.setLineDash([]);	break;
+			case "hasen": gra.ctx.setLineDash([2,4]);	break;
+			case "hasen2": gra.ctx.setLineDash([4,8]);	break;
+			default: alert("破線パターン異常 gra.pattern()");
+		}
+	}
 	//-------------------------------------------------------------------------
 	gra.path_n = function( V, mode="/loop/fill" ) // vec2 V
 	//-------------------------------------------------------------------------
@@ -702,7 +703,8 @@ function gra_create( cv )	//2021/06/01
 			case "LT": align="left"		;base="top"				;break;
 			case "CT": align="center"	;base="top"				;break;
 			case "RT": align="right"	;base="top"				;break;
-			default: align=alighbase	;base="ideographic"		;break;
+			case "center": align=alighbase	;base="ideographic"		;break;
+			default: 	alert("symbol() 文字位置エラー:"+alighbase);
 		}
 
 		gra.ctx.font =   sw+"px Courier";
@@ -731,7 +733,8 @@ function gra_create( cv )	//2021/06/01
 			case "LT": align="left"		;base="top"				;break;
 			case "CT": align="center"	;base="top"				;break;
 			case "RT": align="right"	;base="top"				;break;
-			default: align=alighbase	;base="ideographic"		;break;
+			case "center": align=alighbase	;base="ideographic"		;break;
+			default: 	alert("symbol() 文字位置エラー:"+alighbase);
 		}
 
 		gra.ctx.font =   size+"px Courier";

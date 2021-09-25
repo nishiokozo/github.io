@@ -54,11 +54,12 @@
 		<script src="main.js"></script>
 		<br>
 			<div class="group-left">
-			 Δt　　　　　<input type="text" id="html_dt" value="0.04" size="3" onchange="html_onchange('reset');" > sec<br>
+			 Δt　　　　　<input type="text" id="html_dt" value="0.1" size="3" onchange="html_onchange('reset');" > sec<br>
 			 重力加速度g　<input type="text" id="html_g" value="9.8" size="3" onchange="html_onchange('reset');" > m/s/s<br>
 			 開始位置θ　 <input type="text" id="html_th" value="-170" size="3" onchange="html_onchange('reset');" > deg<br>
 			 半径r 　 　　<input type="text" id="html_r" value="1.2" size="3" onchange="html_onchange('reset');" > m<br>
-			 計測時間time <input type="text" id="html_time" value="5.4" size="3" onchange="html_onchange('reset');" > sec<br>
+			 計測時間time <input type="text" id="html_time" value="5.3" size="3" onchange="html_onchange('reset');" > sec<br>
+			 計算ループlp <input type="text" id="html_lp" value="1" size="3" onchange="html_onchange('reset');" > times<br>
 			</div>
 			<div class="group">
 			<input type="button" value="リセット" onClick="html_onchange('reset');" >
@@ -93,6 +94,7 @@
 		区分求積法による積分<br>
 		フレーム単位(Δt)で加速度を累積して速度、速度を累積して位置を算出している<br>
 		Δt時間内では等速運動になるので、値を大きくすると精度が落ちる。<br>
+		計算ループlpを増やしてやると区分求積法と同等の積分がおこなわれ精度を上げられる。<br>
 
 	</body>
 </html>
