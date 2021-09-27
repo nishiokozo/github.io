@@ -259,23 +259,24 @@ function lab_create()
 		let F = function(x) {}	// 原始関数
 		switch( lab.mode )
 		{
-		case "mode_sin":
-			d = function(x)	{return  Math.cos(x);			}
-			f = function(x)	{return  Math.sin(x);			}
-			F = function(x)	{return  -Math.cos(x);			}
-			break;
-
-		case "mode_tan":
-			d = function(x)	{return  1/Math.pow(Math.cos(x),2);			}
-			f = function(x)	{return  Math.tan(x);						}
-			F = function(x)	{return  -Math.log(Math.abs(Math.cos(x)));	}
-			break;
-
 		case "mode_x2":
 			d = function(x)	{return  2*x;					}
 			f = function(x)	{return  Math.pow(x,2);			}
 			F = function(x)	{return  Math.pow(x,3)/3;		}
 			break;
+
+		case "mode_sin":
+			f = function(x)	{return  Math.sin(x);			}
+			d = function(x)	{return  Math.cos(x);			}
+			F = function(x)	{return  -Math.cos(x);			}
+			break;
+
+		case "mode_tan":
+			f = function(x)	{return  Math.tan(x);						}
+			d = function(x)	{return  1/Math.pow(Math.cos(x),2);			}
+			F = function(x)	{return  -Math.log(Math.abs(Math.cos(x)));	}
+			break;
+
 		}
 
 
@@ -303,22 +304,29 @@ function lab_create()
 				gra4.fill(x,y,x+lab.dx,0);
 					gra4.color(0,0,0);
 					gra4.color(0.5,0.5,0.5);
-//				gra4.box(x,y,x+lab.dx,0);
 				S += lab.dx*y;
 			}
 
 			// 情報表示
-			gra4.color(0,0,0);
-			gra4.locate(0,20);
-			gra4.print( "関数　　　　　　：f(x)=x^2" );
-			gra4.print( "導関数（接線）　：d(x)=f(x)'=2x" );
-			gra4.print( "原始関数（面積）：F(x)=1/3x^3" );
-			gra4.locate(66,20);
-			gra4.print( "定積分で求めた面積st～en "+s );
-			gra4.print( "区分求積法での面積st～en "+S );
-			gra4.print( "面積精度:"+(100*s/S)+"%" );
-//		document.getElementById("html_msg1").innerHTML = "定積分で求めた面積st～en "+s;
-//		document.getElementById("html_msg2").innerHTML = "区分求積法での面積st～en "+S;
+			{
+				let funcnames = 
+				{
+						'mode_x2'	:{func_f:"f(x)=x^2",		func_d:"d(x)=2x"	,	func_F:"F(x)=1/3x^3"},
+						'mode_sin'	:{func_f:"f(x)=sin(x)",		func_d:"d(x)=cos(x)"	,	func_F:"F(x)=-cos(x)"},
+						'mode_tan'	:{func_f:"f(x)=tan(x)",		func_d:"d(x)=1/cos(x)^2",	func_F:"F(x)=-log(abs(cos(x)))"},
+				};
+				gra4.color(0,0,0);
+				gra4.locate(0,20);
+				gra4.print( "関数　　　　　　："+funcnames[lab.mode]['func_f'] );
+				gra4.print( "導関数（接線）　："+funcnames[lab.mode]['func_d'] );
+				gra4.print( "原始関数（面積）："+funcnames[lab.mode]['func_F'] );
+				gra4.locate(66,20);
+				gra4.print( "定積分で求めた面積st～en "+s );
+				gra4.print( "区分求積法での面積st～en "+S );
+				gra4.print( "面積精度:"+(100*s/S)+"%" );
+	//		document.getElementById("html_msg1").innerHTML = "定積分で求めた面積st～en "+s;
+	//		document.getElementById("html_msg2").innerHTML = "区分求積法での面積st～en "+S;
+			}
 		}
 
 
