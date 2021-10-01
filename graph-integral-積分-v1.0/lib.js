@@ -1,3 +1,4 @@
+// 2021/10/01 ene reset、最大最小設定、サンプリング時間を設定できるように
 // 2021/09/20 symbolも文字設定
 // 2021/08/16 ene 追加 oscillo 削除
 // 2021/08/15 oscillo timemax 追加
@@ -1903,16 +1904,18 @@ function ene_create( cv, cntItem, time_max = 5 )	// 2021/08/15 U K Eのエネル
 
 	let count = 0;
 	
-	ene.valmax = 0;
+	ene.valtop = 0;
+	ene.valbtm = 0;
 	ene.prot_x = 0;
 	ene.time_max = time_max;
 	ene.cntItem = cntItem;
 
 	let plugs = 
 	{
-		'U':{p0:vec2(0,0), p1:vec2(0,0), cr:0,cg:0,cb:1, flgActive:false ,p:vec2(0,0),m:0 } ,	// 1青	U
-		'K':{p0:vec2(0,0), p1:vec2(0,0), cr:1,cg:0,cb:0, flgActive:false ,p:vec2(0,0),m:0 } ,	// 2赤	K
-		'E':{p0:vec2(0,0), p1:vec2(0,0), cr:1,cg:0,cb:1, flgActive:false ,p:vec2(0,0),m:0 } ,	// 3紫	E
+		'U':{p0:vec2(0,0), p1:vec2(0,0), cr:0,cg:0,cb:1, flgActive:false ,p:vec2(0,0),m:0, name:"U位置ｴﾈﾙｷﾞｰ" } ,	// 1青	U
+		'K':{p0:vec2(0,0), p1:vec2(0,0), cr:1,cg:0,cb:0, flgActive:false ,p:vec2(0,0),m:0, name:"K運動ｴﾈﾙｷﾞｰ"  } ,	// 2赤	K
+//		'E':{p0:vec2(0,0), p1:vec2(0,0), cr:1,cg:0,cb:1, flgActive:false ,p:vec2(0,0),m:0, name:"E=U+K"  			} ,	// 3紫	E
+		'E':{p0:vec2(0,0), p1:vec2(0,0), cr:0,cg:0,cb:0, flgActive:false ,p:vec2(0,0),m:0, name:"E=U+K"  			} ,	// 3紫	E
 	};
 	
 	let items = [];
@@ -1927,12 +1930,14 @@ function ene_create( cv, cntItem, time_max = 5 )	// 2021/08/15 U K Eのエネル
 
 
 	//-----------------------------------------------------------------------------
-	ene.reset = function( valmax )
+	ene.reset = function( valtop, valbtm=-valtop, time_max=5 )
 	//-----------------------------------------------------------------------------
 	{
-		ene.valmax = valmax;
+		ene.valtop = valtop;
+		ene.valbtm = valbtm;
 		reqReset = true;
 		reqLoop = false;
+		ene.time_max = time_max;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -1966,7 +1971,8 @@ function ene_create( cv, cntItem, time_max = 5 )	// 2021/08/15 U K Eのエネル
 		if ( reqLoop ) 
 		{
 			reqLoop = false;
-			gra.window( 0, ene.valmax*1.1 , ene.time_max/dt, -ene.valmax*0.1 );
+//			let h = ene.valtop*1.1;
+			gra.window( 0,  ene.valtop, ene.time_max/dt, ene.valbtm );
 
 			gra.setAspect(1,0);
 			gra.cls();
@@ -1980,6 +1986,13 @@ function ene_create( cv, cntItem, time_max = 5 )	// 2021/08/15 U K Eのエネル
 				pl.p1.x = gra.sx;
 			}
 			start_x = gra.sx+1;
+			
+			for ( let pl of Object.values(plugs) )
+			{
+				gra.color( pl.cr, pl.cg, pl.cb );
+				gra.print( pl.name );
+			}
+			gra.color(0.8,0.8,0.8);gra.line(gra.sx,0,gra.ex,0);
 		}
 
 		{		
@@ -2001,7 +2014,7 @@ function ene_create( cv, cntItem, time_max = 5 )	// 2021/08/15 U K Eのエネル
 			}
 
 			// 最大値自動調整
-			if ( ene.valmax < ene.U+ene.K ) ene.valmax = ene.U+ene.K ;
+			if ( ene.valtop < ene.U+ene.K ) ene.valtop = ene.U+ene.K ;
 
 			plugs['U'].p1 = vec2( ene.prot_x, ene.U );
 			plugs['K'].p1 = vec2( ene.prot_x, ene.K );
