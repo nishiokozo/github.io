@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>pys-pendulum</title>
+		<style>
+
+			.group
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:center;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.group-left
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:left;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.readme
+			{
+				display:inline-block; 
+				text-align:center;
+				font-size:12px;
+				font-family:monospace;
+			}
+			.readme-left
+			{
+				display:inline-block; 
+				text-align:left;
+				font-size:12px;
+				font-family:monospace;
+			}
+		</style>
+	</head>
+	<body align="center">
+		<H1>物理シミュレーション 回転剛体-v1</H1>
+		<canvas id="html_canvas"  width="400" height="400" style="border:1px solid" ></canvas>
+		<script src="lib.js"></script>
+		<script src="main.js"></script>
+		<br>
+			<div class="group-left">
+			 Δt　　　　　<input type="text" id="html_dt" value="0.01" size="3" onchange="html_onchange('reset');" > 秒<br>
+			 紐長さl　　　<input type="text" id="html_l" value="1.2" size="3" onchange="html_onchange('reset');" > m<br>
+			</div>
+			<div class="group-left">
+			 a質量m <input type="text" id="html_am" value="2" size="3" onchange="html_onchange('reset');" > Kg<br>
+			 a初速x <input type="text" id="html_ax" value="0.6" size="3" onchange="html_onchange('reset');" > m/s<br>
+			 a初速y <input type="text" id="html_ay" value=" -0.7" size="3" onchange="html_onchange('reset');" > m/s<br>
+			</div>
+
+			<div class="group-left">
+			 b質量m <input type="text" id="html_bm" value="1" size="3" onchange="html_onchange('reset');" > Kg<br>
+			 b初速x <input type="text" id="html_bx" value="0.1" size="3" onchange="html_onchange('reset');" > m/s<br>
+			 b初速y <input type="text" id="html_by" value=" 0.8" size="3" onchange="html_onchange('reset');" > m/s<br>
+			</div>
+			<div class="group">
+			<input type="button" value="リセット" onClick="html_onchange('reset');" >
+			<input type="button" value="再生/ポーズ" onClick="html_onchange('pause');" >
+			<input type="button" value="コマ送り" onClick="html_onchange('step');" >
+			</div>
+
+<!--
+			 重力加速度g　<input type="text" id="html_g" value="9.8" size="3" onchange="html_onchange('reset');" > m/s/s<br>
+			 計算ループlp <input type="text" id="html_lp" value="10" size="3" onchange="html_onchange('reset');" > times<br>
+		<canvas id="html_canvas2"  width="256" height="192" style="border:1px solid" ></canvas>
+
+			 開始高さh　　<input type="text" id="html_h" value="2.0" size="3" onchange="html_onchange('reset');" > m<br>
+
+			<div class="group">
+			<input type="button" value="縮める" onClick="html_onchange('shrink');" >
+			<input type="button" value="伸ばす" onClick="html_onchange('streach');" >
+			<input type="button" value="スタート" onClick="html_onchange('release');" >
+			</div>
+			<input type="checkbox" name="html_debug" onClick="html_onchange();" checked >debug
+			<div class="group">
+				<input type="radio" name="html_mode" value="ice" onchange="html_onchange('reset');"checked>氷上
+				<input type="radio" name="html_mode" value="horizonal" onchange="html_onchange('reset');"checked>水平
+				<input type="radio" name="html_mode" value="vertical" onchange="html_onchange('reset');">鉛直
+			</div>
+
+-->
+
+			
+			<br>
+
+	<br>～概要 2021/10/09～<br>
+		重心系で二体問題<br>
+		二体の初速から重心の速度が求まる<br>
+		二体が回転しつつ、重心は直線で移動<br>
+		<br>
+		～問題点～<br>
+		壁に衝突した際、ボールの跳ね返りだけでは、重心の跳ね返りが上手く行っていない<br>
+	
+	</body>
+</html>
