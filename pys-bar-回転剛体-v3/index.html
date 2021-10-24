@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>pys-balls</title>
+		<style>
+
+			.group
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:center;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.group-left
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:left;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.left
+			{
+				display:inline-block; 
+				border:0px solid #aaa;
+				text-align:left;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.readme
+			{
+				display:inline-block; 
+				text-align:center;
+				font-size:12px;
+				font-family:monospace;
+			}
+			.readme-left
+			{
+				display:inline-block; 
+				text-align:left;
+				font-size:12px;
+				font-family:monospace;
+			}
+		</style>
+	</head>
+	<body align="center">
+		<H1>物理シミュレーション 回転剛体-v3</H1>
+		<canvas id="html_canvas"  width="512" height="512" style="border:1px solid" ></canvas>
+		<canvas id="html_canvas2"  width="256" height="192" style="border:1px solid" ></canvas>
+		<script src="lib.js"></script>
+		<script src="main.js"></script>
+		<br>
+			<div class="group-left">
+			 Δt　　 <input type="text" id="html_dt" value="0.01" size="3" onchange="html_onchange();" > 秒<br>
+			 棒長さl <input type="text" id="html_l" value="1.0" size="3" onchange="html_onchange();" > m<br>
+			 棒回転θ<input type="text" id="html_o" value="45" size="3" onchange="html_onchange();" > deg<br>
+			 棒位置x <input type="text" id="html_x" value="0.0" size="3" onchange="html_onchange();" > m<br>
+			 棒初速x <input type="text" id="html_v" value="0.0" size="3" onchange="html_onchange();" > m/s<br>
+			</div>
+			<div class="group-left">
+				<div class="left">
+				 a質量m <input type="text" id="html_am" value="1" size="3" onchange="html_onchange();" > Kg<br>
+				 a初速v <input type="text" id="html_av" value="0.5" size="3" onchange="html_onchange();" > m/s<br>
+				 a方向θ<input type="text" id="html_ao" value="0" size="3" onchange="html_onchange();" > deg<br>
+				</div>
+
+				<div class="left">
+				 b質量m <input type="text" id="html_bm" value="1" size="3" onchange="html_onchange();" > Kg<br>
+				 b初速v <input type="text" id="html_bv" value="0.5" size="3" onchange="html_onchange();" > m/s<br>
+				 b方向θ<input type="text" id="html_bo" value="0" size="3" onchange="html_onchange();" > deg<br>
+				</div>
+			</div>
+
+			<div class="group">
+				<input type="button" value="rリセット" onClick="html_onchange('reset');" >
+				<input type="button" value="p再生/ポーズ" onClick="html_onchange('pause');" >
+				<input type="button" value="sコマ送り" onClick="html_onchange('step');" >
+			</div>
+
+			<div class="group">
+				<input type="checkbox" name="html_debug_d" onClick="html_onchange();"  >d運動
+				<input type="checkbox" name="html_debug_f" onClick="html_onchange();" checked >f衝突
+				<input type="checkbox" name="html_debug_g" onClick="html_onchange();"  >g重心
+				<input type="checkbox" name="html_debug_h" onClick="html_onchange();"  >h停止
+			</div>
+
+<!--
+			<div class="group-left">
+				 c質量m <input type="text" id="html_cm" value="1" size="3" onchange="html_onchange();" > Kg<br>
+				 c初速v <input type="text" id="html_cv" value="0" size="3" onchange="html_onchange();" > m/s<br>
+				 c位置h <input type="text" id="html_ch" value="-2" size="3" onchange="html_onchange();" > m/s<br>
+			</div>
+
+				 a初速x <input type="text" id="html_ax" value="0.0" size="3" onchange="html_onchange();" > m/s<br>
+				 a初速y <input type="text" id="html_ay" value="-1" size="3" onchange="html_onchange();" > m/s<br>
+
+				 b初速x <input type="text" id="html_bx" value="0.0" size="3" onchange="html_onchange();" > m/s<br>
+				 b初速y <input type="text" id="html_by" value="-1.0" size="3" onchange="html_onchange();" > m/s<br>
+
+			 重力加速度g　<input type="text" id="html_g" value="9.8" size="3" onchange="html_onchange();" > m/s/s<br>
+			 計算ループlp <input type="text" id="html_lp" value="10" size="3" onchange="html_onchange();" > times<br>
+
+			 開始高さh　　<input type="text" id="html_h" value="2.0" size="3" onchange="html_onchange();" > m<br>
+
+			<div class="group">
+			<input type="button" value="縮める" onClick="html_onchange('shrink');" >
+			<input type="button" value="伸ばす" onClick="html_onchange('streach');" >
+			<input type="button" value="スタート" onClick="html_onchange('release');" >
+			</div>
+			<input type="checkbox" name="html_debug" onClick="html_onchange();" checked >debug
+			<div class="group">
+				<input type="radio" name="html_mode" value="ice" onchange="html_onchange();"checked>氷上
+				<input type="radio" name="html_mode" value="horizonal" onchange="html_onchange();"checked>水平
+				<input type="radio" name="html_mode" value="vertical" onchange="html_onchange();">鉛直
+			</div>
+
+-->
+
+			
+			<br>
+
+	<br>～概要2021/10/25～<br>
+		二体問題の衝突<br>
+		らしくは動いているように見えるけど<br>
+		運動エネルギーが衝突すると増減するからモデルのどこかががおかしい<br>
+		水平に移動する初期値だと重心はずっと水平に移動する<br>		
+	
+	</body>
+</html>
