@@ -69,13 +69,13 @@
 			<div class="group-left">
 				<div class="left">
 				 a質量m <input type="text" id="html_am" value="1" size="3" onchange="html_onchange();" > Kg<br>
-				 a初速v <input type="text" id="html_av" value="0.5" size="3" onchange="html_onchange();" > m/s<br>
+				 a初速v <input type="text" id="html_av" value="1" size="3" onchange="html_onchange();" > m/s<br>
 				 a方向θ<input type="text" id="html_ao" value="0" size="3" onchange="html_onchange();" > deg<br>
 				</div>
 
 				<div class="left">
 				 b質量m <input type="text" id="html_bm" value="1" size="3" onchange="html_onchange();" > Kg<br>
-				 b初速v <input type="text" id="html_bv" value="0.5" size="3" onchange="html_onchange();" > m/s<br>
+				 b初速v <input type="text" id="html_bv" value="1" size="3" onchange="html_onchange();" > m/s<br>
 				 b方向θ<input type="text" id="html_bo" value="0" size="3" onchange="html_onchange();" > deg<br>
 				</div>
 			</div>
@@ -87,10 +87,11 @@
 			</div>
 
 			<div class="group">
+				 scale <input type="text" id="html_scale" value="0.4" size="3" onchange="html_onchange();" >
 				<input type="checkbox" name="html_debug_d" onClick="html_onchange();"  >d運動
 				<input type="checkbox" name="html_debug_f" onClick="html_onchange();" checked >f衝突
 				<input type="checkbox" name="html_debug_g" onClick="html_onchange();"  >g重心
-				<input type="checkbox" name="html_debug_h" onClick="html_onchange();"  >h停止
+				<input type="checkbox" name="html_debug_h" onClick="html_onchange();"  checked>h停止
 			</div>
 
 <!--
@@ -128,11 +129,24 @@
 			
 			<br>
 
-	<br>～概要2021/10/25～<br>
-		二体問題の衝突<br>
-		らしくは動いているように見えるけど<br>
-		運動エネルギーが衝突すると増減するからモデルのどこかががおかしい<br>
-		水平に移動する初期値だと重心はずっと水平に移動する<br>		
+	<br>～概要 2021/10/10～<br>
+		慣性系で二体問題（二粒子問題）<br>
+
+		慣性系（重心系でない、重心運動と相対運動を分けない）で計算<br>
+		v1(重心系)だと衝突したときに重心運動を別に計算する必要がある。v2(これ)では解消している<br>
+		<br>
+		～計算方法～<br>
+		①a,bボールの運動量mvを加算した物を重心運動とする<br>
+		②a,bボールの運動量mvの重心を中心とした接線方向の成分を合成した物を回転（相対）運動とする<br>
+		③それぞれを加算する。※v1(重心系)の時はそれぞれを別管理にしていた<br>
+
+		<br>
+		～問題点～<br>
+		衝突したときに運動エネルギーの欠損が発生する。<br>
+		原因は法線方向（軸方向＝接線方向の90°回転した方向）を無視しているため<br>
+		衝突時の跳ね返りで法線方向の運動が発生するため<br>
+		
+		
 	
 	</body>
 </html>
