@@ -105,7 +105,7 @@ function lab_create()
 	lab.dt = 0;
 	lab.s = 0;
 
-	let wall_sz = 1.2;
+	let wall_sz = 1.1;
 	let walls = 
 	[
 		{st:vec2(-wall_sz,-wall_sz), en:vec2(-wall_sz,wall_sz) },	// 左の壁
@@ -408,73 +408,112 @@ function lab_create()
 								}
 								if ( lab.debug_h ) lab.req = 'pause';
 
- 
+
+								let c0 = {r:0 ,g:0 ,b:0};
+								let c1 = {r:0 ,g:.4,b:1};
+								let c3 = {r:.9,g:.5,b:0};
+								let c4 = {r:0 ,g:1 ,b:0};
+								let c5 = {r:0 ,g:.9,b:0.9};
+								let c6 = {r:.9,g:.9,b:0};
+ 								if (0)
+ 								{
+									let N = normalize2(vsub2( b0.p, b1.p ));
+									let T = vec2( N.y, -N.x );
+									let I0 = vmuls2( vcopy2( b0.v ), b0.m );
+									let v = reflect2( I0, W );
+									let n0 = vmuls2( N, dot2( v, N ) );
+									let t0 = vmuls2( T, dot2( v, T ) );
+
+									let I1 = vmuls2( vcopy2( b1.v ), b1.m );
+									let n1 = vmuls2( N, dot2( I1, N ) );
+									let t1 = vmuls2( T, dot2( I1, T ) );
+
+									let n2 = vmuls2( n0, 1.0/b1.m*b0.m );
+									let n3 = vmuls2( n1, 1.0/b0.m*b1.m );
+									let O0 = vadd2( t0, n3 );
+									let O1 = vadd2( t1, n2 );
+
+									g_pvc.push({o:b0.p, p:vec2(0,0)	, q:I0	, c:c5, name:"I0"	, pt:""} );
+									g_pvc.push({o:b0.p, p:vec2(0,0)	, q: v	, c:c3, name:"v"	, pt:""} );
+									g_pvc.push({o:b0.p, p:vec2(0,0)	, q:n0	, c:c1, name:"n0"	, pt:""} );
+									g_pvc.push({o:b0.p, p:vec2(0,0)	, q:t0	, c:c6, name:"t0"	, pt:""} );
+									g_pvc.push({o:b0.p, p:v			, q:n0	, c:c0, name:""	, pt:"hasen1"} );
+									g_pvc.push({o:b0.p, p:t0		, q: v	, c:c0, name:""	, pt:"hasen1"} );
+
+									g_pvc.push({o:b1.p, p:vec2(0,0)	, q:I1	, c:c5, name:"I1"	, pt:""} );
+									g_pvc.push({o:b1.p, p:t1		, q:I1	, c:c0, name:""	, pt:"hasen1"} );
+									g_pvc.push({o:b1.p, p:vec2(0,0)	, q:t1	, c:c6, name:"t1"	, pt:""} );
+									g_pvc.push({o:b1.p, p:vec2(0,0)	, q:n1	, c:c1, name:"n1"	, pt:""} );
+									g_pvc.push({o:b1.p, p:I1		, q:n1	, c:c0, name:""	, pt:"hasen1"} );
+//									g_pvc.push({o:b1.p, p:I1		, q:t1	, c:c0, name:""	, pt:"hasen1"} );
+
+									g_pvc.push({o:b0.p, p:vec2(0,0)	, q:O0	, c:c4, name:"O0"	, pt:""} );
+									g_pvc.push({o:b1.p, p:vec2(0,0)	, q:O1	, c:c4, name:"O1"	, pt:""} );
+									g_pvc.push({o:b1.p, p:vec2(0,0)	, q:n2	, c:c1, name:"n2"	, pt:""} );
+									g_pvc.push({o:b0.p, p:vec2(0,0)	, q:n3	, c:c1, name:"n3"	, pt:""} );
+
+									g_pvc.push({o:b0.p, p:n3		, q:O0	, c:c0, name:""	, pt:"hasen1"} );
+									g_pvc.push({o:b0.p, p:t0		, q:O0	, c:c0, name:""	, pt:"hasen1"} );
+									g_pvc.push({o:b1.p, p:t1		, q:O1	, c:c0, name:""	, pt:"hasen1"} );
+									g_pvc.push({o:b1.p, p:n2		, q:O1	, c:c0, name:""	, pt:"hasen1"} );
+//console.log( length2(n0), length2(n3), b0.m,b1.m, b0.name,b1.name );
+									console.log( "I0+I1=",length2(I0)+length2(I1));
+									console.log( "O0+O1=",length2(O0)+length2(O1));
+
+									b0.v = vcopy2(O0);
+									b1.v = vcopy2(O1);
+ 								}
+ 								else
 								{
 									let N = normalize2(vsub2( b0.p, b1.p ));
 									let T = vec2( N.y, -N.x );
+									let I0 = vmuls2( vcopy2( b0.v ), b0.m );
+									let I1 = vmuls2( vcopy2( b1.v ), b1.m );
 
-									let I0 = vcopy2( b0.v );
-									let I1 = vcopy2( b1.v );
-									let t1 = vmuls2( T, dot2( b1.v, T ) );
-									let n1 = vsub2( b1.v, t1 );
-									let I2 = vadd2( I0, n1 );
+									let t1 = vmuls2( T, dot2( I1, T ) );
+									let nx = vsub2( I1, t1 );
+									let I2 = vadd2( I0, nx );
 
 									let v = reflect2( I2, W );
 									let t0 = vmuls2( T, dot2( v, T ) );
 
-//let a = length2(t1)+length2(t0);
-//let b = length2(v)-
+									let nv = vsub2( v, t0 );
+									let nn  = vmuls2( nv, 0.5);
+									let n0  = vmuls2( nv, b0.m/(b0.m+b1.m));
+									let n1  = vmuls2( nv, b1.m/(b0.m+b1.m));
 
-									let n0 = vsub2( v, t0 );
-									let n  = vmuls2( n0, 0.5);
-
-									let O1 = vadd2( n, t1 );
-									let O0 = vadd2( n, t0 );
+									let O0 = vadd2( n0, t0 );
+									let O1 = vadd2( n1, t1 );
 									
-									let c0 = {r:0 ,g:0 ,b:0};
-									let c1 = {r:0 ,g:.5,b:0};
-									let c2 = {r:0 ,g:1 ,b:0};
-									let c3 = {r:0 ,g:.5,b:1};
-									let c4 = {r:.9,g:.5,b:0};
-									let c5 = {r:.9,g:.9,b:0};
-
-									g_pvc.push({p:vadd2(b1.p,n1), q:vadd2(b1.p,I1), c:c0, name:""	, pt:"hasen1"} );
-									g_pvc.push({p:vadd2(b1.p,t1), q:vadd2(b1.p,I1), c:c0, name:""	, pt:"hasen1"} );
-
-
-									g_pvc.push({p:vcopy2(b0.p)	, q:vadd2(b0.p,I0), c:c1, name:"I0"	, pt:""} );
-									g_pvc.push({p:vcopy2(b0.p)	, q:vadd2(b0.p,I2), c:c0, name:""	, pt:"hasen1"} );
-									g_pvc.push({p:vadd2(b0.p,I0), q:vadd2(b0.p,I2), c:c4, name:"n1"	, pt:""} );
-									g_pvc.push({p:vcopy2(b0.p)	, q:vadd2(b0.p, v), c:c4, name:"v"	, pt:""} );
-									g_pvc.push({p:vadd2(b0.p,I2), q:vadd2(b0.p, v), c:c0, name:""	, pt:"hasen1"} );
-									g_pvc.push({p:vcopy2(b0.p)	, q:vadd2(b0.p,n0), c:c3, name:"2n"	, pt:""} );
-									g_pvc.push({p:vcopy2(b0.p)	, q:vadd2(b0.p, n), c:c3, name:"n"	, pt:""} );
-									g_pvc.push({p:vcopy2(b0.p)	, q:vadd2(b0.p,t0), c:c5, name:"t0"	, pt:""} );
-									g_pvc.push({p:vadd2(b0.p,t0), q:vadd2(b0.p, v), c:c0, name:""	, pt:"hasen1"} );
-									g_pvc.push({p:vcopy2(b0.p)	, q:vadd2(b0.p,O0), c:c2, name:"O0"	, pt:""} );
-									g_pvc.push({p:vadd2(b0.p,n) , q:vadd2(b0.p,O0), c:c0, name:""	, pt:"hasen1"} );
-									g_pvc.push({p:vadd2(b0.p,n0), q:vadd2(b0.p, v), c:c0, name:""	, pt:"hasen1"} );
-
-
-									g_pvc.push({p:vcopy2(b1.p)	, q:vadd2(b1.p,I1), c:c1, name:"I1"	, pt:""} );
-									g_pvc.push({p:vcopy2(b1.p)	, q:vadd2(b1.p,n1), c:c4, name:"n1"	, pt:""} );
-									g_pvc.push({p:vcopy2(b1.p)	, q:vadd2(b1.p,t1), c:c5, name:"t1"	, pt:""} );
-									g_pvc.push({p:vcopy2(b1.p)	, q:vadd2(b1.p, n), c:c3, name:"n"	, pt:""} );
-									g_pvc.push({p:vcopy2(b1.p)	, q:vadd2(b1.p,O1), c:c2, name:"O1"	, pt:""} );
-									g_pvc.push({p:vadd2(b1.p,n), q:vadd2(b1.p,O1), c:c0, name:""	, pt:"hasen1"} );
-									g_pvc.push({p:vadd2(b1.p,t1), q:vadd2(b1.p,O1), c:c0, name:""	, pt:"hasen1"} );
-
-
+									g_pvc.push({o:b0.p, p:vec2(0,0)	, q:I0	, c:c5, name:"I0"	, pt:""} );
+									g_pvc.push({o:b0.p, p:vec2(0,0)	, q:I2	, c:c0, name:""	, pt:"hasen1"} );
+									g_pvc.push({o:b0.p, p:I0		, q:I2	, c:c3, name:"nx"	, pt:""} );
+									g_pvc.push({o:b0.p, p:vec2(0,0)	, q: v	, c:c3, name:"v"	, pt:""} );
+									g_pvc.push({o:b0.p, p:I2		, q: v	, c:c0, name:""	, pt:"hasen1"} );
+									g_pvc.push({o:b0.p, p:vec2(0,0)	, q:nv	, c:c3, name:"nv"	, pt:""} );
+									g_pvc.push({o:b0.p, p:vec2(0,0)	, q:n0	, c:c1, name:"n0"	, pt:""} );
+									g_pvc.push({o:b0.p, p:vec2(0,0)	, q:t0	, c:c6, name:"t0"	, pt:""} );
+									g_pvc.push({o:b0.p, p:t0		, q: v	, c:c0, name:""	, pt:"hasen1"} );
+									g_pvc.push({o:b0.p, p:vec2(0,0)	, q:O0	, c:c4, name:"O0"	, pt:""} );
+									g_pvc.push({o:b0.p, p:n0		, q:O0	, c:c0, name:""	, pt:"hasen1"} );
+									g_pvc.push({o:b0.p, p:nv		, q: v	, c:c0, name:""	, pt:"hasen1"} );
+									g_pvc.push({o:b1.p, p:nx		, q:I1	, c:c0, name:""	, pt:"hasen1"} );
+									g_pvc.push({o:b1.p, p:nx		, q:I1	, c:c0, name:""	, pt:"hasen1"} );
+									g_pvc.push({o:b1.p, p:t1		, q:I1	, c:c0, name:""	, pt:"hasen1"} );
+									g_pvc.push({o:b1.p, p:vec2(0,0)	, q:I1	, c:c5, name:"I1"	, pt:""} );
+									g_pvc.push({o:b1.p, p:vec2(0,0)	, q:nx	, c:c3, name:"nx"	, pt:""} );
+									g_pvc.push({o:b1.p, p:vec2(0,0)	, q:t1	, c:c6, name:"t1"	, pt:""} );
+									g_pvc.push({o:b1.p, p:vec2(0,0)	, q:n1	, c:c1, name:"n1"	, pt:""} );
+									g_pvc.push({o:b1.p, p:vec2(0,0)	, q:O1	, c:c4, name:"O1"	, pt:""} );
+									g_pvc.push({o:b1.p, p:n1		, q:O1	, c:c0, name:""	, pt:"hasen1"} );
+									g_pvc.push({o:b1.p, p:t1		, q:O1	, c:c0, name:""	, pt:"hasen1"} );
 									console.log( "I0+I1=",length2(I0)+length2(I1));
-									console.log( "t1+v =",length2(t1)+length2(v) );
-									console.log( "xx   =",length2(t0)+length2(t1)+length2(vadd2(O0,O1)) );
-
-
+									console.log( "I1,v =",length2(I1),length2(v) );
+									console.log( "t1n1*t0n0=",length2(vadd2(t1,n1))+ length2(vadd2(t0,n0)) );
 									console.log( "O0+O1=",length2(O0)+length2(O1));
-//									console.log( "O0,O1=",length2(O0),length2(O1));
-
-b0.v = O0;
-b1.v = O1;
+									
+									b0.v = O0;
+									b1.v = O1;
 								}
 
 								{
@@ -756,14 +795,22 @@ if(lab.req=='pause')
 		{
 			for ( let a of g_pvc )
 			{
-//				gra.color(a.r,a.g,a.b);
 				gra.rgb(a.c);
 				gra.pattern(a.pt);
-				gra.line(a.p.x,a.p.y, a.q.x,a.q.y );
-				gra.symbol_row( a.name, a.q.x, a.q.y );
+
+				let x0 = a.p.x * lab.scale + a.o.x;
+				let y0 = a.p.y * lab.scale + a.o.y;
+				let x1 = a.q.x * lab.scale + a.o.x;
+				let y1 = a.q.y * lab.scale + a.o.y;
+
+//				gra.line(a.p.x,a.p.y, a.q.x,a.q.y );
+				gra.line( x0,y0,x1,y1 );
+				gra.symbol_row( a.name, x1,y1 );
 			}
 			gra.color(1,1,1);
 			gra.pattern("");
+			
+//			gra.circle( balls[0].p.x* lab.scale, balls[0].p.y* lab.scale, 0.1 );
 		}
 
 		if ( (flgPause == false || flgStep ) )
@@ -975,6 +1022,11 @@ function html_onchange( cmd )
 	{
 		lab.o = document.getElementById( "html_o" ).value*1;
 		lab.o = radians(lab.o);
+	}
+
+	if ( document.getElementById( "html_scale" ) )
+	{
+		lab.scale = document.getElementById( "html_scale" ).value*1;
 	}
 
 }
