@@ -163,7 +163,8 @@ function lab_create()
 			for ( let ba of balls )
 			{
 				// エネルギー登録
-				ene.prot_entry( ba.p.x, 0,ba.p.y , ba.v.x , 0, ba.v.y, ba.m );
+//				ene.prot_entry( ba.p.x, 0,ba.p.y , ba.v.x , 0, ba.v.y, ba.m );
+				ene.prot_entry2( ba.name, ba.p.x, 0,ba.p.y , ba.v.x , 0, ba.v.y, ba.m );
 			}
 			// エネルギー計算
 			ene.calc( lab.dt, lab.g );
@@ -984,7 +985,7 @@ if(0)
 			for ( let ba of balls )
 			{
 				// エネルギー登録
-				ene.prot_entry( ba.p.x, 0,ba.p.y , ba.v.x , 0, ba.v.y, ba.m );
+				ene.prot_entry2( ba.name, ba.p.x, 0,ba.p.y , ba.v.x , 0, ba.v.y, ba.m );
 			}
 			// エネルギー計算
 			ene.calc( lab.dt, lab.g );
@@ -998,7 +999,7 @@ if(0)
 					
 					for ( let k of ene.tbl_k )
 					{
-						gra.color(1,1,1);	gra.print( "k =" + strfloat(k	,2,7) );
+						gra.color(1,1,1);	gra.print( "K"+k.name+"=" + strfloat(k.val	,2,7) );
 					}
 					gra.color(1,1,1);	gra.print( "K =" + strfloat(ene.K	,2,7) );
 					

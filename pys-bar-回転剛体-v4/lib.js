@@ -1960,25 +1960,19 @@ function ene_create( cv )	// 2021/08/15 U K Eのエネルギーを算出して�
 	ene.valmax = 0;
 	ene.prot_x = 0;
 	ene.time_max = 0;
-//	ene.max_lines = max_lines;
 	ene.cnt_prots = 0;
 	ene.K = 0;
 	ene.U = 0;
 	ene.tbl_k = [];
 
-	let plugs = 
+	let hash_plugs = 
 	{
 		'U':{p0:vec2(0,0), p1:vec2(0,0), cr:0,cg:0,cb:1, xx_flgActive:false ,p:vec2(0,0),m:0, name:"U位置ｴﾈﾙｷﾞｰ" } ,	// 1青	U
 		'K':{p0:vec2(0,0), p1:vec2(0,0), cr:1,cg:0,cb:0, xx_flgActive:false ,p:vec2(0,0),m:0, name:"K運動ｴﾈﾙｷﾞｰ"  } ,	// 2赤	K
-//		'E':{p0:vec2(0,0), p1:vec2(0,0), cr:1,cg:0,cb:1, xx_flgActive:false ,p:vec2(0,0),m:0, name:"E=U+K"  			} ,	// 3紫	E
 		'E':{p0:vec2(0,0), p1:vec2(0,0), cr:0,cg:0,cb:0, xx_flgActive:false ,p:vec2(0,0),m:0, name:"E=U+K"  			} ,	// 3紫	E
 	};
 	
-	let info_prots = [];
-//	for ( let i = 0 ; i < ene.max_lines ; i++ )
-//	{
-//		info_prots[i] = {px:0, py:0, pz:0, vx:0, vy:0, vz:0,m:0};
-//	} 
+	let tbl_prots = [];
 
 	let reqReset = true;
 	let reqLoop = false;
@@ -2008,18 +2002,19 @@ function ene_create( cv )	// 2021/08/15 U K Eのエネルギーを算出して�
 			alert("プロット数不足inene.prot_pos2()");
 			return ;
 		}
-		info_prots[num].px = p.x;
-		info_prots[num].py = p.y;
-		info_prots[num].pz = 0;
-		info_prots[num].vx = v.x;
-		info_prots[num].vy = v.y;
-		info_prots[num].vz = 0;
-		info_prots[num].m = m;
-	 	info_prots[num].flgActive = true;
+		tbl_prots[num].px = p.x;
+		tbl_prots[num].py = p.y;
+		tbl_prots[num].pz = 0;
+		tbl_prots[num].vx = v.x;
+		tbl_prots[num].vy = v.y;
+		tbl_prots[num].vz = 0;
+		tbl_prots[num].m = m;
+	 	tbl_prots[num].flgActive = true;
 	}
 */
 	//-----------------------------------------------------------------------------
-	ene.prot_entry = function( px,py,pz, vx,vy,vz, m )
+//	ene.prot_entry = function( px,py,pz, vx,vy,vz, m )
+	ene.prot_entry2 = function( name, px,py,pz, vx,vy,vz, m )
 	//-----------------------------------------------------------------------------
 	{
 		let num = ene.cnt_prots++;
@@ -2029,21 +2024,19 @@ function ene_create( cv )	// 2021/08/15 U K Eのエネルギーを算出して�
 			alert("プロット数多すぎ。prot_entry()");
 			return ;
 		}
-//		if ( ene.max_lines <= num ) 
-		if ( info_prots.length <= num ) 
+		if ( tbl_prots.length <= num ) 
 		{
-			info_prots.push( {px:px, py:py, pz:pz, vx:vx, vy:vy, vz:vz,m:0} );
-			num = info_prots.length-1;
-//			ene.max_lines++;
+			tbl_prots.push( {name:"", px:px, py:py, pz:pz, vx:vx, vy:vy, vz:vz,m:0} );
+			num = tbl_prots.length-1;
 		}
-		info_prots[num].px = px;
-		info_prots[num].py = py;
-		info_prots[num].pz = pz;
-		info_prots[num].vx = vx;
-		info_prots[num].vy = vy;
-		info_prots[num].vz = vz;
-		info_prots[num].m = m;
-//	 	info_prots[num].flgActive = true;
+		tbl_prots[num].name = name;
+		tbl_prots[num].px = px;
+		tbl_prots[num].py = py;
+		tbl_prots[num].pz = pz;
+		tbl_prots[num].vx = vx;
+		tbl_prots[num].vy = vy;
+		tbl_prots[num].vz = vz;
+		tbl_prots[num].m = m;
 	
 	}
 
@@ -2070,7 +2063,7 @@ function ene_create( cv )	// 2021/08/15 U K Eのエネルギーを算出して�
 
 			ene.prot_x = start_x;
 
-			for ( let pl of Object.values(plugs) )
+			for ( let pl of Object.values(hash_plugs) )
 			{
 				pl.p0.x = gra.sx;
 				pl.p0.y = pl.p1.y;
@@ -2078,7 +2071,7 @@ function ene_create( cv )	// 2021/08/15 U K Eのエネルギーを算出して�
 			}
 			start_x = gra.sx+1;
 			
-			for ( let pl of Object.values(plugs) )
+			for ( let pl of Object.values(hash_plugs) )
 			{
 				gra.color( pl.cr, pl.cg, pl.cb );
 				gra.print( pl.name );
@@ -2091,11 +2084,8 @@ function ene_create( cv )	// 2021/08/15 U K Eのエネルギーを算出して�
 			ene.U = 0;
 			ene.K = 0;
 			ene.tbl_k = [];
-//console.log('--');
-let cnt = 0;
-			for ( let it of info_prots )
+			for ( let it of tbl_prots )
 			{
-//				if ( it.flgActive )
 				{
 					// 位置エネルギーの積算
 					ene.U += (it.m * Math.abs(g) * it.py);
@@ -2105,13 +2095,10 @@ let cnt = 0;
 						let vv = it.vx*it.vx + it.vy*it.vy + it.vz*it.vz;
 						let k = 1/2*it.m*vv;
 						ene.K += k;
-//console.log(ene.K,k,vv);
-						ene.tbl_k.push(k);
-cnt++;
+						ene.tbl_k.push( {name:it.name,val:k} );
 					}
 				}
 			}
-//console.log(cnt);
 			// 最大値自動調整
 			if ( ene.valmax < ene.U+ene.K ) 
 			{
@@ -2120,9 +2107,9 @@ cnt++;
 				ene.valbtm = -ene.valmax/4;
 			}
 
-			plugs['U'].p1 = vec2( ene.prot_x, ene.U );
-			plugs['K'].p1 = vec2( ene.prot_x, ene.K );
-			plugs['E'].p1 = vec2( ene.prot_x, ene.U+ene.K );
+			hash_plugs['U'].p1 = vec2( ene.prot_x, ene.U );
+			hash_plugs['K'].p1 = vec2( ene.prot_x, ene.K );
+			hash_plugs['E'].p1 = vec2( ene.prot_x, ene.U+ene.K );
 		}
 		if ( ene.prot_x++ > gra.ex ) 
 		{
@@ -2134,7 +2121,7 @@ cnt++;
 	//-----------------------------------------------------------------------------
 	{
 
-		for ( let pl of Object.values(plugs) )
+		for ( let pl of Object.values(hash_plugs) )
 		{
 			if ( count >=1 )
 			{
@@ -2152,9 +2139,9 @@ cnt++;
 let cnt = 0;
 		for ( let k of ene.tbl_k )
 		{
-			let pl = plugs['K'];
+			let pl = hash_plugs['K'];
 			gra.color( 1,0,0 );
-			gra.dot( pl.p1.x, k, 1/2);
+			gra.dot( pl.p1.x, k.val, 1/2);
 
 			gra.color( 0,0,0 );
 			gra.dot( pl.p1.x, pl.p1.y, 1);
