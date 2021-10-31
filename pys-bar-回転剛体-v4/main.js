@@ -425,7 +425,7 @@ function lab_create()
 									let r = length2(R);
 									let Q = vadd2(G,R);
 									
-									g_pvc.push({type:"(dot)"	,	p:Q	, r:0.03	, c:c5, name:""	, pt:""} );
+									g_pvc.push({type:"(dot)"	,	p:Q	, r:0.03	, c:c5, name:"  Q"	, pt:""} );
 									g_pvc.push({type:"(dot)"	,	p:G	, r:0.03	, c:c5, name:""	, pt:""} );
 									g_pvc.push({type:"(circle)"	,	p:G	, r:r		, c:c5, name:""	, pt:""} );
 									g_pvc.push({type:"(line)"	,	p:G , q:Q		, c:c5, name:""	, pt:""} );
@@ -433,23 +433,37 @@ function lab_create()
 									let I = vadd2(I0,I1);
 									g_pvc.push({o:G	, p:vec2(0,0)	, q:I	, c:c4, name:"I"	, pt:""} );
 									g_pvc.push({o:Q	, p:vec2(0,0)	, q:I	, c:c4, name:"I'"	, pt:""} );
-									let v = reflect2( I, W );
-									g_pvc.push({o:Q	, p:vec2(0,0)	, q:v	, c:c3, name:"v"	, pt:""} );
-									g_pvc.push({o:Q, p:I			, q: v	, c:c0, name:""	, pt:"hasen1"} );
+									let i = reflect2( I, W );
+									g_pvc.push({o:Q	, p:vec2(0,0)	, q:i	, c:c3, name:"i"	, pt:""} );
+									g_pvc.push({o:Q, p:I			, q:i	, c:c0, name:""	, pt:"hasen1"} );
 
 									let N = normalize2(vsub2( Q, G ));
 									let T = vec2( N.y, -N.x );
-									let n = vmuls2( N, dot2( v, N ) );
-									let t = vmuls2( T, dot2( v, T ) );
-									g_pvc.push({o:Q, p:vec2(0,0)	, q:t	, c:c6, name:"t"	, pt:""} );
+									let n = vmuls2( N, dot2( i, N ) );
+									let v = vmuls2( T, dot2( i, T ) );
+									g_pvc.push({o:Q, p:vec2(0,0)	, q:v	, c:c6, name:"v"	, pt:""} );
 									g_pvc.push({o:Q, p:vec2(0,0)	, q:n	, c:c1, name:"n"	, pt:""} );
 
-//									g_pvc.push({o:Q, p:vec2(0,0)	, q:W	, c:c3, name:"W"	, pt:""} );
+									let t0 = vmuls2(v,0.5 );
+									let t1 = vmuls2(v,-0.5 );
+									let n0 = vmuls2(n,0.5);
+									let n1 = vmuls2(n,0.5);
+									let O0 = vadd2( t0, n0 );
+									let O1 = vadd2( t1, n1 );
 
-									b0.v = vmuls2(n,0.5);
-									b1.v = vmuls2(n,0.5);
-									b0.v = vadd2( b0.v,vmuls2(t,0.5 ) );
-									b1.v = vadd2( b0.v,vmuls2(t,-0.5) );
+									g_pvc.push({o:Q, p:v		, q: i	, c:c0, name:""	, pt:"hasen1"} );
+									g_pvc.push({o:Q, p:n		, q: i	, c:c0, name:""	, pt:"hasen1"} );
+
+
+//									g_pvc.push({o:P0, p:vec2(0,0)	, q:t0	, c:c6, name:"t0"	, pt:""} );
+//									g_pvc.push({o:P0, p:vec2(0,0)	, q:n0	, c:c1, name:"n0"	, pt:""} );
+//									g_pvc.push({o:P1, p:vec2(0,0)	, q:t1	, c:c6, name:"t1"	, pt:""} );
+//									g_pvc.push({o:P1, p:vec2(0,0)	, q:n1	, c:c1, name:"n1"	, pt:""} );
+//									g_pvc.push({o:P0, p:vec2(0,0)	, q:O0	, c:c4, name:"O0"	, pt:""} );
+//									g_pvc.push({o:P1, p:vec2(0,0)	, q:O1	, c:c4, name:"O1"	, pt:""} );
+
+									b0.v = O0;
+									b1.v = O1;
 
 //									let r = 1;
 
@@ -857,15 +871,6 @@ if(lab.req=='pause')
 				gra.symbol_row( ba.name, ba.p.x, ba.p.y);
 			}
 
-if(0)
-			{
-				let b0 = balls[0];
-				let b1 = balls[1];
-				let m0 = b0.m/(b0.m+b1.m);
-				let m1 = b1.m/(b0.m+b1.m);
-				let G = vadd2( vmuls2( vsub2(b1.p, b0.p), m1 ), b0.p );
-				gra.circlefill(G.x,G.y,0.025);
-			}
 		}
 		
 		if ( lab.debug_d ) 
@@ -945,6 +950,7 @@ if(0)
 				if ( a.type =='(dot)'  )
 				{
 					gra.circlefill(a.p.x,a.p.y,a.r);
+					gra.symbol_row( a.name, a.p.x,a.p.y );
 				}
 				else
 				if ( a.type =='(circle)' )
@@ -1002,6 +1008,7 @@ if(0)
 						gra.color(1,1,1);	gra.print( "K"+k.name+"=" + strfloat(k.val	,2,7) );
 					}
 					gra.color(1,1,1);	gra.print( "K =" + strfloat(ene.K	,2,7) );
+//					gra.color(1,1,1);	gra.print( "K =" + ene.K );
 					
 		}
 		else

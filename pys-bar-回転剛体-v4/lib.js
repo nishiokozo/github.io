@@ -1,3 +1,4 @@
+// 2021/10/31 strfloatで0.99999999などを入れると正常動作しないバグを修正
 // 2021/10/17 gra.line_spring 追加 drawbane2d廃止
 // 2021/10/15 ene_create 引数変更
 // 2021/10/12 strfloatでe-33などを入れると正常動作しないバグを修正
@@ -47,12 +48,14 @@
 function strfloat( v, r=4, f=2 ) // v値、r指数部桁、f小数部桁
 //-----------------------------------------------------------------------------
 {
+
 	let a = Math.pow(10,f);
 	let b = Math.floor( v );
 //	let c = parseInt( v, 10 );	// 小数点以下切り捨て
 	let c = v>0?Math.floor( v ):-Math.floor( -v );	// 小数点以下切り捨て
 	let d = Math.abs(v-c);
-	let e = Math.round( d*a );	// 四捨五入
+//	let e = Math.round( d*a );	// 四捨五入
+	let e = (d*a)>0?Math.floor( (d*a) ):-Math.floor( -(d*a) );	// 小数点以下切り捨て
 	let g = ('0'.repeat(f)+e).substr(-f);
 	let h = (g+'0'.repeat(f)).substr(0,f);
 	let i = (' '.repeat(r)+c).substr(-r);
