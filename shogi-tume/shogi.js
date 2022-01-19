@@ -1044,6 +1044,7 @@ function kif_create()
 			}
 		}
 		str += ":";
+		str.trim();
 		return str;
 	}
 
@@ -1051,6 +1052,7 @@ function kif_create()
 	kif.ban_read = function( ban, str )
 	//-------------------------------------------------------------
 	{
+		str.trim();
 
 		let to_belong = 
 		{
@@ -1112,7 +1114,7 @@ function kif_create()
 					j = 0; 
 					continue;
 				}
-				if ( ptr+1 >= str.length ) break;
+				if ( ptr >= str.length ) break;
 				let c = str.substr(ptr++,1);
 				if ( c == ":" ) {step++;break;}
 				cmd[a]=c;

@@ -113,10 +113,10 @@
 		<br>
 
 		<div>
-			探索深度<input type="text" id="html_deep" value="4" size="3">
+			<input type="button" value="詰将棋の作成" onClick="html_request('(編集)');" >
 			<input type="button" value="詰め将棋を解く" onclick="html_request('(詰め探索)')">
 			<input type="button" value="リセット" onClick="html_request('(reset)');" >
-			<input type="button" value="編集" onClick="html_request('(編集)');" >
+			探索深度<input type="text" id="html_deep" value="4" size="3">
 		</div>
 		<div class="none">
 			<input type="button" value="王手範囲" onclick="html_request('(王手範囲)')">
@@ -125,8 +125,7 @@
 		</div>
 
 		<br>
-				<textarea id="html_textarea" rows="3" cols="96" >
-				</textarea><br>
+				<textarea id="html_textarea" rows="3" cols="96" ></textarea><br>
 				<input type="button" value="盤面書き出し" onClick="html_request('(書き出し)');" >
 				<input type="button" value="盤面読み込み" onClick="html_request('(読み込み)');" >
 		<br>
@@ -140,7 +139,8 @@
 		三手詰の場合、解くには探索深度４必要<br>
 		五手詰の場合、解くには探索深度６必要<br>
 		・・・<br>
-		
+
+		編集ボタンで詰将棋の作成		
 			<br>
 		<br>
  	<br>
