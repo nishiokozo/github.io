@@ -1169,7 +1169,7 @@ function kif_create()
 					a.flgTumi =  flgSente?(a.flgTumi||th2.flgTumi):(a.flgTumi&&th2.flgTumi);
 
 					a.tree.push( {sasite:sasite, tree:th2.tree, flgTumi:th2.flgTumi} );
-//					if (  flgSente &&  a.flgTumi ) break;	
+					if (  flgSente &&  a.flgTumi ) break;	
 					if ( !flgSente && !a.flgTumi ) break;	
 				}
 			}
