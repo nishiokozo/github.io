@@ -37,20 +37,22 @@
 
 
 		<div class="group">
-	
-			<select id="html_reso" class="button" >
-				<option value="64" >64x32</option>
-				<option value="96" selected>96x48</option>
-				<option value="128" >128x64</option>
-				<option value="256" >256x128</option>
-				<option value="512" >512x256</option>
-				<option value="1024" >1024x512</option>
-			</select>
-			<input type="text" id="html_landval" value="0.0" size="3" class="button" >
-			<input type="button" value="地形変更" onClick="html_updateSize()" class="button" >
+		地形パラメータ<br>
+			<div class="group">
+				<select id="html_reso" class="button" >
+					<option value="64" >64x32</option>
+					<option value="96" selected>96x48</option>
+					<option value="128" >128x64</option>
+					<option value="256" >256x128</option>
+					<option value="512" >512x256</option>
+					<option value="1024" >1024x512</option>
+				</select>
+				<input type="text" id="html_landval" value="0.0" size="3" class="button" >
+				<input type="button" value="地形更新" onClick="html_updateSize()" class="button" >
+			</div>
 		</div>
 		<div class="group">
-			Life
+			編集パラメータ<br>
 			<input type="button" value="クリア" onClick="html_updateClear()" class="button" >
 			<div class="group">
 				<input type="text" id="html_randval" value="0.5" size="3" class="button" >
@@ -60,6 +62,7 @@
 				<input type="checkbox" name="html_bold" >太pen
 		</div>
 		<div class="group">
+			実行パラメータ<br>
 
 			<div class="group">
 
@@ -114,7 +117,9 @@
 			<p>マウスクリックで描画</p>
 			<p>自動で左右対称に二陣営（白と黒）が描かれる</p>
 			<p>カーソル→を押しても世代進行</p>
-			
+			<p>地形パラメータで地形量変更</p>
+			<p>autoにチェックでリアルタイム進行</p>
+
 
 			</p>
 
