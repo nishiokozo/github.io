@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+	    <title id="html_title">Reversi</title>
+		<style>
+
+			.group
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:center;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.group-left
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:left;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.group-right
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:right;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.center
+			{
+				display:inline-block; 
+				border:0px solid #aaa;
+				text-align:center;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+
+			.left
+			{
+				display:inline-block; 
+				border:0px solid #aaa;
+				text-align:left;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.right
+			{
+				display:inline-block; 
+				border:0px solid #aaa;
+				text-align:right;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.readme
+			{
+				display:inline-block; 
+				text-align:center;
+				font-size:12px;
+				font-family:monospace;
+			}
+			.readme-left
+			{
+				display:inline-block; 
+				text-align:left;
+				font-size:12px;
+				font-family:monospace;
+			}
+			.round
+			{
+				border-radius: 8px; 
+				border:1px solid #aaa;
+				font-family:monospace;
+			}
+			.list
+			{
+				display:inline-block; 		/* 枠 ブロック改行をしない*/
+				border-radius: 8px; 		/* 枠 角丸み */	
+				border:1px solid #aaa;		/* 枠 線幅・色 */
+				width: 360px;				/* 枠 幅 */
+				height: 372px;				/* 枠 幅 */
+				overflow: auto;				/* 枠 スクロールバーを自動表示*/
+				padding:10px 0px 10px 10px;	/* 枠 パディング top,right,under,left*/
+
+				text-align:left;			/* 文字 テキストアライメント*/
+				line-height:14px;			/* 文字 行高さ*/
+				font-size:14px;				/* 文字	フォントサイズ*/
+				font-family:monospace;		/* 文字 フォント種類*/
+				
+				cursor:default;				
+				white-space: nowrap;
+			}
+			.list ul 
+			{
+				padding-left: 14px;
+				list-style: none;
+			}
+
+
+						.none
+			{
+				display:visible;	
+			}		
+
+		</style>
+	</head>
+	<body align="center">
+		<H1>Reversi:作者より強い程度のリバーシ</H1>
+		<div class="center">
+			<canvas id="html_canvas"  width="560" height="440" style="border:0px solid" ></canvas>
+			<script src="lib.js"></script>
+			<script src="reversi.js"></script>
+			<script src="main.js"></script>
+			    <br><a id="html_error" ></a>
+
+
+			<br>
+				<input type="button" value="リセット" onClick="html.request('(game.reset)');" >
+				<input type="button" value="戻す" onClick="html.request('(game.prev)');" >
+				<input type="button" value="進む" onClick="html.request('(game.next)');" >
+				<input type="button" value="自動で打つ" onclick="html.request('(game.自動で打つ)')">
+<br>
+<br>
+
+				●<select id="html_BLACK" onChange="html.request()">
+					<option value="hum" >人間</option>
+					<option value="com-L1" >コンピュータL1</option>
+					<option value="com-L2" >コンピュータL2</option>
+					<option value="com-L3" >コンピュータL3</option>
+					<option value="com-L4" >コンピュータL4</option>
+					<option value="com-L5" >コンピュータL5</option>
+				</select>
+				vs
+				○<select id="html_WHITE" onChange="html.request()">
+					<option value="hum" >人間</option>
+					<option value="com-L1" >コンピュータL1</option>
+					<option value="com-L2" >コンピュータL2</option>
+					<option value="com-L3" >コンピュータL3</option>
+					<option value="com-L4" >コンピュータL4</option>
+					<option value="com-L5" >コンピュータ54</option>
+				</select>
+
+<br>
+			<br>
+				<input type="checkbox" name="html_debug_d" onClick="html.request('(draw)');"  >デバッグモード
+			</br>
+		</div>
+
+		<div class="center" id="html_think">
+			    <a id="html_eva" ></a>
+				<br>
+				<a class="list" id="html_innerhtml" ></a>
+<!--
+				<input type="button" value="手評価" onClick="html.request('(game.ヒント)')">
+				<input type="button" value="思考" onClick="html.request('(Think)')">
+-->
+								<br>
+
+				ヘルプ<select id="html_HELP" onChange="html.request()">
+					<option value="com-L1" >コンピュータL1</option>
+					<option value="com-L2" >コンピュータL2</option>
+					<option value="com-L3" >コンピュータL3</option>
+					<option value="com-L4" >コンピュータL4</option>
+					<option value="com-L5" >コンピュータL5</option>
+				</select>
+<br>
+				<input type="checkbox" name="html_untakable" onClick="html.request('(draw)');"  >確定的駒表示
+				<input type="checkbox" name="html_showeva" onClick="html.request('(draw)');"  >評価値表示
+				<br>
+				<input type="checkbox" name="html_one" onClick="html.request('(draw)');"  >1パターンモード
+				<input type="checkbox" name="html_quick" onClick="html.request('(draw)');"  >クイックモード
+<br>
+				<br>
+				<textarea id="html_textarea" rows="2" cols="50" ></textarea>
+				<br>
+				<input type="button" value="棋譜書き出し" onClick="html.request('(html_write)')" >
+				<input type="button" value="棋譜読み込み" onClick="html.request('(html_read)');" >
+<br>
+		</div>
+			
+			<br>
+
+		<H3>～探索アルゴリズムの実験～</H3>
+
+			<br>～概要 2022/2/17～<br>
+		盤面探索による思考ルーチンを作ってみたくて試したもの<br>
+		
+			<br>
+		<br>
+ 	<br>
+	
+
+
+
+
+
+
+
+
+
+
+<!--
+
+
+				<div class="group-left">
+					●<input type="radio" name="html_player_BLACK" value="hum" onChange="html.request()" 	>Human<br>
+					　<input type="radio" name="html_player_BLACK" value="com" onChange="html.request()" 	>Computer<br>
+				</div>
+				<div class="group-left">
+					○<input type="radio" name="html_player_WHITE" value="hum" onChange="html.request()" 	>Human<br>
+					　<input type="radio" name="html_player_WHITE" value="com" onChange="html.request()" 	>Computer<br>
+				</div>		</div>
+		<br>
+
+			<div class="left" style="display:visible">
+				<div class="group-left">
+					●プレイヤー<br>
+					<input type="radio" name="html_player_BLACK" value="hum" onChange="html.request()" 	>人間<br>
+					<input type="radio" name="html_player_BLACK" value="com" onChange="html.request()" 	>コンピュータ<br>
+				</div>
+				<div class="group-left">
+					○プレイヤー<br>
+					<input type="radio" name="html_player_WHITE" value="hum" onChange="html.request()" 	>Human<br>
+					<input type="radio" name="html_player_WHITE" value="com" onChange="html.request()" 	>Computer<br>
+				</div>
+
+			</div>
+-->
+
+<!--
+				<input type="checkbox" name="html_canput" onClick="html.request('(draw)');"  >置場所表示
+				<input type="button" value="ヒント" onclick="html.request('(game.ヒント)')">
+				<input type="button" value="ヒント" onclick="html.request('(game.ヒント)')">
+				</div>
+					思考速度<input type="text" id="html_delay1" value="40" size="3">
+					動作速度<input type="text" id="html_delay2" value="10" size="3">
+				<br>
+					探索深度<input type="text" id="html_deep_WHITE" value="2" size="3">
+					探索深度<input type="text" id="html_deep_BLACK" value="2" size="3">
+			    <br><a id="html_delay" value="bbb"></a>
+			    <br><a id="html_error" ></a>
+<br>
+	    <a id="html_fps" ></a>
+<br>
+				<input type="text" id="html_cnt" value="0" size="3">
+
+		</div>
+			
+
+		<div class="center" >
+				<textarea id="html_textarea" rows="32" cols="50" ></textarea><br>
+			<input type="button" value="Think" onclick="html.request('(Think)')">
+			<br>
+				<a id="html_fps1" ></a>
+				<a id="html_fps2" ></a>
+		</div>
+		<br>
+		<br>
+		<div class="">
+			x<input type="text" id="html_x" value="a" size="3">
+			y<input type="text" id="html_y" value="1" size="3">
+			<input type="button" value="打つ" onclick="html.request('(game.打つ)')">
+			<input type="button" value="パス" onClick="html.request('(game.pass)');" >
+			<input type="button" value="結果" onClick="html.request('(game.result)');" >
+			<input type="button" value="盤面評価" onclick="html.request('(盤面評価)')">
+				<input type="checkbox" name="html_debug_d" onClick="html.request('(draw)');"  >デバッグモード
+		</div>
+		<br>
+				<input type="button" value="盤面書き出し" onClick="html.request('(書き出し)');" >
+				<input type="button" value="盤面読み込み" onClick="html.request('(読み込み)');" >
+		<br>
+
+
+
+		<div class="center" >
+				<a class="list" id="html_message4" ></a>
+				<br>
+				<a class="list2" id="html_message5b" ></a>
+		</div>
+		<div class="">
+		</div>
+		<br>
+		<H1>Reversi</H1>
+		<br>
+
+			<input type="button" value="置ける場所" onclick="html.request('(守備範囲)')">
+-->
+<!--
+-->
+
+
+<!--
+
+			<input type="button" value="通常" onClick="html.request('(通常)');" >
+
+			手筋<input type="text" id="html_id" value="0" size="3" >
+			<input type="text" id="html_message2" value="" size="40" >
+			<input type="button" value="⏎再生" onclick="html.request('(再生)')">
+			<input type="button" value="⇦前" onclick="html.request('(前)')">
+			<input type="button" value="⇨次" onclick="html.request('(次)')">
+			<input type="button" value="⇇最初" onClick="html.request('(最初)');" >
+
+			<div >
+				<textarea id="html_message6" rows="4" cols="40" ></textarea>
+			</div>
+
+			<input type="button" value="rクリア" onClick="html.request('(クリア)');" >
+				<input type="checkbox" name="html_editmode" onClick="html.request('(edit)');"  >エディットモード
+		<textarea class="round" id="html_message5" rows="12" cols="40" ></textarea>
+		<a class="list2" id="html_message5" ></a>
+
+		<iframe id="html_message3" class="round" srcdoc="" width="256" height="512" "></iframe>
+		<input type="button" value="読み込み" onclick="html_load()">
+		<input type="button" value="保存" onclick="html_save()">
+
+	    <a id="html_fps" ></a>
+		document.getElementById("html_fps").innerHTML = ""+(60/(time/(1000/60))).toFixed()+" fps";
+
+			<div class="group">
+				<input type="button" value="⏎リセット" onClick="html_onchange('(game.reset)');" >
+				<input type="button" value="⇒→再生/ポーズ" onClick="html_onchange('(pause)');" >
+				<input type="button" value="←⇐sコマ送り" onClick="html_onchange('(step)');" >
+			</div>
+
+			<div class="group">
+				 scale <input type="text" id="html_scale" value="0.3" size="3" onChange="html_onchange();" >
+				<input type="checkbox" name="html_debug_f" onClick="html_onchange();"  checked>f衝突描画
+				<input type="checkbox" name="html_debug_g" onClick="html_onchange();"  >e運動
+				<input type="checkbox" name="html_debug_h" onClick="html_onchange();"  >h自動停止
+			</div>
+			
+			<br>
+
+				<div class="group-left">
+				プリセット<br>
+					<input type="radio" name="html_mode" value="0" onChange="html_onchange('(game.reset)');" 	>0(自由設定)<br>
+					<input type="radio" name="html_mode" value="1" onChange="html_onchange('(game.reset)');" 	>1緩斜面<br>
+					<input type="radio" name="html_mode" value="2" onChange="html_onchange('(game.reset)');" 	>2急斜面<br>
+					<input type="radio" name="html_mode" value="3" onChange="html_onchange('(game.reset)');" 	>3投げ<br>
+					<input type="radio" name="html_mode" value="4" onChange="html_onchange('(game.reset)');" 	>4落下＋回転<br>
+					<input type="radio" name="html_mode" value="5" onChange="html_onchange('(game.reset)');" 	>5回転＋斜面<br>
+					<input type="radio" name="html_mode" value="6" onChange="html_onchange('(game.reset)');" 	checked>6落下＋斜面<br>
+					<input type="radio" name="html_mode" value="7" onChange="html_onchange('(game.reset)');" 	>7投げ＋回転<br>
+				</div>
+			<div class="group-left">
+				Δt　　 <input type="text" id="html_dt" value="0.0166" size="3" onChange="html_onchange();"  > 秒<br>
+			 重力加速度g　<input type="text" id="html_g" value="9.8" size="3" onChange="html_onchange();" > m/s/s<br>
+			 壁回転w θ 　<input type="text" id="html_w_o" value="0.0" size="3" onChange="html_onchange();" > <br>
+			 壁反発w e　　<input type="text" id="html_w_e" value="-0.5" size="3" onChange="html_onchange();" > <br>
+			 壁動摩擦　 wu<input type="text" id="html_w_u" value="1.0" size="3" onChange="html_onchange();" > <br>
+			 壁静止摩擦 wv<input type="text" id="html_w_v" value="0.0" size="3" onChange="html_onchange();" > <br>
+			 強制力Fx 　　<input type="text" id="html_Fx" value="0.0" size="3" onChange="html_onchange();" readonly> N<br>
+			</div>
+			<div class="group-left">
+				<input type="checkbox" name="html_a_flg" onClick="html_onchange();"  checked>車輪a<br>
+				初期質量m <input type="text" id="html_a_m" value="3.0" size="3" onChange="html_onchange();" > Kg<br>
+				初期角度θ<input type="text" id="html_a_o" value="0" size="3" onChange="html_onchange();" > deg<br>
+				初期位置x <input type="text" id="html_a_x" value="0.0" size="3" onChange="html_onchange();"> m<br>
+				初期位置y <input type="text" id="html_a_y" value="-0.0" size="3" onChange="html_onchange();" > m<br>
+				初期速度v <input type="text" id="html_a_v" value="0.0" size="3" onChange="html_onchange();" > m/s<br>
+				初期角速ω<input type="text" id="html_a_w" value="0" size="3" onChange="html_onchange();" > deg/s<br>
+				転がりa摩擦μ<input type="text" id="html_a_u" value="1.0" size="3" onChange="html_onchange();" > <br>
+			</div>
+			<div class="group-left">
+				<input type="checkbox" name="html_b_flg" onClick="html_onchange();"  >車輪b<br>
+				初期質量m <input type="text" id="html_b_m" value="3.0" size="3" onChange="html_onchange();" > Kg<br>
+				初期角度θ<input type="text" id="html_b_o" value="0" size="3" onChange="html_onchange();" > deg<br>
+				初期位置x <input type="text" id="html_b_x" value="1.0" size="3" onChange="html_onchange();" > m<br>
+				初期位置y <input type="text" id="html_b_y" value="0.0" size="3" onChange="html_onchange();" > m<br>
+				初期速度v <input type="text" id="html_b_v" value="0.0" size="3" onChange="html_onchange();" > m/s<br>
+				初期角速ω<input type="text" id="html_b_w" value="0" size="3" onChange="html_onchange();" > deg/s<br>
+				転がりb摩擦μ<input type="text" id="html_b_u" value="1.0" size="3" onChange="html_onchange();" ><br>
+			</div>
+								<a id="html_msg" ></a><br>
+
+				<input type="checkbox" name="html_debug_g" onClick="html_onchange();"  >g重心
+			 静止摩擦sμ　<input type="text" id="html_su" value="0.0" size="3" onChange="html_onchange();" > <br>
+			 動摩擦aμ　　<input type="text" id="html_au" value="0.0" size="3" onChange="html_onchange();" > <br>
+
+
+			<div class="group-left">
+				<div class="left">
+				 a質量m <input type="text" id="html_am" value="1" size="3" onChange="html_onchange();" > Kg<br>
+				 a初速v <input type="text" id="html_av" value="0" size="3" onChange="html_onchange();" > m/s<br>
+				 a方向θ<input type="text" id="html_ao" value="0" size="3" onChange="html_onchange();" > deg<br>
+				</div>
+
+				<div class="left">
+				 b質量m <input type="text" id="html_bm" value="2" size="3" onChange="html_onchange();" > Kg<br>
+				 b初速v <input type="text" id="html_bv" value="0" size="3" onChange="html_onchange();" > m/s<br>
+				 b方向θ<input type="text" id="html_bo" value="0" size="3" onChange="html_onchange();" > deg<br>
+				</div>
+			</div>
+
+			<div class="group-left">
+				 c質量m <input type="text" id="html_cm" value="1" size="3" onChange="html_onchange();" > Kg<br>
+				 c初速v <input type="text" id="html_cv" value="0" size="3" onChange="html_onchange();" > m/s<br>
+				 c位置h <input type="text" id="html_ch" value="-2" size="3" onChange="html_onchange();" > m/s<br>
+			</div>
+
+				 a初速x <input type="text" id="html_ax" value="0.0" size="3" onChange="html_onchange();" > m/s<br>
+				 a初速y <input type="text" id="html_ay" value="-1" size="3" onChange="html_onchange();" > m/s<br>
+
+				 b初速x <input type="text" id="html_bx" value="0.0" size="3" onChange="html_onchange();" > m/s<br>
+				 b初速y <input type="text" id="html_by" value="-1.0" size="3" onChange="html_onchange();" > m/s<br>
+
+			 計算ループlp <input type="text" id="html_lp" value="10" size="3" onChange="html_onchange();" > times<br>
+
+			 開始高さh　　<input type="text" id="html_h" value="2.0" size="3" onChange="html_onchange();" > m<br>
+
+			<div class="group">
+			<input type="button" value="縮める" onClick="html_onchange('shrink');" >
+			<input type="button" value="伸ばす" onClick="html_onchange('streach');" >
+			<input type="button" value="スタート" onClick="html_onchange('release');" >
+			</div>
+			<input type="checkbox" name="html_debug" onClick="html_onchange();" checked >debug
+			<div class="group">
+				<input type="radio" name="html_mode" value="ice" onChange="html_onchange();"checked>氷上
+				<input type="radio" name="html_mode" value="horizonal" onChange="html_onchange();"checked>水平
+				<input type="radio" name="html_mode" value="vertical" onChange="html_onchange();">鉛直
+			</div>
+
+-->
+
+
+		
+	
+	</body>
+</html>
