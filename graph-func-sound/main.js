@@ -492,11 +492,12 @@ window.onkeydown = function( ev )
 
 	if ( c == KEY_CR ) 
 	{
+		html_update_sound();
 //		requestAnimationFrame( update_paint );
 	}
 	if ( c == KEY_SHIFT ) 
 	{
-		html_update_sound();
+//		html_update_sound();
 //		requestAnimationFrame( update_paint );
 	}
 }
