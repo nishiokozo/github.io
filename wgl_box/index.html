@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>web-gl</title>
+		<style>
+			.body
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:center;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.group-left
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:left;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			body
+			{
+				text-align:center;
+				border:0px solid #1aa;
+			}
+			sp
+			{
+			}
+			textarea
+			{
+				resize: none;
+				text-align:left;
+				border:1px solid #444;
+				width: 150px;				/* 枠 幅 */
+				height: 14px;				/* 枠 幅 */
+
+				text-align:rleft;			/* 文字 テキストアライメント*/
+				line-height:14px;			/* 文字 行高さ*/
+				font-size:14px;				/* 文字	フォントサイズ*/
+				font-family:monospace;		/* 文字 フォント種類*/
+
+				vertical-align: middle;
+
+				cursor:default;				
+				white-space: nowrap;
+
+			}
+			p
+			{
+				text-align:left;
+			}
+			canvas
+			{
+				border:0px solid #100;
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas id="html_canvas" width="320" height="240" ></canvas>
+		<br>
+		<sp>
+			<sp>requestAnimationFrame(): 
+				<textarea id="html_timer1" >-</textarea>msec　※ディスプレイリフレッシュレート割り込み
+			</sp>
+			<br>
+			<sp>setTimeout(): 
+				<textarea readonly id="html_timer2">-</textarea>msec　※タイマーでの最短の割り込み
+			</sp>
+		</sp>
+	</body>
+	<script src="lib.js"></script>
+	<script src="main.js"></script>
+
+</html>
