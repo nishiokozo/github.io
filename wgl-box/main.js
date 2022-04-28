@@ -61,6 +61,7 @@ let g_index = [ 0,1,1,2,2,3,3,0,
 				4,5,5,6,6,7,7,4, 
 				0,4,1,5,2,6,3,7,
 				];
+
 let index_buffer = create_indexbuffer( g_index );
 let g_lenIdx = g_index.length;
 let g_shader = create_shader();
@@ -84,17 +85,15 @@ let matV = midentity();
 matV = mmul( matV, mtrans( vec3(0,0,-6) ));
 
 
-let g_time_prev = 0;
 //---------------------------------------------------------------------
-function	update(time)
+function	update_main(dt)
 //---------------------------------------------------------------------
 {
-	let dt = time-g_time_prev;
+
 
 	matM = mmul( matM, mroty(dt*0.0005) );
 	matM = mmul( matM, mrotx(dt*0.0002) );
 	matM = mmul( matM, mrotz(dt*0.0003) );
-	g_time_prev = time;
 		
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LEQUAL);
@@ -113,22 +112,37 @@ function	update(time)
 
 	html.setById_textContent( "html_timer1", dt );
 
-	window.requestAnimationFrame(update);
 }
 
-let timer_now1 = 0;
 let timer_old1 = 0;
+let timer_now2 = 0;
+let timer_old2 = 0;
 //---------------------------------------------------------------------
-function update_timer1()
+function update1( time )
 //---------------------------------------------------------------------
 {
-	timer_old1 = timer_now1;
-	timer_now1 = (new Date()).getMilliseconds();
-	let dt2 = timer_now1-timer_old1;
-	html.setById_textContent( "html_timer2", dt2 );
-	window.setTimeout( update_timer1, 1 ); // 編集中はリアルタイムアップデート
+
+	let dt = time-timer_old1;
+
+	update_main(dt);
+
+	timer_old1 = time;
+	window.requestAnimationFrame(update1);
 }
-update(0);
-window.setTimeout( update_timer1, 1 ); // 編集中はリアルタイムアップデート
+//---------------------------------------------------------------------
+function update2()
+//---------------------------------------------------------------------
+{
+	timer_old2 = timer_now2;
+	timer_now2 = Date.now();
+	let dt = timer_now2-timer_old2;
+
+//	update_main(dt);
+
+	html.setById_textContent( "html_timer2", dt );
+	window.setTimeout( update2, 1 ); // 編集中はリアルタイムアップデート
+}
+update1(0);
+update2();
 
 

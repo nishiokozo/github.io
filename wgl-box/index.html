@@ -65,6 +65,7 @@
 	</head>
 
 	<body>
+		<H1>割り込みタイミングの検証</H1>
 		<canvas id="html_canvas" width="320" height="240" ></canvas>
 		<br>
 		<sp>
@@ -76,6 +77,15 @@
 				<textarea readonly id="html_timer2">-</textarea>msec　※タイマーでの最短の割り込み
 			</sp>
 		</sp>
+		<br>
+		<br>～概要 2022/04/28～<br>
+			requestAnimationFrame()はモニタのリフレッシュレートを反映させることが推奨されている<br>
+			がブラウザによって実装が違う。<br>
+			多くの場合16.66msec(60fps)<br>
+			<br>
+			setTimeout()は、1msec設定にしてあるが<br>
+			実際にどれくらいの時間で呼び出せるかはブラウザによって違う<br>
+			cromeだと5ms<br>
 	</body>
 	<script src="lib.js"></script>
 	<script src="main.js"></script>
