@@ -1,32 +1,21 @@
 "use strict";
 
 const N = 9;
-	const t = 
-	{
-		"belong先手":"▲" ,
-		"belong後手":"▽" ,
-	};
 	const u = ["９","８","７","６","５","４","３","２","１"];
 	const v = ["一","二","三","四","五","六","七","八","九"];
-	const w = 
-	{
-		"typeNone":""	 ,
-		"type玉将":"玉" ,
-		"type飛車":"飛" ,
-		"type角行":"角" ,
-		"type金将":"金" ,
-		"type銀将":"銀" ,
-		"type桂馬":"桂" ,
-		"type香車":"香" ,
-		"type歩兵":"歩" ,
-		"type龍王":"龍" ,
-		"type竜馬":"馬" ,
-		"type成銀":"全" ,
-		"type成桂":"圭" ,
-		"type成香":"呑" ,
-		"typeと金":"と" ,
-	};
 
+	//-------------------------------------------------------------
+	function formatSasite( sasite )
+	//-------------------------------------------------------------
+	{
+		let s1 = (sasite.mode=="mode打ち")?"打"
+				:(sasite.mode=="mode成り")?"成"
+				:(sasite.mode=="mode移動")?""
+				:sasite.mode;
+		let s2 = ((sasite.koma.belong=="belong先手")?"▲":"▽");
+		let s3 = u[sasite.tx]+v[sasite.ty]+kif.infKomadata[sasite.koma.type].name;
+		return s2 + s3 + s1;
+	}
 
 // 駒フォーマット
 function Koma( type, belong )
@@ -40,20 +29,12 @@ function Denger(koma, x, y)
 }
 function Baninfo( koma )
 {
-	return {koma:koma, typesOhte:[], dengers_def:[], dengers_run:[], heros:[]};
+	return {koma:koma, typesOhte:[], dengers:[], heros:[]};
 }
-
-function Branch( child, flgopen, line, strName )	// 枝
-{
-	return {child:child, flgopen:flgopen, line:line, strName:strName };
-}
-
-let html_tree = Branch([],false,0,"");
-
 // 指し手フォーマット
 function Sasite(weight,mode,fx,fy,tx,ty,koma,attr )
 {
-	return {weight:weight, mode:mode, fx:fx, fy:fy, tx:tx, ty:ty, koma:koma, attr:attr, flgNige:false, flgTumi:false, child:[] };
+	return {weight:weight, mode:mode, fx:fx, fy:fy, tx:tx, ty:ty, koma:koma, attr:attr, child:[], flgopen:false, flgTumi:false };
 }
 
 // 手に持ってる駒情報
@@ -62,203 +43,6 @@ function Temoti(koma,from,x,y)
 	return {koma:koma,from:from,x:x,y:y};
 }
 
-//-------------------------------------------------------------
-function formatSasite( sasite )
-//-------------------------------------------------------------
-{
-	let s1 = (sasite.mode=="mode打ち")?"打"
-			:(sasite.mode=="mode成り")?"成"
-			:(sasite.mode=="mode移動")?""
-			:sasite.mode;
-	let s2 = ((sasite.koma.belong=="belong先手")?"▲":"▽");
-	let s3 = u[sasite.tx]+v[sasite.ty]+kif.infKomadata[sasite.koma.type].name;
-	return s2 + s3 + s1;
-}
-
-function tree_click( tblTree,  num )
-{
-	function ana( tblTree,  lvl )
-	{
-		for ( let a of tblTree )
-		{
-			if ( a.line == num )
-			{
-				a.flgopen = !a.flgopen;
-			}
-			if ( a.child.length > 0 ) 
-			{
-				ana( a.child, lvl+1 );
-			}
-		}
-
-	}
-	ana( tblTree, 0 );
-}
-function tree_format( tblTree )
-{
-	//Tree表示
-	function tree_html( tblTree )
-	{
-		let mojiretu = "";
-		function ana( tblTree,  lvl )
-		{
-			mojiretu += "<ul>";
-			for ( let a of tblTree )
-			{
-				mojiretu += "<li>";
-
-				function foo( branch )	// .line / .child / .flgopen / .strName
-				{
-					let s1 = (branch.child.length>0) ?( (branch.flgopen )?" －":" ＋" ) : "　";
-					let tagB = "'"+"(Tree)"+branch.line+"'";
-					let tagL = "'"+"(Name)"+branch.line+"'";
-					let str1 = "<a onclick=html_request("+tagB+")>"+s1+"</a>";
-					let str2 = "<a onclick=html_request("+tagL+")>"+branch.strName+"</a>";
-					return str1+str2;
-				}
-				mojiretu += foo( a );
-				if ( a.flgopen )
-				{
-					if ( a.child.length > 0 ) 
-					{
-						ana( a.child, lvl+1 );
-					}
-				}
-				else
-				{
-				}
-				mojiretu += "</li>";
-			}
-			mojiretu += "</ul>";
-
-		}
-		ana( tblTree, 0 );							
-
-		return mojiretu;
-	}
-	let str = tree_html( tblTree );
-	return str;
-
-}
-
-
-function tree_makeHtml( tblSasite )
-{
-	let line = 0 ;
-	function tree_makeHtml0( tblSasite,lvl, tree )
-	{
-		for ( let sasite of tblSasite )
-		{
-			line++;
-
-			let s = "";
-			let str = formatSasite( sasite );
-			if ( sasite.flgTumi ) // 詰み筋の場合
-			{
-				s = sasite.flgTumi?" 詰み":"";
-			}
-
-			let branch = Branch([],false,0,"");
-			branch.line = line;
-			branch.strName = str+s;
-
-			if ( sasite.child.length > 0 ) 
-			{
-				tree_makeHtml0( sasite.child, lvl+1, branch.child );
-			}
-
-			tree.push( branch );
-			
-		}
-		return;
-	}
-	let topTree = [];
-	tree_makeHtml0( tblSasite, 0, topTree );
-	return topTree;
-}
-function tree_makeResultHtml( tblSasite )
-{
-	let strRes = "";
-	let line = 0 ;
-
-	function ana( tblSasite,lvl, strhis0 )
-	{
-		for ( let sasite of tblSasite )
-		{
-			line++;
-			let s = "";
-			let strhis = strhis0;
-			if ( sasite.flgTumi ) // 詰み筋の場合
-			{
-				s = sasite.flgTumi?" 詰み":"";
-
-				strhis += formatSasite( sasite ) ;
-				if ( sasite.child.length == 0 ) // 詰み手の場合
-				{
-					let tagL = "'"+"(Name)"+line+"'";
-//					let str2 = "<a onclick=html_request("+tagL+")>"+strhis+"</a><br>";
-					let str2 = "<a>"+strhis+"</a><br>";
-					strRes += str2;
-				}
-				if ( sasite.child.length > 0 ) 
-				{
-					ana( sasite.child, lvl+1, strhis );
-				}
-			}
-
-
-			
-		}
-		return;
-	}
-	ana( tblSasite, 0, "" );
-	return strRes;
-}
-
-function tree_countLineTumi( tblSasite )
-{
-	let line = 0 ;
-	let cntTumi = 0;
-	function ana( tblSasite )
-	{
-		for ( let sasite of tblSasite )
-		{
-			line++;
-			if ( sasite.flgTumi ) // 詰み筋の場合
-			{
-				if ( sasite.child.length == 0 ) // 詰み手の場合
-				{
-					cntTumi++;
-				}
-			}
-
-			if ( sasite.child.length > 0 ) 
-			{
-				ana( sasite.child );
-			}
-
-			
-		}
-		return;
-	}
-	ana( tblSasite );
-	return [line,cntTumi];
-}
-function tree_open( child, str )
-{
-	for ( let b1 of child )
-	{
-		let name = b1.strName.split(' ')[0];
-	
-		let str2 = str.substr( 0, name.length );
-		if ( name == str2 )
-		{
-			b1.flgopen = true;
-			tree_open( b1.child, str.substr( name.length ) );
-			break;
-		}
-	}
-}
 
 //-----------------------------------------------------------------------------
 function kif_create()
@@ -267,8 +51,8 @@ function kif_create()
 	let kif = {};
 	const OFS=3;
 
-	const SW = 48;//46;
-	const SH = 48;//50;
+	const SW = 46;
+	const SH = 50;
 	const SF = 48
 	const SW2 = SW/2;
 	const SH2 = SH/2;
@@ -317,12 +101,16 @@ function kif_create()
 	kif.text=null;
 	kif.deep = 0;
 	kif.flg_editmode = false;
-	kif.tblSasite = [];
+	kif.tree = [];
 	kif.think = [];
+	kif.message = "";
+	kif.message_unshift = "";
+	kif.message_req = false;
 	kif.message2 = "";
 	kif.message2_req = false;
 
 	kif.base = ban_create();
+//	kif.tmp = kif.base.ban_copy();
 
 	//---------------------------------------------------------------------
 	function ban_create()
@@ -389,6 +177,7 @@ function kif_create()
 			to.tblKomadai["belong先手"]	= Object.assign({},this.tblKomadai["belong先手"]);	// 駒台実コピー
 			to.tblKomadai["belong後手"]	= Object.assign({},this.tblKomadai["belong後手"]);	// 駒台実コピー
 			to.tblBaninfo				= Object.assign([],this.tblBaninfo);					// 盤面実コピー
+//			to.tblBaninfo.koma			= Object.assign({},this.tblBaninfo.koma);				// 盤面実コピー
 			for ( let i = 0 ; i < this.tblBaninfo.length ; i++ )
 			{
 				to.tblBaninfo[i]	= Object.assign({},this.tblBaninfo[i]);				// 盤面実コピー
@@ -544,32 +333,16 @@ function kif_create()
 		}
 
 		//-------------------------------------------------------------
-		ban.draw_analysys_dengers_run = function()
+		ban.draw_analysys_dengers = function()
 		//-------------------------------------------------------------
 		{
 			for ( let y = 0 ; y < N ;y++ )
 			for ( let x = 0 ; x < N ;x++ )
 			{
-				// for dengers_run
-				for ( let i = 0 ; i < this.tblBaninfo[y*N+x].dengers_run.length ; i++ )
+				// for dengers
+				for ( let i = 0 ; i < this.tblBaninfo[y*N+x].dengers.length ; i++ )
 				{
-					let koma = this.tblBaninfo[y*N+x].dengers_run[i].koma;
-					let inf = kif.infKomadata[ koma.type ];
-					kif.mark( x, y, inf.name, i+12, koma.belong );
-				}
-			}
-		}
-		//-------------------------------------------------------------
-		ban.draw_analysys_dengers_def = function()
-		//-------------------------------------------------------------
-		{
-			for ( let y = 0 ; y < N ;y++ )
-			for ( let x = 0 ; x < N ;x++ )
-			{
-				// for dengers_def
-				for ( let i = 0 ; i < this.tblBaninfo[y*N+x].dengers_def.length ; i++ )
-				{
-					let koma = this.tblBaninfo[y*N+x].dengers_def[i].koma;
+					let koma = this.tblBaninfo[y*N+x].dengers[i].koma;
 					let inf = kif.infKomadata[ koma.type ];
 					kif.mark( x, y, inf.name, i+12, koma.belong );
 				}
@@ -633,14 +406,13 @@ function kif_create()
 			}
 		}
 
-
 		//-------------------------------------------------------------
-		ban.baninfo_analysys_dengers_run = function( reject_x, reject_y )
+		ban.baninfo_analysys_dengers = function( reject_x, reject_y )
 		//-------------------------------------------------------------
 		{
 			for ( let inf of this.tblBaninfo )
 			{
-				inf.dengers_run = [];	// (攻撃範囲)
+				inf.dengers = [];
 			}
 
 			for ( let fy = 0 ; fy < N ;fy++ )
@@ -664,7 +436,7 @@ function kif_create()
 
 						if ( koma_fm.belong == "belong先手" )
 						{
-							this.tblBaninfo[ty*N+tx].dengers_run.push( Denger(koma_fm, fx, fy)  );
+							this.tblBaninfo[ty*N+tx].dengers.push( Denger(koma_fm, fx, fy)  );
 						}
 
 						// 味方駒があったら、その手前で検索中断
@@ -689,55 +461,6 @@ function kif_create()
 			}
 		}
 
-
-		
-		//-------------------------------------------------------------
-		ban.baninfo_analysys_dengers_def = function()
-		//-------------------------------------------------------------
-		{
-			for ( let inf of this.tblBaninfo )
-			{
-				inf.dengers_def = [];	// (攻撃範囲)
-			}
-
-			for ( let fy = 0 ; fy < N ;fy++ )
-			for ( let fx = 0 ; fx < N ;fx++ )
-			{
-				let koma_fm = this.tblBaninfo[fy*N+fx].koma;	// 移動元
-
-				for ( let mov of kif.infKomadata[ koma_fm.type ].mov )
-				{
-					let ax = mov.ax;
-					let ay = mov.ay*(koma_fm.belong == "belong先手"?1:-1);
-					let tx = fx;
-					let ty = fy;
-					for ( let j = 0 ; j < mov.n ; j++ )
-					{
-						tx += ax;
-						ty += ay;
-						if ( tx < 0 || tx >= N || ty < 0 || ty >= N ) break;
-
-						let koma_to = this.tblBaninfo[ty*N+tx].koma;	// 移動先(攻撃先)
-
-						if ( koma_fm.belong == "belong先手" )
-						{
-							this.tblBaninfo[ty*N+tx].dengers_def.push( Denger(koma_fm, fx, fy)  );
-						}
-
-						// 味方駒があったら、その手前で検索中断
-						if ( koma_to.belong == koma_fm.belong ) break;
-
-						// 移動先が相手駒だったら、そこで検索中断
-						if ( koma_to.type != "typeNone" && (koma_to.belong != koma_fm.belong) ) 
-						{
-							break;
-						}
-
-					}
-				}
-
-			}
-		}
 		//-------------------------------------------------------------
 		ban.baninfo_analysys_heros = function()
 		//-------------------------------------------------------------
@@ -783,17 +506,17 @@ function kif_create()
 			}
 		}
 		//-------------------------------------------------------------
-		ban.tree_play = function( aban, tbl, tblSasite, id )
+		ban.tree_play = function( aban, tbl, id )
 		//-------------------------------------------------------------
 		{
 			let cnt = 0;
-			function tree_play0( tblSasite, lvl, tume0 )
+			function tree_play0( tbl, lvl, tume0 )
 			{
-				for ( let sasite of tblSasite )
+				for ( let t of tbl )
 				{
 					cnt++;
 
-					let tume = tume0.concat( [sasite] );
+					let tume = tume0.concat( [t.sasite] );
 					if ( id == cnt  ) 
 					{
 						for ( let sasite of tume )
@@ -801,21 +524,18 @@ function kif_create()
 							aban.ban_move( sasite );
 						}
 						return;	
-
+						
 					}
 
-					tree_play0( sasite.child, lvl+1, tume );
+					tree_play0( t.tree, lvl+1, tume );
 				}
 			}
-			tree_play0( tblSasite, 0, [] );
-
+			tree_play0( tbl, 0, [] );
 		}
 		return ban;
-
 	}
 
 
-		
 	kif.mouse_hl = false;
 	kif.mouse_hr = false;
 
@@ -1095,21 +815,21 @@ function kif_create()
 	const E9 = {n:8, ax: 1, ay:-1};	
 	kif.infKomadata =
 	{
-		"typeNone":{name:""	  ,name2:""	   ,type:"typeNone" ,typeNari:"typeNone" ,nari:""	   ,mov:[] 							},
-		"type玉将":{name:"玉" ,name2:"玉将",type:"type玉将" ,typeNari:"typeNone" ,nari:"不可" ,mov:[ D1,D2,D3,D4,D6,D7,D8,D9 ]	},
+		"typeNone":{name:""	  ,name2:""	   ,type:""		    ,typeNari:""		  ,nari:""	   ,mov:[] 							},
+		"type玉将":{name:"玉" ,name2:"玉将",type:"type玉将" ,typeNari:""		  ,nari:"不可" ,mov:[ D1,D2,D3,D4,D6,D7,D8,D9 ]	},
 		"type飛車":{name:"飛" ,name2:"飛車",type:"type飛車" ,typeNari:"type龍王" ,nari:"必須" ,mov:[ E8,E2,E4,E6 ]				},
 		"type角行":{name:"角" ,name2:"角行",type:"type角行" ,typeNari:"type竜馬" ,nari:"必須" ,mov:[ E7,E9,E1,E3 ]				},
-		"type金将":{name:"金" ,name2:"金将",type:"type金将" ,typeNari:"typeNone" ,nari:"不可" ,mov:[ D7,D8,D9, D4,D6, D2 ]		},
+		"type金将":{name:"金" ,name2:"金将",type:"type金将" ,typeNari:""		  ,nari:"不可" ,mov:[ D7,D8,D9, D4,D6, D2 ]		},
 		"type銀将":{name:"銀" ,name2:"銀将",type:"type銀将" ,typeNari:"type成銀" ,nari:"選択" ,mov:[ D7,D8,D9, D1,D3 ]			},
 		"type桂馬":{name:"桂" ,name2:"桂馬",type:"type桂馬" ,typeNari:"type成桂" ,nari:"選択" ,mov:[ DA,DB ]					},
 		"type香車":{name:"香" ,name2:"香車",type:"type香車" ,typeNari:"type成香" ,nari:"選択" ,mov:[ E8 ]						},
 		"type歩兵":{name:"歩" ,name2:"歩兵",type:"type歩兵" ,typeNari:"typeと金" ,nari:"必須" ,mov:[ D8 ]						},
-		"type龍王":{name:"龍" ,name2:"飛車",type:"type飛車" ,typeNari:"typeNone" ,nari:"不可" ,mov:[ D7,D9,D1,D3 , E2,E4,E6,E8 ]},
-		"type竜馬":{name:"馬" ,name2:"角行",type:"type角行" ,typeNari:"typeNone" ,nari:"不可" ,mov:[ D2,D4,D6,D8 , E7,E9,E1,E3 ]},
-		"type成銀":{name:"全" ,name2:"銀将",type:"type銀将" ,typeNari:"typeNone" ,nari:"不可" ,mov:[ D7,D8,D9, D4,D6, D2 ]		},
-		"type成桂":{name:"圭" ,name2:"桂馬",type:"type桂馬" ,typeNari:"typeNone" ,nari:"不可" ,mov:[ D7,D8,D9, D4,D6, D2 ]		},
-		"type成香":{name:"呑" ,name2:"香車",type:"type香車" ,typeNari:"typeNone" ,nari:"不可" ,mov:[ D7,D8,D9, D4,D6, D2 ]		},
-		"typeと金":{name:"と" ,name2:"歩兵",type:"type歩兵" ,typeNari:"typeNone" ,nari:"不可" ,mov:[ D7,D8,D9, D4,D6, D2 ]		},
+		"type龍王":{name:"龍" ,name2:"飛車",type:"type飛車" ,typeNari:""		  ,nari:"不可" ,mov:[ D7,D9,D1,D3 , E2,E4,E6,E8 ]},
+		"type竜馬":{name:"馬" ,name2:"角行",type:"type角行" ,typeNari:""		  ,nari:"不可" ,mov:[ D2,D4,D6,D8 , E7,E9,E1,E3 ]},
+		"type成銀":{name:"全" ,name2:"銀将",type:"type銀将" ,typeNari:""		  ,nari:"不可" ,mov:[ D7,D8,D9, D4,D6, D2 ]		},
+		"type成桂":{name:"圭" ,name2:"桂馬",type:"type桂馬" ,typeNari:""		  ,nari:"不可" ,mov:[ D7,D8,D9, D4,D6, D2 ]		},
+		"type成香":{name:"呑" ,name2:"香車",type:"type香車" ,typeNari:""		  ,nari:"不可" ,mov:[ D7,D8,D9, D4,D6, D2 ]		},
+		"typeと金":{name:"と" ,name2:"歩兵",type:"type歩兵" ,typeNari:""		  ,nari:"不可" ,mov:[ D7,D8,D9, D4,D6, D2 ]		},
 	};
 
 
@@ -1119,8 +839,6 @@ function kif_create()
 	let gra = gra_create( html_canvas );
 	gra.window(0,0,670,480);
 
-	kif.mark_num = 0;
-	kif.mark_str = "";
 
 	//---------------------------------------------------------------------
 	kif.request = function( req )
@@ -1146,18 +864,31 @@ function kif_create()
 			gra.symbol(str,px-SW/3+ax, py-SH/4+ay-6, SF/4,"CM",radians(180));
 		}
 	}
+/*
+	//---------------------------------------------------------------------
+	kif.mark0 = function( x,y,str, n )
+	//---------------------------------------------------------------------
+	{
+		let SF = 48;
+		let px = x*SF+BX+SF2;
+		let py = y*SF+BY+SF2;
+
+		let ax = (n%4)*SF/4-2;
+		let ay = Math.floor(n/4)*SF/4-3;
+
+		gra.symbol(str,px-SF/3+ax, py-SF/4+ay, SF/4);
+
+	}
+*/
 	//---------------------------------------------------------------------
 	kif.update = function()
 	//---------------------------------------------------------------------
 	{
 
-		let tblReq = kif.req.shift();
-		let req = "";
-		if ( tblReq != null && tblReq.length > 0 ) req = tblReq[0];
+		let req = kif.req.shift();
 		if ( req )
 		{
-			console.log(req + ( req == "(Name)"?kif.mark_num:""  ));
-
+			console.log(req);
 			switch( req )
 			{
 				case "(reset)":	
@@ -1173,14 +904,11 @@ function kif_create()
 				case "(none)":	
 					break;
 
-
-				case "(Name)":	
-					break;
-
 				case "(詰め探索)":	
+					kif.clrmessage();
 					kif.clrmessage2();
-					kif.putHtml2( "<a>開始:"+(new Date()).toLocaleTimeString() +"</a><br>");
-					kif.request( ["(詰め探索本番)"] );
+					kif.putHtml2( "<p>開始:"+(new Date()).toLocaleTimeString() +"</p>");
+					kif.request("(詰め探索本番)");
 					window.setTimeout( kif.update, 200 ); // メッセージエリアの更新より遅れて割り込み
 					break;
 				case "(詰め探索本番)":	
@@ -1193,22 +921,25 @@ function kif_create()
 						if ( x >= 0 )
 						{
 	
-							kif.base.baninfo_analysys_dengers_run( -1,-1 );
+							kif.base.baninfo_analysys_dengers( -1,-1 );
 							kif.base.baninfo_analysys_heros();
-							let dengers_run = kif.base.tblBaninfo[y*N+x].dengers_run;
-							let teban_belong = (( dengers_run.length == 0)?"belong先手":"belong後手");
+							let dengers = kif.base.tblBaninfo[y*N+x].dengers;
+							let teban_belong = (( dengers.length == 0)?"belong先手":"belong後手");
 
 							let deep = kif.deep;
-							kif.tblSasite = tree_think( kif.base, teban_belong , deep );
+							kif.tree = tree_think( kif.base, teban_belong , deep );
 
-							let [cnt,cntTumi] = tree_get_result( kif.tblSasite );
+							let [cnt,cntTumi] = tree_get_result( kif.tree );
 
-							kif.putHtml2( "<a>終了:"+(new Date()).toLocaleTimeString() +" 探索数:"+cnt+ "  詰み数:"+cntTumi+"</a><br>");
+							kif.putHtml2( "<p>終了:"+(new Date()).toLocaleTimeString() +" 探索数:"+cnt+"</p>");
 							if ( cntTumi == 0 )
 							{
-								kif.putHtml2( "<a>探索深度"+deep+"以内には詰めは存在しませんでした。</a><br>" );
+								kif.putHtml2( "<p>探索深度"+deep+"以内には詰めは存在しませんでした。</p>" );
 							}
 
+
+//tblSasite
+		
 						}
 					}
 					break;
@@ -1225,27 +956,21 @@ function kif_create()
 					kif.tmp.draw_analysys_typesOhte();
 					break;
 
-				case "(攻撃範囲:対逃げ)":	//dengers_run
+				case "(攻撃範囲)":
 					kif.update_draw( kif.tmp );	
 					{
 						let [x,y]=kif.tmp.serch_oh();
-						kif.tmp.baninfo_analysys_dengers_run( x,y );
+						kif.tmp.baninfo_analysys_dengers( x,y );
+						//kif.tmp.baninfo_analysys_heros();
 					}
-					kif.tmp.draw_analysys_dengers_run();
+					kif.tmp.draw_analysys_dengers();
 					break;
 
-
-				case "(攻撃範囲:対受け)":	//dengers_def
+				case "(守備範囲)":
 					kif.update_draw( kif.tmp );	
 					{
-						kif.tmp.baninfo_analysys_dengers_def();
-					}
-					kif.tmp.draw_analysys_dengers_def();
-					break;
-
-				case "(守備範囲)":	//heros
-					kif.update_draw( kif.tmp );	
-					{
+						//let [x,y]=kif.tmp.serch_oh();
+						//kif.tmp.baninfo_analysys_dengers( x,y );
 						kif.tmp.baninfo_analysys_heros();
 					}
 					kif.tmp.draw_analysys_heros();
@@ -1275,36 +1000,16 @@ function kif_create()
 				case "(add)":
 					break;
 
-
-				case "(Test)":	
-					{
-						let str = tblReq[1];
-						kif.ban_read( kif.base, str );
-					}
-					break;
-					
 				case "(テスト)":
 					{
-//						let str = kif.getmessage3()
-let str = "";
-if(0)
-{
-	str+="(test)";
-	str+=",▽３一香▲１一角▽３二玉▲４三歩▲２三香▲１三龍▽４四歩▽３四歩::";
-	str+=",▲３三角成▽４一玉▲４二歩成";
-	str+=",▲３三角成▽３三玉▲２二香成";
-}else
-{
-	str+="(test)";
-	str+=",▽３一歩▽１一玉▲２三銀▽１四歩:香:";
-	str+=",▲１三香打▽２一玉▲１二香成";
-}
+						let str = kif.getmessage3()
 						str = str.replace(/[\n\t\s]/g, '');	// 改行,タブ,スペースを取る
 						let list = str.split(',');
 
 						let tbl = [];
 						if ( list.length > 0 )
 						{
+
 							if ( list[0] == "(test)" )
 							{
 								for ( let i = 1 ; i < list.length ; i++ )
@@ -1317,20 +1022,14 @@ if(0)
 						}
 					}
 					{
+//						for ( let cmds of kif.test_list )
 						for ( let i = 0 ; i < kif.test_list.length ; i++ )
 						{
+//								console.log(  strfloat(i,4,0)  );
 							let cmds = kif.test_list[i];
-//console.log(":",i,cmds);
-							for ( let j = 0 ; j < cmds.length ;j++ )
-//							for ( let c of cmds )
+							for ( let c of cmds )
 							{
-								let c = cmds[j];
 								console.log(  c  );
-								if ( j == 0 )
-								{
-									kif.ban_read( kif.base, c );
-									
-								}
 							}
 						}
 					}
@@ -1349,6 +1048,8 @@ if(0)
 		g_mouse.hl = false;
 		g_mouse.hr = false;
 	}
+//form
+//	let form=[["(test)","x","y","駒","(repeat)"],["持","(repeat)"]];
 	kif.test_list = [];
 	
 	//-------------------------------------------------------------
@@ -1497,243 +1198,115 @@ if(0)
 	//-------------------------------------------------------------
 	{
 		
-		// 探索木	89:▲１三香打▽２一玉▲１二香成
-if(0)
-{
-
-		//一階層	王手
-		let tblSasite1 = serch_sasite( ban, "belong先手", ">" );
-
-		//二階層	回避
-	if(nest>=2)
-		for ( let sasite1 of tblSasite1 )
+		// 探索木
+		function Tree( sasite, tree, flg )
 		{
-			let ban2 = ban.ban_copy(); ban2.ban_move( sasite1 );
-			
-			sasite1.child = serch_sasite( ban2, "belong後手", ">"+formatSasite(sasite1));
-
-		}
-
-		//三階層	王手
-	if(nest>=3)
-		for ( let sasite1 of tblSasite1 )
-		{
-			let ban2 = ban.ban_copy(); ban2.ban_move( sasite1 );
-			for ( let sasite2 of sasite1.child )
-			{
-				let ban3 = ban2.ban_copy();	ban3.ban_move( sasite2 );
-
-				sasite2.child = serch_sasite( ban3, "belong先手", ">"+formatSasite(sasite1)+formatSasite(sasite2) );;
-			}
-		}
-
-		//４階層	回避
-	if(nest>=4)
-		for ( let sasite1 of tblSasite1 )
-		{
-			let ban2 = ban.ban_copy(); ban2.ban_move( sasite1 );
-			for ( let sasite2 of sasite1.child )
-			{
-				let ban3 = ban2.ban_copy(); ban3.ban_move( sasite2 );
-				for ( let sasite3 of sasite2.child )
-				{
-					let ban4 = ban3.ban_copy(); ban4.ban_move( sasite3 );
-
-					sasite3.child = serch_sasite( ban4, "belong後手", ">"
-						+formatSasite(sasite1)+formatSasite(sasite2)+formatSasite(sasite3) );;
-				}
-			}
-		}
-		//５階層	王手
-	if(nest>=5)
-		for ( let sasite1 of tblSasite1 )
-		{
-			let ban2 = ban.ban_copy(); ban2.ban_move( sasite1 );
-			for ( let sasite2 of sasite1.child )
-			{
-				let ban3 = ban2.ban_copy(); ban3.ban_move( sasite2 );
-				for ( let sasite3 of sasite2.child )
-				{
-					let ban4 = ban3.ban_copy(); ban4.ban_move( sasite3 );
-
-					for ( let sasite4 of sasite3.child )
-					{
-						let ban5 = ban4.ban_copy(); ban5.ban_move( sasite4 );
-						sasite4.child = serch_sasite( ban5, "belong先手", ">"
-							+formatSasite(sasite1)+formatSasite(sasite2)+formatSasite(sasite3)+formatSasite(sasite4) );;
-					}
-				}
-			}
-		}
-		//６階層	回避
-	if(nest>=6)
-		for ( let sasite1 of tblSasite1 )
-		{
-			let ban2 = ban.ban_copy(); ban2.ban_move( sasite1 );
-			for ( let sasite2 of sasite1.child )
-			{
-				let ban3 = ban2.ban_copy(); ban3.ban_move( sasite2 );
-				for ( let sasite3 of sasite2.child )
-				{
-					let ban4 = ban3.ban_copy(); ban4.ban_move( sasite3 );
-					for ( let sasite4 of sasite3.child )
-					{
-						let ban5 = ban4.ban_copy(); ban5.ban_move( sasite4 );
-						for ( let sasite5 of sasite4.child )
-						{
-							let ban6 = ban5.ban_copy(); ban6.ban_move( sasite5 );
-							sasite5.child = serch_sasite( ban6, "belong先手", ">"
-								+formatSasite(sasite1)+formatSasite(sasite2)+formatSasite(sasite3)+formatSasite(sasite4)+formatSasite(sasite5) );;
-						}
-					}
-				}
-			}
+			return {sasite:sasite, tree:tree, flgTumi:flg};
 		}
 
 
-		// 詰めの洗い出し
-		if(1)
-		{
-			// ボトムアップで詰み探し
-			function ana( tblSasite, flgNige, lvl )
-			{
-				let flgTumi = flgNige;
-
-				for ( let sasite of tblSasite )
-				{
-					sasite.flgTumi = ana( sasite.child, !flgNige, lvl+1 );
-
-					if ( lvl+1 >= nest && flgNige == false ) sasite.flgTumi = false; // 末端 & 攻め手 なら、詰みは不明
-
-					if ( flgNige )	flgTumi &&= sasite.flgTumi;
-					else			flgTumi ||= sasite.flgTumi;
-				}
-
-				return flgTumi;
-			}
-
-			// トップダウンで詰み消し
-			function ana2( tblSasite, flgTumi0 )
-			{
-				for ( let sasite of tblSasite )
-				{
-					sasite.flgTumi &&= flgTumi0; 
-					ana2( sasite.child, sasite.flgTumi );
-				}
-			}
-
-			let flgtumi = ana( tblSasite1, false, 0 );
-			ana2( tblSasite1, flgtumi );
-		}
-
-
-		return tblSasite1;
-
-
-}
-else
-{
 		function deepin( ban, teban_belong, lvl, strhis0 )
 		{
 			let flgSente = (teban_belong=="belong先手");
+			let a={flgTumi:false, tree:[]};
+//			if ( lvl < nest ) 
 			{
-				let a_tree = [];
 				// 守備側ならfalseで初期化
-				let flgTumi = !flgSente;
-				let tblSasite2 = serch_sasite( ban, teban_belong, strhis0 );
-				let tblSasite3 = [];
-				for ( let sasite of tblSasite2 )
+				a.flgTumi = !flgSente;
+				let tblSasite = serch_sasite( ban, teban_belong, strhis0 );
+				for ( let sasite of tblSasite )
 				{
-					let strhis = strhis0 + formatSasite(sasite);
+let strhis = strhis0 + formatSasite(sasite);
 					let ban2 = ban.ban_copy();
 					ban2.ban_move( sasite );
-					let th2_flgTumi  =  false;
-					let th2_tblSasite = [];
+					let th2  =  {flgTumi:false, tree:[]};
 					if ( lvl+1 < nest )
 					{
-						[th2_flgTumi,th2_tblSasite] = deepin( ban2, (flgSente?"belong後手":"belong先手"), lvl+1, strhis );
+						th2 = deepin( ban2, (flgSente?"belong後手":"belong先手"), lvl+1, strhis );
 					}
 
 					// 攻め手側なら|| 守備側なら&&で初期化
-					flgTumi =  flgSente?(flgTumi||th2_flgTumi):(flgTumi&&th2_flgTumi);
-
-					sasite.child = th2_tblSasite;
-					sasite.flgTumi = th2_flgTumi;
-
-					tblSasite3.push( sasite );
-
-//					if (  flgSente &&  flgTumi ) break;	// 攻め手番で詰みがあったら検索終了	※コメントアウトで高速。
-					if ( !flgSente && !flgTumi ) break;	// 守り手番で逃げ道があったら検索終了
+					a.flgTumi =  flgSente?(a.flgTumi||th2.flgTumi):(a.flgTumi&&th2.flgTumi);
+					a.tree.push( {sasite:sasite, tree:th2.tree, flgTumi:th2.flgTumi} );
+sasite.flgTumi = th2.flgTumi;						
+sasite.child.push( th2.tree );
+					if (  flgSente &&  a.flgTumi ) break;	
+					if ( !flgSente && !a.flgTumi ) break;	
 				}
-				return [flgTumi,tblSasite3];
+				return a;
 			}
 		}
 
-		let [flg,tblSasite] = deepin( ban, "belong先手", 0, ">" );
-
-
-
-		// 詰めの洗い出し
-		if(1)
-		{
-			// ボトムアップで詰み探し
-			function ana( tblSasite, flgNige, lvl )
-			{
-				let flgTumi = flgNige;
-
-				for ( let sasite of tblSasite )
-				{
-					sasite.flgTumi = ana( sasite.child, !flgNige, lvl+1 );
-
-					if ( lvl+1 >= nest && flgNige == false ) sasite.flgTumi = false; // 末端 & 攻め手 なら、詰みは不明
-
-					if ( flgNige )	flgTumi &&= sasite.flgTumi;
-					else			flgTumi ||= sasite.flgTumi;
-				}
-
-				return flgTumi;
-			}
-
-			// トップダウンで詰み消し
-			function ana2( tblSasite, flgTumi0 )
-			{
-				for ( let sasite of tblSasite )
-				{
-					sasite.flgTumi &&= flgTumi0; 
-					ana2( sasite.child, sasite.flgTumi );
-				}
-			}
-
-			let flgtumi = true;
-//			flgtumi = ana( tblSasite, false, 0 );
-			ana2( tblSasite, flgtumi );
-		}
-
-
-		return tblSasite;
-}
-
-
+		let tree = deepin( ban, "belong先手", 0, ">" ).tree;
+//		tree = sasite  deepin( ban, "belong先手", 0, ">" ).tree;
+		return tree;
 	}
 
 	//-------------------------------------------------------------
-	function tree_get_result( tblSasite )
+	function tree_get_result( tree )
 	//-------------------------------------------------------------
 	{
-		html_tree.child = tree_makeHtml( tblSasite );			// ツリー手筋を生成
-		let strRes = tree_makeResultHtml( tblSasite );			// 回答手筋を生成
-		let [line,cntTumi] = tree_countLineTumi(tblSasite  );	// 探索数と、詰み数をカウント
+		let cnt = 0;
+		let cntTumi = 0;
+		function show_tree0( tree, lvl, tume0, flgTumi0 )
+		{
+			for ( let tr of tree )
+			{
+				let s4 = strfloat(++cnt,4,0)+":";
+				let s1 = "　".repeat(lvl);
+				let sk = formatSasite(tr.sasite);
+				let s5 = (tr.flgTumi?" 詰み":"");
+				let str = s4 + s1 + sk + s5;
+				kif.putHtml( "<p onclick='html_req("+cnt+")'>"+str+"</p>" );
+//console.log(str);
+				let tume = "";
+				if ( tr.flgTumi&&flgTumi0 )
+				{
+					tume = ((tume0=="")?"":tume0+"") + sk;
+					if( tr.tree.length == 0 )
+					{
+						cntTumi++;
+						kif.putHtml2( "<p onclick='html_req("+cnt+")'>"+cnt +":"+tume+"</p>" );
+					}
+				}
 
-		kif.putHtml2( strRes );							// 下ウィンドウに表示
+				show_tree0( tr.tree, lvl+1, tume, tr.flgTumi&&flgTumi0 );
+				
+			}
+		}
+		show_tree0( tree, 0, "", true );
 
-//		tree_open( html_tree.child, "▲３三金打▽３三玉▲４一飛成" );	//手筋をオープン
-		tree_open( html_tree.child, "▲４三金打" );	//手筋をオープン
+//		let str = "<p>探索数:"+cnt+" 詰数:"+cntTumi+"</p>";
+		return [cnt,cntTumi];
+//		kif.putHtml2( "<p>"+str +"</p>");
 
-		let str = tree_format( html_tree.child );
-		document.getElementById("html_innerhtml").innerHTML = str;	// 上ウィンドウに表示
+	}
+	//-------------------------------------------------------------
+	kif.tree_play = function( ban, tree, id )
+	//-------------------------------------------------------------
+	{
+		let cnt = 0;
+		function tree_play0( tree, lvl, tume0 )
+		{
+			for ( let t of tree )
+			{
+				cnt++;
 
-		return [line,cntTumi];
+				let tume = tume0.concat( [t.sasite] );
+				if ( id == cnt  ) 
+				{
+					for ( let sasite of tume )
+					{
+						ban.ban_move( sasite );
+					}
+					return;	
+					
+				}
 
+				tree_play0( t.tree, lvl+1, tume );
+			}
+		}
+		tree_play0( tree, 0, [] );
 	}
 
 	//-------------------------------------------------------------
@@ -1795,7 +1368,7 @@ else
 			let x1 = px+SW2;
 			let y1 = py+SH2;
 			putKoma( x1, y1, koma );
-			gra.color( C9 );
+			gra.color_rgb( C9 );
 		}
 		for ( let x = 3 ; x <= 6 ;x+=3 )
 		for ( let y = 3 ; y <= 6 ;y+=3 )
@@ -1872,8 +1445,8 @@ else
 	kif.update_draw = function ( ban )
 	//---------------------------------------------------------------------
 	{
-		gra.backcolor(C7);
-		gra.color(C9);
+		gra.backcolor_rgb(C7);
+		gra.color_rgb(C9);
 		gra.cls();
 
 		putBanmen( ban, BX,BY);
@@ -1903,6 +1476,42 @@ else
 */
 
 	//---------------------------------------------------------------------
+	kif.clrmessage = function()
+	//---------------------------------------------------------------------
+	{
+		kif.message = "";
+		kif.message_unshift = "";
+		kif.message_req = true;
+	}
+	//---------------------------------------------------------------------
+	kif.putHtml = function( str )
+	//---------------------------------------------------------------------
+	{
+		kif.message += str;
+		kif.message_req = true;
+	}
+	//---------------------------------------------------------------------
+	kif.unshiftmessage = function( str )
+	//---------------------------------------------------------------------
+	{
+		kif.message_unshift = str + "<br>" + kif.message_unshift;
+		kif.message_req = true;
+	}
+	//---------------------------------------------------------------------
+	kif.flushmessage = function( )
+	//---------------------------------------------------------------------
+	{
+		// htmlの書き換え過ぎは警告が出るので100ms単位にチェックしてまとめて転送する。
+		if ( kif.message_req )
+		{
+			document.getElementById("html_message4").innerHTML = kif.message_unshift + kif.message;
+			kif.message_req = false;
+		}
+		window.setTimeout( kif.flushmessage, 100 );
+	}
+	kif.hdlTimeout = window.setTimeout( kif.flushmessage, 0 );
+
+	//---------------------------------------------------------------------
 	kif.clrmessage2 = function()
 	//---------------------------------------------------------------------
 	{
@@ -1920,7 +1529,7 @@ else
 	kif.flushmessage2 = function( )
 	//---------------------------------------------------------------------
 	{
-		// Htmlの書き換え過ぎは警告が出るので100ms単位にチェックしてまとめて転送する。
+		// htmlの書き換え過ぎは警告が出るので100ms単位にチェックしてまとめて転送する。
 		if ( kif.message2_req )
 		{
 			document.getElementById("html_message5b").innerHTML = kif.message2;
