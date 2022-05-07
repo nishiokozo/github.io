@@ -313,7 +313,7 @@ function kif_create()
 	const C9 = [0.2 ,0.2 ,0.2];
 	const C10 = [0.5 ,0.5 ,0.5];
 
-	kif.req = [];
+	kif.tblCmd = [];
 	kif.text=null;
 	kif.deep = 0;
 	kif.flg_editmode = false;
@@ -1123,10 +1123,10 @@ function kif_create()
 	kif.mark_str = "";
 
 	//---------------------------------------------------------------------
-	kif.request = function( req )
+	kif.request = function( cmd )
 	//---------------------------------------------------------------------
 	{
-		kif.req.push( req );
+		kif.tblCmd.push( cmd );
 	}
 	//---------------------------------------------------------------------
 	kif.mark = function( x,y,str,n, belong )
@@ -1151,9 +1151,9 @@ function kif_create()
 	//---------------------------------------------------------------------
 	{
 
-		let tblReq = kif.req.shift();
+		let cmd = kif.tblCmd.shift();
 		let req = "";
-		if ( tblReq != null && tblReq.length > 0 ) req = tblReq[0];
+		if ( cmd != null && cmd.length > 0 ) req = cmd[0];
 		if ( req )
 		{
 			console.log(req + ( req == "(Name)"?kif.mark_num:""  ));
@@ -1259,7 +1259,8 @@ function kif_create()
 
 				case "(読み込み)":
 					{
-						let str = kif.getmessage3();
+//						let str = kif.getmessage3();
+						let str = cmd[1];
 						kif.ban_read( kif.base, str );
 					}
 					break;
@@ -1278,7 +1279,7 @@ function kif_create()
 
 				case "(Test)":	
 					{
-						let str = tblReq[1];
+						let str = cmd[1];
 						kif.ban_read( kif.base, str );
 					}
 					break;
@@ -1461,7 +1462,7 @@ if(0)
 					{
 						let x		 = u.indexOf( cmd["x"] );
 						let y		 = v.indexOf( cmd["y"] );
-						let type	 = to_type[ cmd.駒 ];
+						let type	 = to_type[ cmd["駒"] ];
 						let belong	 = to_belong[ cmd.belong ];
 						let koma	 = Koma( type, belong );
 						let sasite  = Sasite(1.0,"mode配置盤面",-1,-1,x,y,koma );
@@ -1471,7 +1472,7 @@ if(0)
 					{
 						let x		 = -1;
 						let y		 = -1;
-						let type	 = to_type[ cmd.持 ];
+						let type	 = to_type[ cmd["持"] ];
 						let belong	 = "belong先手";
 						let koma	 = Koma( type, belong );
 						let sasite = Sasite(1.0,"mode配置駒台",-1,-1,x,y,koma );

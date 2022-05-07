@@ -142,6 +142,16 @@ window.onload = function()
 		//2022/04/06 ok
 		//▲１三香打▽２一玉▲１二香成
 		break;
+	case 133:// ３手詰め。合間不可、おかしな合間
+		kif.ban_read( kif.base, "▽２一玉▽１一香▽４二銀▽３二金▽３三歩▲３四龍▲２四桂::");
+		break;
+	case 134:// ３手詰め。解けるが、むだ合間がやたら多い
+		kif.ban_read( kif.base, "▽３一玉▽２一桂▽１一香▲４二飛▲５三と▽３三銀▲３四桂::");
+		break;
+	case 135:// ３手詰め。解けるはずが解けないしかなり変な合間
+		kif.ban_read( kif.base, "▽４一香▽２一桂▽１一香▽２二玉▲４三と▽３三歩▽２三歩:角飛:");
+		break;
+
 		
 		
 
@@ -596,7 +606,7 @@ console.log("(req)", req );
 		let str = req.substr("(Test)".length);
 		kif.mark_str = str;
 		req = "(Test)";
-		kif.request([req,str] );
+		kif.request( [req,str] );
 		kif.update();
 		return;
 	}
@@ -631,16 +641,21 @@ console.log("(req)", req );
 	
 		return;
 	}
+	if ( req == "(読み込み)" )
+	{
+		let str = kif.getmessage3();
+		kif.request( [req,str] );
+		kif.update();
+		return;
+	}
 
 	{
-//		kif.debug_d = html_get_value_checkbox( "html_debug_d" );
-//		kif.deep = html_get_value_id( "html_deep" );
 		kif.debug_d = html.getByName_checkbox( "html_debug_d", false );
 		kif.deep = html.getById_textbox( "html_deep", 4 );
 
 
 		//
-		kif.request([req] );
+		kif.request( [req] );
 		kif.update();
 	}
 }
