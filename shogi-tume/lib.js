@@ -1,9 +1,4 @@
-// 2022/02/24 gra.printの座標をwindow座標に変更
-// 2022/02/22 html関数群追加
-// 2022/02/18 html _...関連を一旦全廃
-// 2022/01/24 html _...関連の廃止＆リネーム
-// 2022/01/20 ..._rgbなど廃止名前変更
-// 2022/01/18 html _radio_set htmlアクセス関係関数を追加
+// 2022/01/18 html_radio_set htmlアクセス関係関数を追加
 // 2021/12/26 gra.color_rgb,gra.backcolor_rgb
 // 2021/12/26 graアスペクト、アジャストのデフォルトを変更gra.asp,gra.adj
 // 2021/11/29 strfloatで-0.2などを入れると正常動作しないバグを修正
@@ -56,220 +51,46 @@
 // https://www.cs.utexas.edu/users/fussell/courses/cs354/handouts/Addison.Wesley.OpenGL.Programming.Guide.8th.Edition.Mar.2013.ISBN.0321773039.pdf
 "use strict";
 
-//-----------------------------------------------------------------------------
-// html への書き換えタイミングを管理したり、読込タイミングを管理したり
-//-----------------------------------------------------------------------------
-let html =
+
+function html_radio_set( name, value )
 {
-	//---------------------------------------------------------------------
-	"get":function( name ) 
-	//---------------------------------------------------------------------
-	{
-		return html.param[name].val;
-	},
-	//---------------------------------------------------------------------
-	"set":function( name, val ) 
-	//---------------------------------------------------------------------
-	{
-		html.param[name].val = val;
-		html.param[name].req = true;
-	},
-	//---------------------------------------------------------------------
-	"add":function( name, val ) 
-	//---------------------------------------------------------------------
-	{
-		html.param[name].val += val;
-		html.param[name].req = true;
-	},
-	//---------------------------------------------------------------------
-	"read":function( name ) // HTML -> local buffer
-	//---------------------------------------------------------------------
-	{
-		let val = html.param[name].val;
-		switch( html.param[name].type )
-		{
-			case "textbox":		val = html.getById_textbox( name, val );		break;
-			case "innerHTML":	val = html.getById_innerHTML( name, val );		break;
-			case "radiobutton":	val = html.getByName_radiobuton( name, val );	break;
-			case "checkbox":	val = html.getByName_checkbox( name, val );		break;
-			case "selectbox":	val = html.getById_selectbox( name, val );		break;
-			default:
-				console.error("未宣言のHTML部品:"+html.param[name].type );
-		}
+	// プログラムから、ラジオボタンをセット
 
-		html.param[name].val = val;
-	
-	},
-	//---------------------------------------------------------------------
-	"write":function( name ) // local buffer -> HTML
-	//---------------------------------------------------------------------
+	if ( document.getElementsByName( name ).length >= 0 )
 	{
-		if ( html.param[name].req )
-		{
-			html.param[name].req = false;
-			
-			let val = html.param[name].val;
-			switch( html.param[name].type )
-			{
-				case "textbox":		html.setById_textbox( name, val );			break;
-				case "innerHTML":	html.setById_innerHTML( name, val );		break;
-				case "radiobutton":	html.setByName_radiobuton( name, val );		break;
-				case "checkbox":	html.setByName_checkbox( name, val );		break;
-				case "selectbox":	html.setById_selectbox( name, val );		break;
-				default:
-					console.error("未宣言のHTML部品:"+html.param[name].type );
-			}
-		}
-	
-	},
-	//---------------------------------------------------------------------
-	"read_all":function( name )
-	//---------------------------------------------------------------------
-	{
-		if ( name )
-		{
-				html.read( name );
-		}
-		else
-		{
-			for ( let name of Object.keys(html.param) )
-			{
-				html.read( name );
-			}
-		}
-	},
-	//---------------------------------------------------------------------
-	"write_all":function()
-	//---------------------------------------------------------------------
-	{
-		for ( let name of Object.keys(html.param) )
-		{
-			html.write( name );
-		}
+		document.getElementsByName( name )[value].checked = true;
+	}
+}
 
-	},
-	//---------------------------------------------------------------------
-	"getById_textbox":function( name, val )
-	//---------------------------------------------------------------------
+function html_get_value_checkbox( name )
+{
+	let val = false;
+	if ( document.getElementsByName( name ).length > 0 ) 
 	{
-		if ( document.getElementById( name ) )
+		if ( document.getElementsByName( name )[0] ) 
 		{
-			val = document.getElementById( name ).value;
+			val = document.getElementsByName( name )[0].checked;
 		}
-		return val;
-	},
-	//---------------------------------------------------------------------
-	"setById_textbox":function( name, val  )
-	//---------------------------------------------------------------------
-	{
-		if ( document.getElementById( name ) )
-		{
-			document.getElementById( name ).value = val;
-		}
-	},
-	//---------------------------------------------------------------------
-	"getById_innerHTML":function( name, val )
-	//---------------------------------------------------------------------
-	{
-		if ( document.getElementById( name ) )
-		{
-			let val = document.getElementById( name ).innerHTML;
-		}
-		return val;
-	},
-	//---------------------------------------------------------------------
-	"setById_innerHTML":function( name, val  )
-	//---------------------------------------------------------------------
-	{
-		if ( document.getElementById( name ) )
-		{
-			document.getElementById( name ).innerHTML = val;
-		}
-	},
-	//---------------------------------------------------------------------
-	"getByName_radiobuton":function( name, val )
-	//---------------------------------------------------------------------
-	{
-		var list = document.getElementsByName( name ) ;
-		for ( let l of list )
-		{
-			if ( l.checked ) 
-			{
-				val = l.value;
-				break;
-			}
-		}
-		return val;
-	},
-	//---------------------------------------------------------------------
-	"setByName_radiobuton":function( name, val )
-	//---------------------------------------------------------------------
-	{
-		var list = document.getElementsByName( name ) ;
-		for ( let l of list )
-		{
-			if ( l.value == val )
-			{
-				l.checked = true;
-				break;
-			}
-		}
-		return val;
-	},
-	//---------------------------------------------------------------------
-	"getByName_checkbox":function( name, val )
-	//---------------------------------------------------------------------
-	{
-		if ( document.getElementsByName( name ).length > 0 ) 
-		{
-			if ( document.getElementsByName( name )[0] ) 
-			{
-				val = document.getElementsByName( name )[0].checked;
-			}
-		}
-		return val;
-	},
-	//---------------------------------------------------------------------
-	"setByName_checkbox":function( name, val )
-	//---------------------------------------------------------------------
-	{
-		if ( document.getElementsByName( name ).length > 0 ) 
-		{
-			if ( document.getElementsByName( name )[0] ) 
-			{
-				document.getElementsByName( name )[0].checked = val;
-			}
-		}
-	},
-	//---------------------------------------------------------------------
-	"getById_selectbox":function( name, val )
-	//---------------------------------------------------------------------
-	{
-		let select = document.getElementById( name );
-		if ( select)
-		{
-			val = select.value;
-		}
-		return val;
-	},
-	//---------------------------------------------------------------------
-	"setById_selectbox":function( name, val )
-	//---------------------------------------------------------------------
-	{
-		var select = document.getElementById(name);
-		if ( select )
-		{
-			for ( let o of select.options )
-			{
-				if ( o.value == val )
-				{
-					o.selected = true;
-				}
-			}
-		}
-	},
-};
+	}
+	return val;
+}
 
+function html_get_value_id( name )
+{
+	let val = 0;
+	if ( document.getElementById( name ) )
+	{
+		val = document.getElementById( name ).value*1;
+	}
+	return val;
+}
+function html_set_value_id( name, val  )
+{
+	if ( document.getElementById( name ) )
+	{
+		document.getElementById( name ).value = val;
+	}
+}
 //-----------------------------------------------------------------------------
 function strfloat( v, r=4, f=2 ) // v値、r指数部桁、f小数部桁
 //-----------------------------------------------------------------------------
@@ -929,24 +750,10 @@ function gra_create( cv )	//2021/06/01
 		gra.y=y1*16;
 	}
 	//-------------------------------------------------------------------------
-	//gra.print = function( str, x1=gra.x, y1=gra.y )
-	gra.print_old = function( str, x1=gra.x, y1=gra.y )
-	//-------------------------------------------------------------------------
-	{
-//		[x1,y1]=gra.win_abs(x1,y1);	
-		gra.ctx.font = "14px Courier";	// iOSでも使えるモノスペースフォントただし漢字はモノスペースにはならない 16pxより綺麗に見える
-		gra.ctx.textAlign = "left";
-		gra.ctx.textBaseline = "alphabetic";
-		gra.ctx.fillText( str, x1+2, y1+16-1 );
-
-		gra.x = x1;
-		gra.y = y1+16;
-	}
-	//-------------------------------------------------------------------------
 	gra.print = function( str, x1=gra.x, y1=gra.y )
 	//-------------------------------------------------------------------------
 	{
-		[x1,y1]=gra.win_abs(x1,y1);	
+//		[x1,y1]=gra.win_abs(x1,y1);	
 		gra.ctx.font = "14px Courier";	// iOSでも使えるモノスペースフォントただし漢字はモノスペースにはならない 16pxより綺麗に見える
 		gra.ctx.textAlign = "left";
 		gra.ctx.textBaseline = "alphabetic";
@@ -1070,8 +877,7 @@ function gra_create( cv )	//2021/06/01
 		return c;
 	}
 	//-----------------------------------------------------------------------------
-//	gra.color_rgb = function( [fr, fg, fb] ) //2021/12/26
-	gra.color = function( [fr, fg, fb] ) //2021/12/26 作成 2022/01/20 名前変更
+	gra.color_rgb = function( [fr, fg, fb] ) //2021/12/26
 	//-----------------------------------------------------------------------------
 	{
 		let c = gra.rgb( fr,fg,fb);
@@ -1082,7 +888,6 @@ function gra_create( cv )	//2021/06/01
 
 		gra.ctx.fillStyle = s;
 	}
-/* 2022/01/20 廃止
 	//-----------------------------------------------------------------------------
 	gra.color = function( fr, fg, fb ) //2021/11/01
 	//-----------------------------------------------------------------------------
@@ -1107,11 +912,9 @@ function gra_create( cv )	//2021/06/01
 
 		gra.ctx.fillStyle = s;
 	}
-*/
 
 	//-----------------------------------------------------------------------------
-//	gra.backcolor_rgb = function( [fr=0.0, fg=0.0, fb=0.0] ) // 2021/12/26
-	gra.backcolor = function( [fr=0.0, fg=0.0, fb=0.0] ) // 2021/12/26 作成 2022/01/20 名称変更
+	gra.backcolor_rgb = function( [fr=0.0, fg=0.0, fb=0.0] ) // 2021/12/26
 	//-----------------------------------------------------------------------------
 	{
 		let r = fr*255;
@@ -1125,7 +928,6 @@ function gra_create( cv )	//2021/06/01
 		let s = "#"+("000000"+c.toString(16)).substr(-6);
 		gra.backcol = s;
 	}
-/* 2022/01/20 廃止
 	//-----------------------------------------------------------------------------
 	gra.backcolor = function( fr=0.0, fg=0.0, fb=0.0 ) // 2021/07/19 追加
 	//-----------------------------------------------------------------------------
@@ -1141,7 +943,7 @@ function gra_create( cv )	//2021/06/01
 		let s = "#"+("000000"+c.toString(16)).substr(-6);
 		gra.backcol = s;
 	}
-*/	
+	
 	//-----------------------------------------------------------------------------
 	gra.bezier_n = function( v, mode='/loop/fill/loopfill' ) // vec2[] v;  2021/07/29 add
 	//-----------------------------------------------------------------------------
@@ -1266,7 +1068,6 @@ function gra_create( cv )	//2021/06/01
 			let rotation = 0;
 			gra.ctx.ellipse( x1, y1, rw, rh, rotation, st, en );
 			gra.ctx.fill();
-			gra.ctx.stroke(); // 2022/01/21
 		};
 	}
 	//-----------------------------------------------------------------------------
