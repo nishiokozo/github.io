@@ -91,7 +91,7 @@
 				display:inline-block; 		/* 枠 ブロック改行をしない*/
 				border-radius: 8px; 		/* 枠 角丸み */	
 				border:1px solid #aaa;		/* 枠 線幅・色 */
-				width: 360px;				/* 枠 幅 */
+				width: 372px;				/* 枠 幅 */
 				height: 372px;				/* 枠 幅 */
 				overflow: auto;				/* 枠 スクロールバーを自動表示*/
 				padding:10px 0px 10px 10px;	/* 枠 パディング top,right,under,left*/
@@ -110,8 +110,32 @@
 				list-style: none;
 			}
 
+			.list2
+			{
+				display:inline-block; 		/* 枠 ブロック改行をしない*/
+				border-radius: 8px; 		/* 枠 角丸み */	
+				border:1px solid #aaa;		/* 枠 線幅・色 */
+				width: 372px;				/* 枠 幅 */
+				height: 372px;				/* 枠 幅 */
+				overflow: auto;				/* 枠 スクロールバーを自動表示*/
+				padding:10px 0px 10px 10px;	/* 枠 パディング top,right,under,left*/
 
-						.none
+				text-align:left;			/* 文字 テキストアライメント*/
+				line-height:14px;			/* 文字 行高さ*/
+				font-size:14px;				/* 文字	フォントサイズ*/
+				font-family:monospace;		/* 文字 フォント種類*/
+				
+				cursor:default;				
+				white-space: nowrap;
+			}
+			.list2 ul 
+			{
+				padding-left: 14px;
+				list-style: none;
+			}
+
+
+			.none
 			{
 				display:visible;	
 			}		
@@ -129,6 +153,7 @@
 
 
 			<br>
+	    <a id="html_cnt" >aaa</a><br>
 				<input type="button" value="リセット" onClick="html.request('(game.reset)');" >
 				<input type="button" value="戻す" onClick="html.request('(game.prev)');" >
 				<input type="button" value="進む" onClick="html.request('(game.next)');" >
@@ -163,8 +188,12 @@
 		<div class="center" id="html_think">
 			    <a id="html_eva" ></a>
 				<br>
-				<a class="list" id="html_innerhtml" ></a>
+				<div class="list2" >
+					<a id="html_innerhtml" ></a>
+				</div>
+				<br>
 <!--
+				<a class="list" id="html_innerhtml" ></a>
 				<input type="button" value="手評価" onClick="html.request('(game.ヒント)')">
 				<input type="button" value="思考" onClick="html.request('(Think)')">
 -->
@@ -185,10 +214,10 @@
 				<input type="checkbox" name="html_quick" onClick="html.request('(draw)');"  >クイックモード
 <br>
 				<br>
-				<textarea id="html_textarea" rows="2" cols="50" ></textarea>
+				<textarea id="html_textarea" rows="2" cols="52" ></textarea>
 				<br>
-				<input type="button" value="棋譜書き出し" onClick="html.request('(html_write)')" >
-				<input type="button" value="棋譜読み込み" onClick="html.request('(html_read)');" >
+				<input type="button" value="盤面書き出し" onClick="html.request('(html_write)')" >
+				<input type="button" value="盤面読み込み" onClick="html.request('(html_read)');" >
 <br>
 		</div>
 			

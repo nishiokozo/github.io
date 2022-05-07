@@ -6,6 +6,40 @@ let kif = kif_create();
 window.onload = function()
 //-----------------------------------------------------------------------------
 {
+if(0)
+{
+	function foo()
+	{
+		let self = {};
+		self.v = 123;
+		
+		self.f1 = function()
+		{
+			self.v = 456;
+		}
+		self.f2 = function()
+		{
+			this.v = 789;
+		}
+		
+		return self;
+	}
+	let a = foo();
+	let b = foo();
+
+	b.f1();
+	b.f2();
+
+	console.log( a.v );
+	a.f1();
+	b.f2();
+	console.log( a.v );
+	a.f2();
+	b.f1();
+	console.log( a.v );
+}
+
+
 //console.log(a,a.style);
 /*
 	let tmp ={
