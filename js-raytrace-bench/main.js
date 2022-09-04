@@ -771,7 +771,7 @@ window.onload = function( e )
 	// レンダリング開始
 //	requestAnimationFrame( update_scene );
 
-update_scene();
+//update_scene();
 }
 
 //HTML
