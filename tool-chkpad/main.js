@@ -101,23 +101,25 @@ window.onload = function( e )
 		}
 
 {
-			let a = 220;
+			let a = 240;
 			let b = 160;
 			{
-				if ( pad.now.LU ) gra.circlefill(cx-a   ,cy+b-20,cr);else gra.circle(cx-a   ,cy+b-20,cr);
-				if ( pad.now.LD ) gra.circlefill(cx-a   ,cy+b+20,cr);else gra.circle(cx-a   ,cy+b+20,cr);
-				if ( pad.now.LR ) gra.circlefill(cx-a+20,cy+b   ,cr);else gra.circle(cx-a+20,cy+b   ,cr);
-				if ( pad.now.LL ) gra.circlefill(cx-a-20,cy+b   ,cr);else gra.circle(cx-a-20,cy+b   ,cr);
-				if ( pad.now.SE ) gra.circlefill(cx-a+60,cy+b	,cr);else gra.circle(cx-a+60,cy+b   ,cr);
-				if ( pad.now.L1 ) gra.circlefill(cx-a-40,cy+b-40,cr);else gra.circle(cx-a-40,cy+b-40,cr);
+				if ( pad.now.LU ) gra.circlefill(cx-a    ,cy+b-25,cr);else gra.circle(cx-a    ,cy+b-20,cr);
+				if ( pad.now.LD ) gra.circlefill(cx-a    ,cy+b+25,cr);else gra.circle(cx-a    ,cy+b+20,cr);
+				if ( pad.now.LR ) gra.circlefill(cx-a+ 20,cy+b   ,cr);else gra.circle(cx-a+ 20,cy+b   ,cr);
+				if ( pad.now.LL ) gra.circlefill(cx-a- 20,cy+b   ,cr);else gra.circle(cx-a- 20,cy+b   ,cr);
+				if ( pad.now.SE ) gra.circlefill(cx-a+100,cy+b+25,cr);else gra.circle(cx-a+100,cy+b+25,cr);
+				if ( pad.now.L1 ) gra.circlefill(cx-a+ 70,cy+b+25,cr);else gra.circle(cx-a+ 70,cy+b+25,cr);
+				if ( pad.now.L3 ) gra.circlefill(cx-a+ 40,cy+b+25,cr);else gra.circle(cx-a+ 40,cy+b+25,cr);
 			}
 			{
 				if ( pad.now.RU ) gra.circlefill(cx+a   ,cy+b-20,cr);else gra.circle(cx+a   ,cy+b-20,cr);
 				if ( pad.now.RD ) gra.circlefill(cx+a   ,cy+b+20,cr);else gra.circle(cx+a   ,cy+b+20,cr);
 				if ( pad.now.RR ) gra.circlefill(cx+a+20,cy+b   ,cr);else gra.circle(cx+a+20,cy+b   ,cr);
-				if ( pad.now.RL ) gra.circlefill(cx+a-20,cy+b   ,cr);else gra.circle(cx+a-20,cy+b   ,cr);
-				if ( pad.now.ST ) gra.circlefill(cx+a-60,cy+b	,cr);else gra.circle(cx+a-60,cy+b     ,cr);
-				if ( pad.now.R1 ) gra.circlefill(cx+a+40,cy+b-40,cr);else gra.circle(cx+a+40,cy+b-40,cr);
+				if ( pad.now.RL ) gra.circlefill(cx+a-20,cy+b   ,cr);else gra.circle(cx+a-20,cy+b  ,cr);
+				if ( pad.now.ST ) gra.circlefill(cx+a-100,cy+b+25,cr);else gra.circle(cx+a-100,cy+b+25,cr);
+				if ( pad.now.R1 ) gra.circlefill(cx+a- 70,cy+b+25,cr);else gra.circle(cx+a- 70,cy+b+25,cr);
+				if ( pad.now.R3 ) gra.circlefill(cx+a- 40,cy+b+25,cr);else gra.circle(cx+a- 40,cy+b+25,cr);
 			}
 }
 
