@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>box</title>
+		<style>
+			.group
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:right;
+			}
+			.readme
+			{
+				display:inline-block; 
+				text-align:center;
+				font-size:12px;
+				font-family:monospace;
+			}
+			.readme-left
+			{
+				display:inline-block; 
+				text-align:left;
+				font-size:12px;
+				font-family:monospace;
+			}
+		</style>
+	</head>
+	<body align="center" style="font-family:monospace">
+		<H2 style="font-family:sans-serif">パッドチェック</H2>
+
+		<canvas id="html_canvas" width="640" height="400"  style="border: 1px solid;display: none;" ></canvas>
+	    <canvas id="html_canvas2" width="640" height="400" style="border:1px solid;display: none;"></canvas>
+	    <canvas id="html_canvas3" width="640" height="400"style="border:1px solid;"></canvas>
+
+		<br>
+		<span id="html_error"></span>
+		<span id="html_info"></span><br>
+		<span id="html_padinfo"></span>
+
+<br>
+				<br>
+
+
+		<script src="lib.js"></script>
+		<script src="main.js"></script>
+		<br>
+
+		<div class="readme">
+							<p>～概要～</p>
+							<p>～2022/09/17 X-Inputのアナログ入力の入力精度を確認するためのツール</p>
+		</div>
+	</body>
+</html>
