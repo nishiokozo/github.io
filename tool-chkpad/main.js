@@ -33,6 +33,19 @@ window.onload = function( e )
    	let C6 =  vec3(0.9,0.9,0.0) ;
    	let C7 =  vec3(1,1,1);
 
+	{
+		html.entry( "html_edit"			,"checkbox"	,	false	);	// ex) <input type="checkbox" name="html_name" onClick="html.request('(name)')">
+		html.request = function( req )	// window.onload()の前に完了していないので、この定義までにボタンが押される可能性があり僅かに問題がある。
+		{
+			// ブラウザからのクリックを反映させる為の処理。index.htmlにこの関数の呼び出しを書いておく必要がある。
+			if ( req=="(edit)" ) html.read("html_edit") ;	// htmlの設定がhtml.paramに反映される
+
+			console.log(req);
+		}
+		html.write_all();	// html.paramの設定値がhtmlに反映される
+	}
+
+
 	let g_flgStop = false;
 	//---------------------------------------------------------------------
 	function	update_paint( now )
@@ -51,20 +64,43 @@ window.onload = function( e )
 		 {	
 		   	document.getElementById("html_padinfo").innerHTML		= pad.inf.id;
 
-			if(0) // pad キーリスト表示
+
+			if ( html.get("html_edit") == true )
+			if(1) // pad キーリスト表示
 			{
-				let y = 1;
-				for ( let i = 0 ; i < pad.inf.buttons.length ; i++ )
+					let x = 4;
 				{
-					let b = pad.inf.buttons[i];
-					gra.symbol( i+":"+b.pressed+","+b.value , 4,16*(y++), 16 , "LT", 0 );
+					let y = 3;
+					let list = navigator.getGamepads();
+							gra.symbol( "///// pad /////" , x,16*(y++), 16 , "LT", 0 );
+					for ( let i = 0 ; i < list.length ; i++ )
+					{
+						let inf = list[i];
+							gra.symbol( "["+i+"]"+inf , x,16*(y++), 16 , "LT", 0 );
+					}
 				}
-				for ( let i = 0 ; i < pad.inf.axes.length ; i++ )
+				x+=200;
 				{
-					gra.symbol( "a"+i+":"+pad.inf.axes[i] , 4,16*(y++), 16 , "LT", 0 );
+					let y = 3;
+							gra.symbol( "///// digital /////" , x,16*(y++), 16 , "LT", 0 );
+					for ( let i = 0 ; i < pad.inf.buttons.length ; i++ )
+					{
+						let b = pad.inf.buttons[i];
+						gra.symbol( "["+i+"]"+b.value , x,16*(y++), 16 , "LT", 0 );
+					}
 				}
-			}
+				x+=200
+				{
+					let y = 3;
+							gra.symbol( "///// analog /////" , x,16*(y++), 16 , "LT", 0 );
+					for ( let i = 0 ; i < pad.inf.axes.length ; i++ )
+					{
+						gra.symbol( "["+i+"]"+pad.inf.axes[i] , x,16*(y++), 16 , "LT", 0 );
+					}
+				}
+
 			//return;
+			}
 		}
 	const cx = gra.ctx.canvas.width/2;
 	const cy = gra.ctx.canvas.height/2;
@@ -138,6 +174,13 @@ window.onload = function( e )
 	let aR2 = pad.now.R2;
 	let aRX = pad.now.RX;
 	let aRY = pad.now.RY;
+
+//	aL2 = (pad.now.L2 + pad.prev.L2)/2;
+//	aLX = (pad.now.LX + pad.prev.LX)/2;
+//	aLY = (pad.now.LY + pad.prev.LY)/2;
+//	aR2 = (pad.now.R2 + pad.prev.R2)/2;
+//	aRX = (pad.now.RX + pad.prev.RX)/2;
+//	aRY = (pad.now.RY + pad.prev.RY)/2;
 
 	function foo( x0, y0 )
 	{

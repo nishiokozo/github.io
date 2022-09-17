@@ -1377,26 +1377,26 @@ function pad_create( rep1=8, rep2=2 )	// 2021/07/23 追加	2022/06/16大幅変�
 			data.prev.LL  =  data.now.LL;
 			data.prev.LR  =  data.now.LR;
 
-			data.now.LX =  inf.axes[0];
-			data.now.LY =  inf.axes[1];
-			data.now.RX =  inf.axes[2];
-			data.now.RY =  inf.axes[3];
-			data.now.RD =  inf.buttons[ 0].value == 1;
-			data.now.RR =  inf.buttons[ 1].value == 1;
-			data.now.RL =  inf.buttons[ 2].value == 1;
-			data.now.RU =  inf.buttons[ 3].value == 1;
-			data.now.L1 =  inf.buttons[ 4].value == 1;
-			data.now.R1 =  inf.buttons[ 5].value == 1;
-			data.now.L2 =  inf.buttons[ 6].value;
-			data.now.R2 =  inf.buttons[ 7].value;
-			data.now.SE =  inf.buttons[ 8].value == 1;
-			data.now.ST =  inf.buttons[ 9].value == 1;
-			data.now.L3 =  inf.buttons[10].value == 1;
-			data.now.R3 =  inf.buttons[11].value == 1;
-			data.now.LU  =  inf.buttons[12].value == 1;
-			data.now.LD  =  inf.buttons[13].value == 1;
-			data.now.LL  =  inf.buttons[14].value == 1;
-			data.now.LR  =  inf.buttons[15].value == 1;
+			if ( data.now.LX ) data.now.LX =  inf.axes[0];
+			if ( data.now.LY ) data.now.LY =  inf.axes[1];
+			if ( data.now.RX ) data.now.RX =  inf.axes[2];
+			if ( data.now.RY ) data.now.RY =  inf.axes[3];
+			if ( data.now.RD ) data.now.RD =  inf.buttons[ 0].value == 1;
+			if ( data.now.RR ) data.now.RR =  inf.buttons[ 1].value == 1;
+			if ( data.now.RL ) data.now.RL =  inf.buttons[ 2].value == 1;
+			if ( data.now.RU ) data.now.RU =  inf.buttons[ 3].value == 1;
+			if ( data.now.L1 ) data.now.L1 =  inf.buttons[ 4].value == 1;
+			if ( data.now.R1 ) data.now.R1 =  inf.buttons[ 5].value == 1;
+			if ( data.now.L2 ) data.now.L2 =  inf.buttons[ 6].value;
+			if ( data.now.R2 ) data.now.R2 =  inf.buttons[ 7].value;
+			if ( data.now.SE ) data.now.SE =  inf.buttons[ 8].value == 1;
+			if ( data.now.ST ) data.now.ST =  inf.buttons[ 9].value == 1;
+			if ( data.now.L3 ) data.now.L3 =  inf.buttons[10].value == 1;
+			if ( data.now.R3 ) data.now.R3 =  inf.buttons[11].value == 1;
+			if ( data.now.LU ) data.now.LU  =  inf.buttons[12].value == 1;
+			if ( data.now.LD ) data.now.LD =  inf.buttons[13].value == 1;
+			if ( data.now.LL ) data.now.LL =  inf.buttons[14].value == 1;
+			if ( data.now.LR ) data.now.LR =  inf.buttons[15].value == 1;
 
 			buttons_assign_common( data, border );
 		}
@@ -1451,20 +1451,20 @@ function pad_create( rep1=8, rep2=2 )	// 2021/07/23 追加	2022/06/16大幅変�
 			// buttons[13]	:	down								
 			// buttons[14]	:	left								
 			// buttons[15]	:	right								
-			data.now.RD =  inf.buttons[ 0].value == 1;	//A
-			data.now.RR =  inf.buttons[ 6].value == 1;	//Z
-			data.now.RL =  inf.buttons[ 2].value == 1;	//X
-			data.now.RU =  inf.buttons[ 3].value == 1;	//Y
-			data.now.L1 =  inf.buttons[ 4].value == 1;	//L
-			data.now.R1 =  inf.buttons[ 5].value == 1;	//R
-			data.now.L2 =  inf.buttons[ 1].value;		//B
-			data.now.R2 =  inf.buttons[ 7].value;		//C
-//			data.now.SE =  inf.buttons[  ].value == 1;	//-
-			data.now.ST =  inf.buttons[ 9].value == 1;	//start
-			data.now.LU  =  inf.axes[1] == -1;
-			data.now.LD  =  inf.axes[1] ==  1;
-			data.now.LL  =  inf.axes[0] == -1;
-			data.now.LR  =  inf.axes[0] ==  1;
+			if ( data.now.RD ) data.now.RD =  inf.buttons[ 0].value == 1;	//A
+			if ( data.now.RR ) data.now.RR =  inf.buttons[ 6].value == 1;	//Z
+			if ( data.now.RL ) data.now.RL =  inf.buttons[ 2].value == 1;	//X
+			if ( data.now.RU ) data.now.RU =  inf.buttons[ 3].value == 1;	//Y
+			if ( data.now.L1 ) data.now.L1 =  inf.buttons[ 4].value == 1;	//L
+			if ( data.now.R1 ) data.now.R1 =  inf.buttons[ 5].value == 1;	//R
+			if ( data.now.L2 ) data.now.L2 =  inf.buttons[ 1].value;		//B
+			if ( data.now.R2 ) data.now.R2 =  inf.buttons[ 7].value;		//C
+//			if ( data.now.SE ) data.now.SE =  inf.buttons[  ].value == 1;	//-
+			if ( data.now.ST ) data.now.ST =  inf.buttons[ 9].value == 1;	//start
+			if ( data.now.LU ) data.now.LU  =  inf.axes[1] == -1;
+			if ( data.now.LD ) data.now.LD  =  inf.axes[1] ==  1;
+			if ( data.now.LL ) data.now.LL  =  inf.axes[0] == -1;
+			if ( data.now.LR ) data.now.LR  =  inf.axes[0] ==  1;
 
 			buttons_assign_common( data, border );
 
