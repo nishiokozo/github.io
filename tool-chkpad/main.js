@@ -37,7 +37,7 @@ window.onload = function( e )
 
 	{
 		html.entry( "html_detail"			,"checkbox"	,	false	);	
-		html.entry( "html_graph"			,"checkbox"	,	true	);	
+		html.entry( "html_graph"			,"checkbox"	,	false	);	
 		html.request = function( req )	// window.onload()の前に完了していないので、この定義までにボタンが押される可能性があり僅かに問題がある。
 		{
 			// ブラウザからのクリックを反映させる為の処理。index.htmlにこの関数の呼び出しを書いておく必要がある。
