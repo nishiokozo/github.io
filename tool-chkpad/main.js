@@ -107,7 +107,7 @@ window.onload = function( e )
 	const W = gra.ctx.canvas.width;
 	const H = gra.ctx.canvas.height;
 	let cr = 8;
-		if(1)
+		if(0)
 		{
 			// pad データひょうじ
 			let y= 1;
