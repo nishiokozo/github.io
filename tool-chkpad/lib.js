@@ -1377,26 +1377,26 @@ function pad_create( rep1=8, rep2=2 )	// 2021/07/23 追加	2022/06/16大幅変�
 			data.prev.LL  =  data.now.LL;
 			data.prev.LR  =  data.now.LR;
 
-			data.now.LX =  inf.axes[0];
-			data.now.LY =  inf.axes[1];
-			data.now.RX =  inf.axes[2];
-			data.now.RY =  inf.axes[3];
-			data.now.RD =  inf.buttons[ 0].value == 1;
-			data.now.RR =  inf.buttons[ 1].value == 1;
-			data.now.RL =  inf.buttons[ 2].value == 1;
-			data.now.RU =  inf.buttons[ 3].value == 1;
-			data.now.L1 =  inf.buttons[ 4].value == 1;
-			data.now.R1 =  inf.buttons[ 5].value == 1;
-			data.now.L2 =  inf.buttons[ 6].value;
-			data.now.R2 =  inf.buttons[ 7].value;
-			data.now.SE =  inf.buttons[ 8].value == 1;
-			data.now.ST =  inf.buttons[ 9].value == 1;
-			data.now.L3 =  inf.buttons[10].value == 1;
-			data.now.R3 =  inf.buttons[11].value == 1;
-			data.now.LU  =  inf.buttons[12].value == 1;
-			data.now.LD =  inf.buttons[13].value == 1;
-			data.now.LL =  inf.buttons[14].value == 1;
-			data.now.LR =  inf.buttons[15].value == 1;
+			if ( inf.axes[0]     )data.now.LX =  inf.axes[0];
+			if ( inf.axes[1]     )data.now.LY =  inf.axes[1];
+			if ( inf.axes[2]     )data.now.RX =  inf.axes[2];
+			if ( inf.axes[3]     )data.now.RY =  inf.axes[3];
+			if ( inf.buttons[ 0] )data.now.RD =  inf.buttons[ 0].value == 1;
+			if ( inf.buttons[ 1] )data.now.RR =  inf.buttons[ 1].value == 1;
+			if ( inf.buttons[ 2] )data.now.RL =  inf.buttons[ 2].value == 1;
+			if ( inf.buttons[ 3] )data.now.RU =  inf.buttons[ 3].value == 1;
+			if ( inf.buttons[ 4] )data.now.L1 =  inf.buttons[ 4].value == 1;
+			if ( inf.buttons[ 5] )data.now.R1 =  inf.buttons[ 5].value == 1;
+			if ( inf.buttons[ 6] )data.now.L2 =  inf.buttons[ 6].value;
+			if ( inf.buttons[ 7] )data.now.R2 =  inf.buttons[ 7].value;
+			if ( inf.buttons[ 8] )data.now.SE =  inf.buttons[ 8].value == 1;
+			if ( inf.buttons[ 9] )data.now.ST =  inf.buttons[ 9].value == 1;
+			if ( inf.buttons[10] )data.now.L3 =  inf.buttons[10].value == 1;
+			if ( inf.buttons[11] )data.now.R3 =  inf.buttons[11].value == 1;
+			if ( inf.buttons[12] )data.now.LU =  inf.buttons[12].value == 1;
+			if ( inf.buttons[13] )data.now.LD =  inf.buttons[13].value == 1;
+			if ( inf.buttons[14] )data.now.LL =  inf.buttons[14].value == 1;
+			if ( inf.buttons[15] )data.now.LR =  inf.buttons[15].value == 1;
 
 			buttons_assign_common( data, border );
 		}

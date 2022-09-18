@@ -52,8 +52,6 @@ window.onload = function( e )
 	}
 
 	let g_log_long = [];
-//	let g_log_short = [];
-
 	let g_flgStop = false;
 	//---------------------------------------------------------------------
 	function	update_paint( now )
@@ -66,7 +64,12 @@ window.onload = function( e )
 		const cy = gra.ctx.canvas.height/2;
 		const W = gra.ctx.canvas.width;
 		const H = gra.ctx.canvas.height;
-		let cr = 8;
+		const cr = 8;
+		const 		P_RX  = cx+W/2-cr -22;
+		function 	P_RY(v)  { return  -v*(H-cr*2-23*2)+H-cr -23;}
+		const 		P_LX  = cx-W/2+cr +22;
+		function 	P_LY(v)  { return  -v*(H-cr*2-23*2)+H-cr -23;}
+
 
 		// ビュー計算
 		peri.setCont(13,2);
@@ -74,10 +77,8 @@ window.onload = function( e )
 		let pad = peri.getinfo( 0.01 );
 
 
-//	   	document.getElementById("html_padinfo").innerHTML		= "pad:undefined";
 		 if (pad.inf != undefined )
 		 {	
-//		   	document.getElementById("html_padinfo").innerHTML		= pad.inf.id;
 			gra.symbol( "pad:" +pad.inf.id, cx,H-16, 16 , "CT", 0 );
 
 			if ( html.get("html_detail") == true )	//pad キーリスト表示
@@ -147,25 +148,27 @@ window.onload = function( e )
 		}
 
 		{// デジタルパッド表示
-			let a = 240;
+			let a = 220;
 			let b = 160-16;
 			{
 				if ( pad.now.LU ) gra.circlefill(cx-a    ,cy+b-25,cr);else gra.circle(cx-a    ,cy+b-20,cr);
 				if ( pad.now.LD ) gra.circlefill(cx-a    ,cy+b+25,cr);else gra.circle(cx-a    ,cy+b+20,cr);
 				if ( pad.now.LR ) gra.circlefill(cx-a+ 20,cy+b   ,cr);else gra.circle(cx-a+ 20,cy+b   ,cr);
 				if ( pad.now.LL ) gra.circlefill(cx-a- 20,cy+b   ,cr);else gra.circle(cx-a- 20,cy+b   ,cr);
-				if ( pad.now.SE ) gra.circlefill(cx-a+100,cy+b+25,cr);else gra.circle(cx-a+100,cy+b+25,cr);
-				if ( pad.now.L1 ) gra.circlefill(cx-a+ 70,cy+b+25,cr);else gra.circle(cx-a+ 70,cy+b+25,cr);
-				if ( pad.now.L3 ) gra.circlefill(cx-a+ 40,cy+b+25,cr);else gra.circle(cx-a+ 40,cy+b+25,cr);
+				if ( pad.now.SE ) gra.circlefill(cx-a+ 60,cy+b+25,cr);else gra.circle(cx-a+ 60,cy+b+25,cr);
+//				if ( pad.now.L1 ) gra.circlefill(cx-a+ 70,cy+b+25,cr);else gra.circle(cx-a+ 70,cy+b+25,cr);
+//				if ( pad.now.L3 ) gra.circlefill(cx-a+ 40,cy+b+25,cr);else gra.circle(cx-a+ 40,cy+b+25,cr);
+				if ( pad.now.L1 ) gra.circlefill(cx-a- 50,cy+b+25,cr);else gra.circle(cx-a- 50,cy+b+25,cr);
+				if ( pad.now.L3 ) gra.circlefill(cx-a- 90,cy+b+25,cr);else gra.circle(cx-a- 90,cy+b+25,cr);
 			}
 			{
 				if ( pad.now.RU ) gra.circlefill(cx+a    ,cy+b-20,cr);else gra.circle(cx+a    ,cy+b-20,cr);
 				if ( pad.now.RD ) gra.circlefill(cx+a    ,cy+b+20,cr);else gra.circle(cx+a    ,cy+b+20,cr);
 				if ( pad.now.RR ) gra.circlefill(cx+a+ 20,cy+b   ,cr);else gra.circle(cx+a+ 20,cy+b   ,cr);
 				if ( pad.now.RL ) gra.circlefill(cx+a- 20,cy+b   ,cr);else gra.circle(cx+a- 20,cy+b   ,cr);
-				if ( pad.now.ST ) gra.circlefill(cx+a-100,cy+b+25,cr);else gra.circle(cx+a-100,cy+b+25,cr);
-				if ( pad.now.R1 ) gra.circlefill(cx+a- 70,cy+b+25,cr);else gra.circle(cx+a- 70,cy+b+25,cr);
-				if ( pad.now.R3 ) gra.circlefill(cx+a- 40,cy+b+25,cr);else gra.circle(cx+a- 40,cy+b+25,cr);
+				if ( pad.now.ST ) gra.circlefill(cx+a- 60,cy+b+25,cr);else gra.circle(cx+a- 60,cy+b+25,cr);
+				if ( pad.now.R1 ) gra.circlefill(cx+a+ 50,cy+b+25,cr);else gra.circle(cx+a+ 50,cy+b+25,cr);
+				if ( pad.now.R3 ) gra.circlefill(cx+a+ 90,cy+b+25,cr);else gra.circle(cx+a+ 90,cy+b+25,cr);
 			}
 		}
 
@@ -185,7 +188,6 @@ window.onload = function( e )
 			let aRX = pad.now.RX;
 			let aRY = pad.now.RY;
 			g_log_long.push( {rx:aRX,ry:aRY,lx:aLX,ly:aLY,r2:aR2,l2:aL2});
-//			g_log_short.push({rx:aRX,ry:aRY,lx:aLX,ly:aLY,r2:aR2,l2:aL2});
 
 //			if ( html.get("html_graph") == true )
 			{	// グラフ：アナログレバー
@@ -206,19 +208,23 @@ window.onload = function( e )
 
 					gra.colorv(C0);
 
-					if ( i < 120 && len-1 > i  )
+					if ( i < 100 && len-1 > i  )
 					{
 						let v=g_log_long[len-1-i];
 
 						{//左トリガー
-							let lx = cx-W/2+cr;
-							let ly = -v.l2*(H-cr*2)+H-cr;
-							gra.psetv2( vec2(lx+i,ly) );
+//							let lx = cx-W/2+cr;
+//							let ly = -v.l2*(H-cr*2)+H-cr;
+							let x = P_LX;
+							let y = P_LY(v.l2);
+							gra.psetv2( vec2(x+i,y) );
 						}
 						{//右トリガー
-							let rx = cx+W/2-cr;
-							let ry = -v.r2*(H-cr*2)+H-cr;
-							gra.psetv2( vec2(rx-i,ry) );
+							let x = P_RX;
+							let y = P_RY(v.r2);
+//							let rx = cx+W/2-cr;
+//							let ry = -v.r2*(H-cr*2)+H-cr;
+							gra.psetv2( vec2(x-i,y) );
 						}
 					}
 
@@ -243,47 +249,7 @@ window.onload = function( e )
 				}
 				if ( g_log_long.length > ar ) g_log_long.shift();
 			}
-if(0)
-			{	// グラフ：アナログトリガー
-				gra.colorv(C0);
-				let len = Math.min( g_log_long.length, ar );
-				for ( let i = 0 ; i < len/2 ; i++ )
-				{
-					let v=g_log_long[len-1-i];
 
-
-					{
-						let rx = cx+W/2-cr;
-						let ry = -v.r2*(H-cr*2)+H-cr;
-						gra.psetv2( vec2(rx-i,ry) );
-					}
-
-				}
-				if ( g_log_long.length > ar ) g_log_long.shift();
-			}
-if(0)
-			{	//軌跡
-				gra.colorv(C0);
-				let w = 12;
-				for ( let i = 1 ; i < g_log_short.length ; i++ )
-				{
-					function foo( x ,y ) {return vec2(cx+x*ar, cy+y*ar); }
-					let v=g_log_short[i];
-					let p=g_log_short[i-1];
-					{//右レバー
-						let p1 = foo(v.rx,v.ry);
-						let p2 = foo(p.rx,p.ry);
-						gra.linev2( p1,p2);
-					}
-					{//左レバー
-						let p1 = foo(v.lx,v.ly);
-						let p2 = foo(p.lx,p.ly);
-						gra.linev2( p1,p2);
-					}
-
-				}
-				if ( g_log_short.length > w ) g_log_short.shift();
-			}
 			gra.colorv(C0);
 			function foo( x0, y0 )
 			{
@@ -314,14 +280,19 @@ if(0)
 				gra.circlefillv2( vec2(x,y), cr );
 			}
 			{//アナログトリガー左
-				let lx = cx-W/2+cr;
-				let ly = -aL2*(H-cr*2)+H-cr;
-				gra.circlefillv2( vec2(lx,ly), cr );
+				let x = P_LX;
+				let y = P_LY(aL2);
+
+//LX				let lx = cx-W/2+cr +22;
+//				let ly = -aL2*(H-cr*2)+H-cr -23;
+				gra.circlefillv2( vec2(x,y), cr );
 			}
 			{//アナログトリガー右
-				let rx = cx+W/2-cr;
-				let ry = -aR2*(H-cr*2)+H-cr;
-				gra.circlefillv2( vec2(rx,ry), cr );
+//				let rx = cx+W/2-cr -22;
+//				let ry = -aR2*(H-cr*2)+H-cr -23;
+				let x = P_RX;
+				let y = P_RY(aR2);
+				gra.circlefillv2( vec2(x,y), cr );
 			}
 			gra.symbol( ""+strfloat(aL2*100,3,1)+"%",  cx-W*0.42		,0, 16 , "CT", 0 );
 			gra.symbol( ""+strfloat(aLX*100,4,1)+"%",  cx-W*0.26		,0, 16 , "CT", 0 );
