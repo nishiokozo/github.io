@@ -1394,9 +1394,9 @@ function pad_create( rep1=8, rep2=2 )	// 2021/07/23 追加	2022/06/16大幅変�
 			data.now.L3 =  inf.buttons[10].value == 1;
 			data.now.R3 =  inf.buttons[11].value == 1;
 			data.now.LU  =  inf.buttons[12].value == 1;
-			data.now.LD =  inf.buttons[13].value == 1;
-			data.now.LL =  inf.buttons[14].value == 1;
-			data.now.LR =  inf.buttons[15].value == 1;
+			data.now.LD  =  inf.buttons[13].value == 1;
+			data.now.LL  =  inf.buttons[14].value == 1;
+			data.now.LR  =  inf.buttons[15].value == 1;
 
 			buttons_assign_common( data, border );
 		}

@@ -107,11 +107,11 @@ window.onload = function( e )
 	const W = gra.ctx.canvas.width;
 	const H = gra.ctx.canvas.height;
 	let cr = 8;
-		if(0)
+		if(1)
 		{
 			// pad データひょうじ
 			let y= 1;
-			let x =414
+			let x =414;
 					gra.symbol( "lu>"+pad.now.LU, x,16*(y++), 16 , "LT", 0 );
 					gra.symbol( "ld>"+pad.now.LD, x,16*(y++), 16 , "LT", 0 );
 					gra.symbol( "lr>"+pad.now.LR, x,16*(y++), 16 , "LT", 0 );
