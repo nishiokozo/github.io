@@ -136,7 +136,7 @@ window.onload = function( e )
 	
 		}
 
-{
+		{
 			let a = 240;
 			let b = 160;
 			{
@@ -157,93 +157,77 @@ window.onload = function( e )
 				if ( pad.now.R1 ) gra.circlefill(cx+a- 70,cy+b+25,cr);else gra.circle(cx+a- 70,cy+b+25,cr);
 				if ( pad.now.R3 ) gra.circlefill(cx+a- 40,cy+b+25,cr);else gra.circle(cx+a- 40,cy+b+25,cr);
 			}
-}
-
-{
-	const ar = gra.ctx.canvas.height/2-16;
-		gra.circlev2( vec2(cx,cy), ar );
-		{
-			let s = cr*2;
-			gra.linev2( vec2(cx-s  ,cy+0.5), vec2(cx+s  ,cy+0.5) );
-			gra.linev2( vec2(cx+0.5,cy-s  ), vec2(cx+0.5,cy+s  ) );
 		}
 
-	let aL2 = pad.now.L2;
-	let aLX = pad.now.LX;
-	let aLY = pad.now.LY;
-	let aR2 = pad.now.R2;
-	let aRX = pad.now.RX;
-	let aRY = pad.now.RY;
-
-//	aL2 = (pad.now.L2 + pad.prev.L2)/2;
-//	aLX = (pad.now.LX + pad.prev.LX)/2;
-//	aLY = (pad.now.LY + pad.prev.LY)/2;
-//	aR2 = (pad.now.R2 + pad.prev.R2)/2;
-//	aRX = (pad.now.RX + pad.prev.RX)/2;
-//	aRY = (pad.now.RY + pad.prev.RY)/2;
-
-	function foo( x0, y0 )
-	{
-		let x = x0*ar+cx;
-		let y = y0*ar+cy;
-		return vec2(x,y);
-	}
-	function foo_circle( x0, y0 )
-	{
 		{
+			const ar = gra.ctx.canvas.height/2-16;
+				gra.circlev2( vec2(cx,cy), ar );
+				{
+					let s = cr*2;
+					gra.linev2( vec2(cx-s  ,cy+0.5), vec2(cx+s  ,cy+0.5) );
+					gra.linev2( vec2(cx+0.5,cy-s  ), vec2(cx+0.5,cy+s  ) );
+				}
 
+			let aL2 = pad.now.L2;
+			let aLX = pad.now.LX;
+			let aLY = pad.now.LY;
+			let aR2 = pad.now.R2;
+			let aRX = pad.now.RX;
+			let aRY = pad.now.RY;
+
+		//	aL2 = (pad.now.L2 + pad.prev.L2)/2;
+		//	aLX = (pad.now.LX + pad.prev.LX)/2;
+		//	aLY = (pad.now.LY + pad.prev.LY)/2;
+		//	aR2 = (pad.now.R2 + pad.prev.R2)/2;
+		//	aRX = (pad.now.RX + pad.prev.RX)/2;
+		//	aRY = (pad.now.RY + pad.prev.RY)/2;
+
+			function foo( x0, y0 )
+			{
+				let x = x0*ar+cx;
+				let y = y0*ar+cy;
+				return vec2(x,y);
+			}
+			function foo_circle( x0, y0 )	// 矩形を円に補正
+			{
+				let th = Math.atan2(y0,x0);
+				let ln = Math.sqrt(x0*x0+y0*y0);
+				let ax = Math.cos(th);
+				let ay = Math.sin(th);
+				ln*=Math.max(Math.abs(ay),Math.abs(ax));;
+				let x = ln*ax*ar+cx;
+				let y = ln*ay*ar+cy;
+				return vec2(x,y);
+			}
+			{//アナログレバー左
+				let x = (aLX+pad.prev.LX)/2.0;
+				let y = (aLY+pad.prev.LY)/2.0;
+				let p  = foo( aLX, aLY );
+				gra.circlefillv2( p,  cr );
+			}
+			{//アナログレバー右
+				let x = aRX*ar+cx;
+				let y = aRY*ar+cy;
+				gra.circlefillv2( vec2(x,y), cr );
+			}
+			{
+				let rx = cx+W/2-cr;
+				let ry = -aR2*(H-cr*2)+H-cr;
+				gra.circlefillv2( vec2(rx,ry), cr );
+			}
+			{
+				let lx = cx-W/2+cr;
+				let ly = -aL2*(H-cr*2)+H-cr;
+				gra.circlefillv2( vec2(lx,ly), cr );
+			}
+			gra.symbol( ""+strfloat(aL2*100,3,1)+"%",  cx-W*0.42		,0, 16 , "CT", 0 );
+			gra.symbol( ""+strfloat(aLX*100,4,1)+"%",  cx-W*0.26		,0, 16 , "CT", 0 );
+			gra.symbol( ""+strfloat(aLY*100,4,1)+"%",  cx-W*0.26		,16, 16 , "CT", 0 );
+
+			gra.symbol( ""+strfloat(aR2*100,4,1)+"%",  cx+W*0.42		,0, 16 , "CT", 0 );
+			gra.symbol( ""+strfloat(aRX*100,4,1)+"%",  cx+W*0.26		,0, 16 , "CT", 0 );
+			gra.symbol( ""+strfloat(aRY*100,4,1)+"%",  cx+W*0.26		,16, 16 , "CT", 0 );
 		}
-
-		let th = Math.atan2(y0,x0);
-		let ln = Math.sqrt(x0*x0+y0*y0);
-		let ax = Math.cos(th);
-		let ay = Math.sin(th);
-		ln*=Math.max(Math.abs(ay),Math.abs(ax));;
-		let x = ln*ax*ar+cx;
-		let y = ln*ay*ar+cy;
-		return vec2(x,y);
-	}
-	{
-		let x = (aLX+pad.prev.LX)/2.0;
-		let y = (aLY+pad.prev.LY)/2.0;
-		let p  = foo( aLX, aLY );
-		let pp  = foo( pad.prev.LX, pad.prev.LY );
-		let pc  = foo_circle( aLX, aLY );
-//		let p = foo( x,y );
-		gra.colorv(C2);
-//		gra.circlefillv2( pp,  5 );
-		gra.colorv(C5);
-//		gra.circlefillv2( pc,  5 );
-		gra.colorv(C0);
-		gra.circlefillv2( p,  cr );
-	}
-	{
-		let x = aRX*ar+cx;
-		let y = aRY*ar+cy;
-		gra.circlefillv2( vec2(x,y), cr );
-	}
-	{
-		let rx = cx+W/2*0.9;
-		let lx = cx-W/2*0.9;
-		let ry = -aR2*H+H;
-		let ly = -aL2*H+H;
-		gra.circlefillv2( vec2(rx,ry), cr );
-		gra.circlefillv2( vec2(lx,ly), cr );
-	}
-	gra.symbol( ""+strfloat(aL2*100,3,1)+"%",  cx-W*0.45	,0, 16 , "CT", 0 );
-	gra.symbol( ""+strfloat(aLX*100,4,1)+"%",  cx-W*0.3		,0, 16 , "CT", 0 );
-	gra.symbol( ""+strfloat(aLY*100,4,1)+"%",  cx-W*0.3		,16, 16 , "CT", 0 );
-
-	gra.symbol( ""+strfloat(aR2*100,4,1)+"%",  cx+W*0.45	,0, 16 , "CT", 0 );
-	gra.symbol( ""+strfloat(aRX*100,4,1)+"%",  cx+W*0.3		,0, 16 , "CT", 0 );
-	gra.symbol( ""+strfloat(aRY*100,4,1)+"%",  cx+W*0.3		,16, 16 , "CT", 0 );
-//	gra.symbol( ""+strfloat(aR2*100,3,1)+"%", 600-16,0, 16 , "LT", 0 );
-//	gra.symbol( ""+strfloat(aRX*100,3,1)+"%",   100	,0, 16 , "LT", 0 );
-//	gra.symbol( ""+strfloat(aRY*100,3,1)+"%",   200	,0, 16 , "LT", 0 );
-}
-
-		// キャンバス2D 
-		//gra.symbol( ""+now, 320,0,  16, "LT", 0 );
 
 		// 合成
 		{
