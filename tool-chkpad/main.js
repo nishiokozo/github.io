@@ -215,19 +215,15 @@ window.onload = function( e )
 						{
 							let sc = 2;
 
-							//if ( v0.ly != v1.ly && v0.ly == v2.ly && v1.ly == v3.ly ) gra.colorv(C2);else 
 							gra.colorv(C9);
 							gra.pset( cx-i   , v0.ly*len*sc+cy );
 
-							//if ( v0.lx != v1.lx && v0.lx == v2.lx && v1.lx == v3.lx ) gra.colorv(C2);else 
 							gra.colorv(C8);
 							gra.pset( cx+v0.lx*len*sc, cy-i );
 
-							//if ( v0.ry != v1.ry && v0.ry == v2.ry && v1.ry == v3.ry ) gra.colorv(C2);else 
 							gra.colorv(C8);
 							gra.pset( cx+i   , v0.ry*len*sc+cy );
 
-							//if ( v0.rx != v1.rx && v0.rx == v2.rx && v1.rx == v3.rx ) gra.colorv(C2);else 
 							gra.colorv(C9);
 							gra.pset( cx+v0.rx*len*sc, cy+i );
 						}
@@ -271,8 +267,125 @@ window.onload = function( e )
 
 
 				}
+if(0)
+{
+	if ( g_log.length > 0 )
+	{
+		let tbl_x={};
+		let tbl_y={};
+
+		let v = vec2(0,0);
+		let cnt = 0;
+		for ( let i = 0 ; i < g_log.length && i < 6; i++ )
+		{
+			let p = g_log[i];
+			v.x += p.lx;
+			v.y += p.ly;
+			cnt++;
+
+			tbl_x[p.lx]++;
+			tbl_y[p.ly]++;
+		}
+		v.x = v.x /cnt;
+		v.y = v.y /cnt;
+		if(0)
+		{
+			let x = 0;
+			{
+				let cnt = 0;
+				for ( let a of tbl_x )
+				{
+					x += a;
+					cnt++;
+				}
+				x = x / cnt;
+			}
+			let y = 0;
+			{
+				let cnt = 0;
+				for ( let a of tbl_y )
+				{
+					y += a;
+					cnt++;
+				}
+				y = y / cnt;
+			}
+			v.x = x;
+			v.y = y;
+		} 
+
+		
+		gra.colorv(C2);
+		{
+	//		let p = g_log[0];
+			v.x = v.x*ar+cx;
+			v.y = v.y*ar+cy;
+		}
+						 gra.psetv2( v );
+						gra.circlefillv2( v,  cr*4 );
+
+
+	}
+	if ( g_log.length > 0 )
+	{
+		let tbl_x={};
+		let tbl_y={};
+
+		let v = vec2(0,0);
+		let cnt = 0;
+		for ( let i = 0 ; i < g_log.length && i < 6; i++ )
+		{
+			let p = g_log[i];
+			v.x += p.rx;
+			v.y += p.ry;
+			cnt++;
+
+			tbl_x[p.rx]++;
+			tbl_y[p.ry]++;
+		}
+		v.x = v.x /cnt;
+		v.y = v.y /cnt;
+		if(0)
+		{
+			let x = 0;
+			{
+				let cnt = 0;
+				for ( let a of tbl_x )
+				{
+					x += a;
+					cnt++;
+				}
+				x = x / cnt;
+			}
+			let y = 0;
+			{
+				let cnt = 0;
+				for ( let a of tbl_y )
+				{
+					y += a;
+					cnt++;
+				}
+				y = y / cnt;
+			}
+			v.x = x;
+			v.y = y;
+		} 
+
+		
+		gra.colorv(C2);
+		{
+	//		let p = g_log[0];
+			v.x = v.x*ar+cx;
+			v.y = v.y*ar+cy;
+		}
+						 gra.psetv2( v );
+						gra.circlefillv2( v,  cr*4 );
+
+	}
+}
 				if ( g_log.length > ar ) g_log.pop();
 			}
+
 
 			if (pad.inf != undefined )
 			{
