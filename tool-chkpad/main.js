@@ -179,7 +179,6 @@ window.onload = function( e )
 			}
 		}
 
-		//if (pad.inf != undefined )
 		{
 
 			gra.colorv(C0);
@@ -213,7 +212,7 @@ window.onload = function( e )
 						let v3=g_log[i+3];
 						if ( html.get("html_graph") == true )
 						{
-							let sc = 2;
+							let sc = 1;
 
 							gra.colorv(C9);
 							gra.pset( cx-i   , v0.ly*len*sc+cy );
@@ -264,125 +263,8 @@ window.onload = function( e )
 							gra.linev2( p1,p2);
 						}
 					}
-
-
 				}
-if(0)
-{
-	if ( g_log.length > 0 )
-	{
-		let tbl_x={};
-		let tbl_y={};
 
-		let v = vec2(0,0);
-		let cnt = 0;
-		for ( let i = 0 ; i < g_log.length && i < 6; i++ )
-		{
-			let p = g_log[i];
-			v.x += p.lx;
-			v.y += p.ly;
-			cnt++;
-
-			tbl_x[p.lx]++;
-			tbl_y[p.ly]++;
-		}
-		v.x = v.x /cnt;
-		v.y = v.y /cnt;
-		if(0)
-		{
-			let x = 0;
-			{
-				let cnt = 0;
-				for ( let a of tbl_x )
-				{
-					x += a;
-					cnt++;
-				}
-				x = x / cnt;
-			}
-			let y = 0;
-			{
-				let cnt = 0;
-				for ( let a of tbl_y )
-				{
-					y += a;
-					cnt++;
-				}
-				y = y / cnt;
-			}
-			v.x = x;
-			v.y = y;
-		} 
-
-		
-		gra.colorv(C2);
-		{
-	//		let p = g_log[0];
-			v.x = v.x*ar+cx;
-			v.y = v.y*ar+cy;
-		}
-						 gra.psetv2( v );
-						gra.circlefillv2( v,  cr*4 );
-
-
-	}
-	if ( g_log.length > 0 )
-	{
-		let tbl_x={};
-		let tbl_y={};
-
-		let v = vec2(0,0);
-		let cnt = 0;
-		for ( let i = 0 ; i < g_log.length && i < 6; i++ )
-		{
-			let p = g_log[i];
-			v.x += p.rx;
-			v.y += p.ry;
-			cnt++;
-
-			tbl_x[p.rx]++;
-			tbl_y[p.ry]++;
-		}
-		v.x = v.x /cnt;
-		v.y = v.y /cnt;
-		if(0)
-		{
-			let x = 0;
-			{
-				let cnt = 0;
-				for ( let a of tbl_x )
-				{
-					x += a;
-					cnt++;
-				}
-				x = x / cnt;
-			}
-			let y = 0;
-			{
-				let cnt = 0;
-				for ( let a of tbl_y )
-				{
-					y += a;
-					cnt++;
-				}
-				y = y / cnt;
-			}
-			v.x = x;
-			v.y = y;
-		} 
-
-		
-		gra.colorv(C2);
-		{
-	//		let p = g_log[0];
-			v.x = v.x*ar+cx;
-			v.y = v.y*ar+cy;
-		}
-						 gra.psetv2( v );
-						gra.circlefillv2( v,  cr*4 );
-
-	}
-}
 				if ( g_log.length > ar ) g_log.pop();
 			}
 
