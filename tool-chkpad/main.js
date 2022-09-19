@@ -37,7 +37,7 @@ window.onload = function( e )
 
 	{
 		html.entry( "html_detail"			,"checkbox"	,	false	);	
-		html.entry( "html_graph"			,"checkbox"	,	false	);	
+		html.entry( "html_graph"			,"checkbox"	,	true	);	
 		html.request = function( req )	// window.onload()の前に完了していないので、この定義までにボタンが押される可能性があり僅かに問題がある。
 		{
 			// ブラウザからのクリックを反映させる為の処理。index.htmlにこの関数の呼び出しを書いておく必要がある。
@@ -51,10 +51,11 @@ window.onload = function( e )
 		html.write_all();	// html.paramの設定値がhtmlに反映される
 	}
 
-	let g_log_long = [];
+	let g_log = [];
 	let g_flgStop = false;
+	let g_prev_time = 0.0;
 	//---------------------------------------------------------------------
-	function	update_paint( now )
+	function	update_paint( now_time )
 	//---------------------------------------------------------------------
 	{
 		gra.backcolor([1,0,0]);
@@ -64,11 +65,13 @@ window.onload = function( e )
 		const cy = gra.ctx.canvas.height/2;
 		const W = gra.ctx.canvas.width;
 		const H = gra.ctx.canvas.height;
-		const cr = 8;
+		const cr = 4;
+		const ar = gra.ctx.canvas.height/2-cr*2-12;
 		const 		P_RX  = cx+W/2-cr -22;
-		function 	P_RY(v)  { return  -v*(H-cr*2-23*2)+H-cr -23;}
+		const PH = 16;
+		function 	P_RY(v)  { return  -v*(H-cr*2-PH*2)+H-cr -PH;}
 		const 		P_LX  = cx-W/2+cr +22;
-		function 	P_LY(v)  { return  -v*(H-cr*2-23*2)+H-cr -23;}
+		function 	P_LY(v)  { return  -v*(H-cr*2-PH*2)+H-cr -PH;}
 
 
 		// ビュー計算
@@ -76,10 +79,13 @@ window.onload = function( e )
 
 		let pad = peri.getinfo( 0.01 );
 
-
+			gra.symbol( "" +strfloat(1000.0/(now_time-g_prev_time),2,0)+"fps", cx,0, 16 , "CT", 0 );
+			g_prev_time = now_time;
 		 if (pad.inf != undefined )
 		 {	
-			gra.symbol( "pad:" +pad.inf.id, cx,H-16, 16 , "CT", 0 );
+			document.getElementById("html_info").innerHTML = pad.inf.id;
+
+//			gra.symbol( "pad:" +pad.inf.id, cx,H-16, 16 , "CT", 0 );
 
 			if ( html.get("html_detail") == true )	//pad キーリスト表示
 			{
@@ -97,7 +103,7 @@ window.onload = function( e )
 				x+=200;
 				{
 					let y = 3;
-							gra.symbol( "///// digital /////" , x,16*(y++), 16 , "LT", 0 );
+							gra.symbol( "///// buttons /////" , x,16*(y++), 16 , "LT", 0 );
 					for ( let i = 0 ; i < pad.inf.buttons.length ; i++ )
 					{
 						let b = pad.inf.buttons[i];
@@ -107,16 +113,18 @@ window.onload = function( e )
 				x+=200
 				{
 					let y = 3;
-							gra.symbol( "///// analog /////" , x,16*(y++), 16 , "LT", 0 );
+							gra.symbol( "///// axis /////" , x,16*(y++), 16 , "LT", 0 );
 					for ( let i = 0 ; i < pad.inf.axes.length ; i++ )
 					{
 						gra.symbol( "["+i+"]"+pad.inf.axes[i] , x,16*(y++), 16 , "LT", 0 );
 					}
 				}
 
-			//return;
+
 			}
 		}
+	//		 if (pad.inf != undefined )
+	//				gra.symbol( ""+pad.inf.axes[0] , x,16*(y++), 16 , "LT", 0 );
 
 		if(0)
 		{
@@ -148,32 +156,33 @@ window.onload = function( e )
 		}
 
 		{// デジタルパッド表示
-			let a = 220;
-			let b = 160-16;
+			let a = 200;
+			let b = 160-20;
+			let sc = 14;
 			{
-				if ( pad.now.LU ) gra.circlefill(cx-a    ,cy+b-25,cr);else gra.circle(cx-a    ,cy+b-20,cr);
-				if ( pad.now.LD ) gra.circlefill(cx-a    ,cy+b+25,cr);else gra.circle(cx-a    ,cy+b+20,cr);
-				if ( pad.now.LR ) gra.circlefill(cx-a+ 20,cy+b   ,cr);else gra.circle(cx-a+ 20,cy+b   ,cr);
-				if ( pad.now.LL ) gra.circlefill(cx-a- 20,cy+b   ,cr);else gra.circle(cx-a- 20,cy+b   ,cr);
-				if ( pad.now.SE ) gra.circlefill(cx-a+ 60,cy+b+25,cr);else gra.circle(cx-a+ 60,cy+b+25,cr);
-//				if ( pad.now.L1 ) gra.circlefill(cx-a+ 70,cy+b+25,cr);else gra.circle(cx-a+ 70,cy+b+25,cr);
-//				if ( pad.now.L3 ) gra.circlefill(cx-a+ 40,cy+b+25,cr);else gra.circle(cx-a+ 40,cy+b+25,cr);
-				if ( pad.now.L1 ) gra.circlefill(cx-a- 50,cy+b+25,cr);else gra.circle(cx-a- 50,cy+b+25,cr);
-				if ( pad.now.L3 ) gra.circlefill(cx-a- 90,cy+b+25,cr);else gra.circle(cx-a- 90,cy+b+25,cr);
+				if ( pad.now.LU ) gra.circlefill(cx-a    ,cy+b-sc,cr);else gra.circle(cx-a    ,cy+b-sc,cr);
+				if ( pad.now.LD ) gra.circlefill(cx-a    ,cy+b+sc,cr);else gra.circle(cx-a    ,cy+b+sc,cr);
+				if ( pad.now.LR ) gra.circlefill(cx-a+ sc,cy+b   ,cr);else gra.circle(cx-a+ sc,cy+b   ,cr);
+				if ( pad.now.LL ) gra.circlefill(cx-a- sc,cy+b   ,cr);else gra.circle(cx-a- sc,cy+b   ,cr);
+				if ( pad.now.SE ) gra.circlefill(cx-a+ sc*2,cy+b+sc,cr);else gra.circle(cx-a+ sc*2,cy+b+sc,cr);
+				if ( pad.now.L1 ) gra.circlefill(cx-a- sc*2,cy+b+sc,cr);else gra.circle(cx-a- sc*2,cy+b+sc,cr);
+				if ( pad.now.L3 ) gra.circlefill(cx-a- sc*3,cy+b+sc,cr);else gra.circle(cx-a- sc*3,cy+b+sc,cr);
 			}
 			{
-				if ( pad.now.RU ) gra.circlefill(cx+a    ,cy+b-20,cr);else gra.circle(cx+a    ,cy+b-20,cr);
-				if ( pad.now.RD ) gra.circlefill(cx+a    ,cy+b+20,cr);else gra.circle(cx+a    ,cy+b+20,cr);
-				if ( pad.now.RR ) gra.circlefill(cx+a+ 20,cy+b   ,cr);else gra.circle(cx+a+ 20,cy+b   ,cr);
-				if ( pad.now.RL ) gra.circlefill(cx+a- 20,cy+b   ,cr);else gra.circle(cx+a- 20,cy+b   ,cr);
-				if ( pad.now.ST ) gra.circlefill(cx+a- 60,cy+b+25,cr);else gra.circle(cx+a- 60,cy+b+25,cr);
-				if ( pad.now.R1 ) gra.circlefill(cx+a+ 50,cy+b+25,cr);else gra.circle(cx+a+ 50,cy+b+25,cr);
-				if ( pad.now.R3 ) gra.circlefill(cx+a+ 90,cy+b+25,cr);else gra.circle(cx+a+ 90,cy+b+25,cr);
+				if ( pad.now.RU ) gra.circlefill(cx+a    ,cy+b-sc,cr);else gra.circle(cx+a    ,cy+b-sc,cr);
+				if ( pad.now.RD ) gra.circlefill(cx+a    ,cy+b+sc,cr);else gra.circle(cx+a    ,cy+b+sc,cr);
+				if ( pad.now.RR ) gra.circlefill(cx+a+ sc,cy+b   ,cr);else gra.circle(cx+a+ sc,cy+b   ,cr);
+				if ( pad.now.RL ) gra.circlefill(cx+a- sc,cy+b   ,cr);else gra.circle(cx+a- sc,cy+b   ,cr);
+				if ( pad.now.ST ) gra.circlefill(cx+a- sc*2,cy+b+sc,cr);else gra.circle(cx+a- sc*2,cy+b+sc,cr);
+				if ( pad.now.R1 ) gra.circlefill(cx+a+ sc*2,cy+b+sc,cr);else gra.circle(cx+a+ sc*2,cy+b+sc,cr);
+				if ( pad.now.R3 ) gra.circlefill(cx+a+ sc*3,cy+b+sc,cr);else gra.circle(cx+a+ sc*3,cy+b+sc,cr);
 			}
 		}
 
+		//if (pad.inf != undefined )
 		{
-			const ar = gra.ctx.canvas.height/2-cr*2;
+
+			gra.colorv(C0);
 			gra.circlev2( vec2(cx,cy), ar );
 			{
 				let s = cr*2;
@@ -187,34 +196,46 @@ window.onload = function( e )
 			let aR2 = pad.now.R2;
 			let aRX = pad.now.RX;
 			let aRY = pad.now.RY;
-			g_log_long.push( {rx:aRX,ry:aRY,lx:aLX,ly:aLY,r2:aR2,l2:aL2});
 
-//			if ( html.get("html_graph") == true )
+
+			if (pad.inf != undefined )
 			{	// グラフ：アナログレバー
-				let len = Math.min( g_log_long.length, ar );
+				g_log.unshift( {rx:aRX,ry:aRY,lx:aLX,ly:aLY,r2:aR2,l2:aL2});
+
+				let len = Math.min( g_log.length, ar );
 				for ( let i = 0 ; i < len ; i++ )
 				{
-					let v=g_log_long[i];
-
-					if ( html.get("html_graph") == true )
+					if (  len > i+3 )
 					{
-						
-						gra.colorv(C0);gra.pset( i+cx-len   , v.ly*len+cy );
-						gra.colorv(C9);gra.pset( cx+v.lx*len, i+cy-len );
+						let v0=g_log[i];
+						let v1=g_log[i+1];
+						let v2=g_log[i+2];
+						let v3=g_log[i+3];
+						if ( html.get("html_graph") == true )
+						{
+							let sc = 2;
 
-						gra.colorv(C0);gra.pset( len-i+cx   , v.ry*len+cy );
-						gra.colorv(C9);gra.pset( cx+v.rx*len, cy+len-i );
+							if ( v0.ly != v1.ly && v0.ly == v2.ly && v1.ly == v3.ly ) gra.colorv(C2);else gra.colorv(C9);
+							gra.pset( cx-i   , v0.ly*len*sc+cy );
+
+							if ( v0.lx != v1.lx && v0.lx == v2.lx && v1.lx == v3.lx ) gra.colorv(C2);else gra.colorv(C8);
+							gra.pset( cx+v0.lx*len*sc, cy-i );
+
+							if ( v0.ry != v1.ry && v0.ry == v2.ry && v1.ry == v3.ry ) gra.colorv(C2);else gra.colorv(C8);
+							gra.pset( cx+i   , v0.ry*len*sc+cy );
+
+							if ( v0.rx != v1.rx && v0.rx == v2.rx && v1.rx == v3.rx ) gra.colorv(C2);else gra.colorv(C9);
+							gra.pset( cx+v0.rx*len*sc, cy+i );
+						}
 					}
 
 					gra.colorv(C0);
 
-					if ( i < 100 && len-1 > i  )
+					if ( i < 100 )//&& len-1 > i  )
 					{
-						let v=g_log_long[len-1-i];
+						let v=g_log[i];
 
 						{//左トリガー
-//							let lx = cx-W/2+cr;
-//							let ly = -v.l2*(H-cr*2)+H-cr;
 							let x = P_LX;
 							let y = P_LY(v.l2);
 							gra.psetv2( vec2(x+i,y) );
@@ -222,77 +243,73 @@ window.onload = function( e )
 						{//右トリガー
 							let x = P_RX;
 							let y = P_RY(v.r2);
-//							let rx = cx+W/2-cr;
-//							let ry = -v.r2*(H-cr*2)+H-cr;
 							gra.psetv2( vec2(x-i,y) );
 						}
 					}
 
-					if ( i < 20 && len-1 > i  )
+					// 軌跡
+					if ( i < 20 && i >=1 && len > i+1 )//&& len-1 > i  )	
 					{
-						function foo( x ,y ) {return vec2(cx+x*ar, cy+y*ar); }
-						let v=g_log_long[len-1-i];
-						let p=g_log_long[len-1-i-1];
+						function foo_ar( x ,y ) {return vec2(cx+x*ar, cy+y*ar); }
+						let v=g_log[i];
+						let p=g_log[i+1];
 						{//右レバー
-							let p1 = foo(v.rx,v.ry);
-							let p2 = foo(p.rx,p.ry);
+							let p1 = foo_ar(v.rx,v.ry);
+							let p2 = foo_ar(p.rx,p.ry);
 							gra.linev2( p1,p2);
 						}
 						{//左レバー
-							let p1 = foo(v.lx,v.ly);
-							let p2 = foo(p.lx,p.ly);
+							let p1 = foo_ar(v.lx,v.ly);
+							let p2 = foo_ar(p.lx,p.ly);
 							gra.linev2( p1,p2);
 						}
 					}
 
 
 				}
-				if ( g_log_long.length > ar ) g_log_long.shift();
+				if ( g_log.length > ar ) g_log.pop();
 			}
 
-			gra.colorv(C0);
-			function foo( x0, y0 )
+			if (pad.inf != undefined )
 			{
-				let x = x0*ar+cx;
-				let y = y0*ar+cy;
-				return vec2(x,y);
-			}
-			function foo_circle( x0, y0 )	// 矩形を円に補正
-			{
-				let th = Math.atan2(y0,x0);
-				let ln = Math.sqrt(x0*x0+y0*y0);
-				let ax = Math.cos(th);
-				let ay = Math.sin(th);
-				ln*=Math.max(Math.abs(ay),Math.abs(ax));;
-				let x = ln*ax*ar+cx;
-				let y = ln*ay*ar+cy;
-				return vec2(x,y);
-			}
-			{//アナログレバー左
-				let x = (aLX+pad.prev.LX)/2.0;
-				let y = (aLY+pad.prev.LY)/2.0;
-				let p  = foo( aLX, aLY );
-				gra.circlefillv2( p,  cr );
-			}
-			{//アナログレバー右
-				let x = aRX*ar+cx;
-				let y = aRY*ar+cy;
-				gra.circlefillv2( vec2(x,y), cr );
-			}
-			{//アナログトリガー左
-				let x = P_LX;
-				let y = P_LY(aL2);
-
-//LX				let lx = cx-W/2+cr +22;
-//				let ly = -aL2*(H-cr*2)+H-cr -23;
-				gra.circlefillv2( vec2(x,y), cr );
-			}
-			{//アナログトリガー右
-//				let rx = cx+W/2-cr -22;
-//				let ry = -aR2*(H-cr*2)+H-cr -23;
-				let x = P_RX;
-				let y = P_RY(aR2);
-				gra.circlefillv2( vec2(x,y), cr );
+				gra.colorv(C0);
+				function foo_ar( x0, y0 )
+				{
+					let x = x0*ar+cx;
+					let y = y0*ar+cy;
+					return vec2(x,y);
+				}
+				function foo_circle( x0, y0 )	// 矩形を円に補正
+				{
+					let th = Math.atan2(y0,x0);
+					let ln = Math.sqrt(x0*x0+y0*y0);
+					let ax = Math.cos(th);
+					let ay = Math.sin(th);
+					ln*=Math.max(Math.abs(ay),Math.abs(ax));;
+					let x = ln*ax*ar+cx;
+					let y = ln*ay*ar+cy;
+					return vec2(x,y);
+				}
+				{//アナログレバー左
+					let p  = foo_ar( aLX, aLY );
+					 gra.circlefillv2( p,  cr );
+				}
+				{//アナログレバー右
+					let p  = foo_ar( aRX, aRY );
+					 gra.circlefillv2( p,  cr );
+				}
+				{//アナログトリガー左
+					let x = P_LX;
+					let y = P_LY(aL2);
+					let p  = vec2(x,y);
+					 gra.circlefillv2( p,  cr );
+				}
+				{//アナログトリガー右
+					let x = P_RX;
+					let y = P_RY(aR2);
+					let p  = vec2(x,y);
+					gra.circlefillv2( p,  cr );
+				}
 			}
 			gra.symbol( ""+strfloat(aL2*100,3,1)+"%",  cx-W*0.42		,0, 16 , "CT", 0 );
 			gra.symbol( ""+strfloat(aLX*100,4,1)+"%",  cx-W*0.26		,0, 16 , "CT", 0 );
