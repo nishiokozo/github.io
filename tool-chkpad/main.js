@@ -37,7 +37,7 @@ window.onload = function( e )
 
 	{
 		html.entry( "html_detail"			,"checkbox"	,	false	);	
-		html.entry( "html_graph"			,"checkbox"	,	true	);	
+		html.entry( "html_graph"			,"checkbox"	,	false	);	
 		html.request = function( req )	// window.onload()の前に完了していないので、この定義までにボタンが押される可能性があり僅かに問題がある。
 		{
 			// ブラウザからのクリックを反映させる為の処理。index.htmlにこの関数の呼び出しを書いておく必要がある。
@@ -215,16 +215,20 @@ window.onload = function( e )
 						{
 							let sc = 2;
 
-							if ( v0.ly != v1.ly && v0.ly == v2.ly && v1.ly == v3.ly ) gra.colorv(C2);else gra.colorv(C9);
+							//if ( v0.ly != v1.ly && v0.ly == v2.ly && v1.ly == v3.ly ) gra.colorv(C2);else 
+							gra.colorv(C9);
 							gra.pset( cx-i   , v0.ly*len*sc+cy );
 
-							if ( v0.lx != v1.lx && v0.lx == v2.lx && v1.lx == v3.lx ) gra.colorv(C2);else gra.colorv(C8);
+							//if ( v0.lx != v1.lx && v0.lx == v2.lx && v1.lx == v3.lx ) gra.colorv(C2);else 
+							gra.colorv(C8);
 							gra.pset( cx+v0.lx*len*sc, cy-i );
 
-							if ( v0.ry != v1.ry && v0.ry == v2.ry && v1.ry == v3.ry ) gra.colorv(C2);else gra.colorv(C8);
+							//if ( v0.ry != v1.ry && v0.ry == v2.ry && v1.ry == v3.ry ) gra.colorv(C2);else 
+							gra.colorv(C8);
 							gra.pset( cx+i   , v0.ry*len*sc+cy );
 
-							if ( v0.rx != v1.rx && v0.rx == v2.rx && v1.rx == v3.rx ) gra.colorv(C2);else gra.colorv(C9);
+							//if ( v0.rx != v1.rx && v0.rx == v2.rx && v1.rx == v3.rx ) gra.colorv(C2);else 
+							gra.colorv(C9);
 							gra.pset( cx+v0.rx*len*sc, cy+i );
 						}
 					}
