@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>box</title>
+		<style>
+			.group
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:right;
+			}
+			.readme
+			{
+				display:inline-block; 
+				text-align:center;
+				font-size:12px;
+				font-family:monospace;
+			}
+			.readme-left
+			{
+				display:inline-block; 
+				text-align:left;
+				font-size:12px;
+				font-family:monospace;
+			}
+		</style>
+	</head>
+	<body align="center" style="font-family:monospace">
+		<H2 style="font-family:sans-serif">ボクシングプロトタイプ一体：表示</H2>
+
+		<canvas id="html_canvas" width="640" height="400"  style="border: 1px solid;display: none;" ></canvas>
+	    <canvas id="html_canvas2" width="640" height="400" style="border:1px solid;display: none;"></canvas>
+	    <canvas id="html_canvas3" width="640" height="400"style="border:1px solid;"></canvas>
+
+		<br>
+		<span id="html_error"></span>
+		<span id="html_info"></span><br>
+		<span id="html_padinfo"></span>
+
+<br>
+				<input type="button" 	value="save"		onClick="html.request('(save)');" >
+				<input type="button" 	value="load"		onClick="html.request('(load)');" >
+				<input type="checkbox" 	name="html_edit"	onClick="html.request('(edit)')">Edit
+				<input type="checkbox" 	name="html_ik"		onClick="html.request('(ik)')">IK
+				<input type="button" 	value="↑"			onClick="html.request('(↑)');" >
+				<input type="button"	value="↓"			onClick="html.request('(↓)');" >
+				<input type="button" 	value="←"			onClick="html.request('(←)');" >
+				<input type="button"	value="→"			onClick="html.request('(→)');" >
+				<br>
+
+				<textarea id="html_textarea" cols="80" rows="4"  ></textarea><br>
+				<textarea id="html_textarea2" cols="80" rows="4"  ></textarea><br>
+
+		<script src="lib.js"></script>
+		<script src="main.js"></script>
+		<br>
+<a href="https://nishiokozo.github.io/github.io/tool-chkpad/index.html">パッドチェック</a>
+<a href="http://127.0.0.1/github.io/tool-chkpad/index.html">パッドチェック(127)</a>
+<a href="http://127.0.0.1/tmp-tool-chkpad/index.html">パッドチェック2(127)</a>
+
+<br>
+		<div class="readme">
+							<p>～概要～</p>
+							<p>～2022/06/10 ①立方体を表示</p>
+		</div>
+	</body>
+</html>
