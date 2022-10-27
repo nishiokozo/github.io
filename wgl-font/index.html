@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>smp tex</title>
+		<style>
+			.group
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:right;
+			}
+			.readme
+			{
+				display:inline-block; 
+				text-align:center;
+				font-size:12px;
+				font-family:monospace;
+			}
+			.readme-left
+			{
+				display:inline-block; 
+				text-align:left;
+				font-size:12px;
+				font-family:monospace;
+			}
+		</style>
+	</head>
+	<body align="center" style="font-family:monospace">
+		<H2 style="font-family:sans-serif">Ｘ１フォント＆美咲フォント描画</H2>
+
+	    <canvas id="html_canvas" 		width="640" height="400" style="border:0px solid;"></canvas>
+	    <canvas id="html_canvas_gl" 	width="320" height="200" style="border:0px solid;display:none"></canvas>
+
+		<script src="lib.js"></script>
+		<script src="main.js"></script>
+		<div class="readme">
+							<p>～概要～</p>
+							<p>～2022/10/28 フォント描画サンプル</p>
+							320x200の画面に描画して、640x400に拡大<br>
+							美咲フォント(sjis第一・第二水準漢字2000文字ほど)<br>
+							X1フォント(asciiカナ含む256文字ほど)<br>
+		<br>
+		<img src="font.bmp" id="html_fontid" draggable=false>
+		<br>
+		<img src="k8x12_jisx0208R.png" id="html_fontid_misaki8x12" draggable=false >
+		<br>
+		</div>
+	</body>
+</html>
