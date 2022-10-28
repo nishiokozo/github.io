@@ -118,18 +118,26 @@ function html_setMessage()
 	const dw =2.0/tvram.width;
 	const dh =2.0/tvram.height;
 	
-	let str = document.getElementById( "html_textarea" ).value;
+	let strlong = document.getElementById( "html_textarea" ).value;
 
-	let tblStr = str.split("\n");
+	let tblStr = strlong.split("\n");
 
 
 	font_begin( font2 );
 	let x = 0;
 	let y = 7;
-	for ( let s of tblStr )
+	for ( let str of tblStr )
 	{
+		while ( str.length > 40 )
+		{
+			let s1 = str.substr(0,40);
+			let s2 = str.substr(40);
 			font_print( font2, x,(y)*12, "                                        ", dw,dh );
-			font_print( font2, x,(y++)*12, s, dw,dh );
+			font_print( font2, x,(y++)*12, s1, dw,dh );
+			str = s2;
+		}
+			font_print( font2, x,(y)*12, "                                        ", dw,dh );
+			font_print( font2, x,(y++)*12, str, dw,dh );
 	}
 
 	font_end( font2 );
