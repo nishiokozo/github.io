@@ -13,6 +13,28 @@ window.onload = function( e )	// コンテンツがロード
 {
 	let bloom = bloom_create( gl );
 
+	const dw =2.0/tvram.width;
+	const dh =2.0/tvram.height;
+
+	font_begin( font1 );
+	font_begin( font2 );
+	let x = 0;
+	let y = 2;
+	font_print( font1, x,(y++)*12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", dw,dh );
+	font_print( font2, x,(y++)*12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", dw,dh );
+	font_print( font1, x,(y++)*12, "abcdefghijklmnopqrstuvwxyz", dw,dh );
+	font_print( font2, x,(y++)*12, "abcdefghijklmnopqrstuvwxyz", dw,dh );
+	y++;
+	font_end( font2 );
+	font_end( font1 );
+
+	tvram_draw_begin( tvram );
+	gl_drawmShader( gl, font1.mesh, font1.shader, [font1.hdlTexture], null );
+	gl_drawmShader( gl, font2.mesh, font2.shader, [font2.hdlTexture], null );
+	tvram_draw_end( tvram );
+
+	html_setMessage();
+
 	//---------------------------------------------------------------------
 	function	main_update( now )
 	//---------------------------------------------------------------------
@@ -21,32 +43,16 @@ window.onload = function( e )	// コンテンツがロード
 		function drawScene()
 		//------------------------------
 		{
-			gl_cls( gl, vec3(0,0,0) );
 
-			const dw =2.0/tvram.width;
-			const dh =2.0/tvram.height;
 
 			font_begin( font1 );
 			font_begin( font2 );
 
-			let x = 4;
-			let y = 1;
+			let x = 0;
+			let y = 0;
 			font_print( font1, x,(y++)*12, "X1 Font8x8 "+strfloat(now,5,0), dw,dh );
 			font_print( font2, x,(y++)*12, "美咲フォント12ｘ8 "+strfloat(now,5,0), dw,dh );
 			y++;
-			font_print( font1, x,(y++)*12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", dw,dh );
-			font_print( font2, x,(y++)*12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", dw,dh );
-			font_print( font1, x,(y++)*12, "abcdefghijklmnopqrstuvwxyz", dw,dh );
-			font_print( font2, x,(y++)*12, "abcdefghijklmnopqrstuvwxyz", dw,dh );
-			y++;
-			font_print( font2, x,(y++)*12, "オミクロン株の新たな変異ウイルス「XBB」東京都内で初確認", dw,dh );
-			font_print( font2, x,(y++)*12, "政府 米巡航ミサイル「トマホーク」購入を検討 防衛力抜本強化", dw,dh );
-			font_print( font2, x,(y++)*12, "習主席 毛沢東ゆかりの地を訪問 権威さらに高めるねらいか", dw,dh );
-			font_print( font2, x,(y++)*12, "汚い爆弾、ロシアの「根拠」は煙感知器だった？　スロベニアが指摘", dw,dh );
-			font_print( font2, x,(y++)*12, "地震情報 2022年10月28日(金) /北日本は強雨や落雷に注意", dw,dh );
-			font_print( font2, x,(y++)*12, "ポーランド外務副大臣「ロシアが完全撤退しない停戦合意では平和は続かない」", dw,dh );
-			font_print( font2, x,(y++)*12, "Intel第13世代「Raptor Lake-S」が発売", dw,dh );
-
 
 			font_end( font2 );
 			font_end( font1 );
@@ -62,9 +68,14 @@ window.onload = function( e )	// コンテンツがロード
 		if ( font1.loaded  )
 		if ( font2.loaded  )
 		{
-			bloom.renderer( drawScene, "none4x4", 1.5, 1.2 );
+			drawScene()
+			//bloom.renderer( drawScene, "4x4", 1.5, 1.2 );
 	
 			// 合成・引き延ばし
+			{
+				const ctx = canvas_gl.getContext("webgl");
+				ctx.imageSmoothingEnabled = ctx.msImageSmoothingEnabled = 0; // スムージングOFF
+			}
 			{
 				const ctx = canvas_out.getContext("2d");
 				ctx.imageSmoothingEnabled = ctx.msImageSmoothingEnabled = 0; // スムージングOFF
@@ -84,3 +95,48 @@ window.onload = function( e )	// コンテンツがロード
 
 }
 
+//-----------------------------------------------------------------
+function html_setFullscreen()
+//-----------------------------------------------------------------
+{
+	const obj = document.querySelector("#html_canvas"); 
+
+	if( document.fullscreenEnabled )
+	{
+		obj.requestFullscreen.call(obj);
+	}
+	else
+	{
+		alert("フルスクリーンに対応していません");
+	}
+}
+//-----------------------------------------------------------------
+function html_setMessage()
+//-----------------------------------------------------------------
+{
+
+	const dw =2.0/tvram.width;
+	const dh =2.0/tvram.height;
+	
+	let str = document.getElementById( "html_textarea" ).value;
+
+	let tblStr = str.split("\n");
+
+
+	font_begin( font2 );
+	let x = 0;
+	let y = 7;
+	for ( let s of tblStr )
+	{
+			font_print( font2, x,(y)*12, "                                        ", dw,dh );
+			font_print( font2, x,(y++)*12, s, dw,dh );
+	}
+
+	font_end( font2 );
+
+	tvram_draw_begin( tvram );
+	gl_drawmShader( gl, font1.mesh, font1.shader, [font1.hdlTexture], null );
+	gl_drawmShader( gl, font2.mesh, font2.shader, [font2.hdlTexture], null );
+	tvram_draw_end( tvram );
+
+}
