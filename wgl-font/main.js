@@ -1,7 +1,7 @@
 "use strict";
 
-let canvas_out	= window.document.getElementById( "html_canvas" );				// 出力画面
-let canvas_gl	= window.document.getElementById( "html_canvas_gl" );			// g用l画面
+let canvas_out	= window.document.getElementById( "html_canvas" );		// 出力画面
+let canvas_gl	= window.document.getElementById( "html_canvas_gl" );	// g用l画面
 let gl = canvas_gl.getContext( "webgl", { antialias: false } );			// gl
 let font1 = gl_createFont_ascii( "font.bmp", 8, 8 );					// X1フォント ascii配列
 let font2 = gl_createFont_sjis( "k8x12_jisx0208R.png", 8, 12 )			// 美咲フォント sjis配列

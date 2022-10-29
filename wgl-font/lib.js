@@ -1216,20 +1216,18 @@ function gra3d_create( cv )	// 2022/06/10
 	gra3d.P = midentity(); 
 	gra3d.V = midentity(); 
 	gra3d.def_color = vec3(0,0,0);
-
+/*
 	{
 		gl.enable( gl.POLYGON_OFFSET_FILL );
 		gl.polygonOffset(1,1);
-		/*
-		GL_POLYGON_OFFSET_FILL、GL_POLYGON_OFFSET_LINE、またはGL_POLYGON_OFFSET_POINTが有効になっている場合、
-		各フラグメントの深度値は、適切な頂点の深度値から補間された後にオフセットされます。 
+		//	GL_POLYGON_OFFSET_FILL、GL_POLYGON_OFFSET_LINE、またはGL_POLYGON_OFFSET_POINTが有効になっている場合、
+		//	各フラグメントの深度値は、適切な頂点の深度値から補間された後にオフセットされます。 
 
-		polygonOffset(GLfloat factor, GLfloat units);
-		オフセットの値はfactor×DZ+r×unitsです。
-		ここで、DZはポリゴンの画面領域に対する深さの変化の測定値であり、
-		rは特定の値に対して解決可能なオフセットを生成することが保証されている最小値です。 
-		オフセットは、深度テストが実行される前、および値が深度バッファーに書き込まれる前に追加されます。
-		*/
+		//	polygonOffset(GLfloat factor, GLfloat units);
+		//	オフセットの値はfactor×DZ+r×unitsです。
+		//	ここで、DZはポリゴンの画面領域に対する深さの変化の測定値であり、
+		//	rは特定の値に対して解決可能なオフセットを生成することが保証されている最小値です。 
+		//	オフセットは、深度テストが実行される前、および値が深度バッファーに書き込まれる前に追加されます。
 	}
 
 
@@ -1239,8 +1237,8 @@ function gra3d_create( cv )	// 2022/06/10
 	gl.clearDepth( 1.0 );
 	gl.viewport( 0.0, 0.0, gl.canvas.width, gl.canvas.height );
 	gl.enable( gl.CULL_FACE );	// デフォルトでは反時計回りが表示
+*/
 
-	// シェーダーコンパイル
 
 
 	//-----------------------------------------------------------------------------
@@ -1319,7 +1317,6 @@ function gra3d_create( cv )	// 2022/06/10
 
 			let fontjson = imgidname2json_FONT( data.font_imageid );
 			model.shader = shader_create_FONT(gl, fontjson );
-console.log(data.name, model.shader);
 		}
 		else
 		{
@@ -4739,6 +4736,28 @@ function ene_create( cv )	// 2021/08/15 U K Eのエネルギーを算出して�
 
 // GL ラッパー関数＆定数
 
+//-----------------------------------------------------------------------------
+function gl_reset()
+//-----------------------------------------------------------------------------
+{
+	{
+		gl.enable( gl.POLYGON_OFFSET_FILL );
+		gl.polygonOffset(1,1);
+		//	GL_POLYGON_OFFSET_FILL、GL_POLYGON_OFFSET_LINE、またはGL_POLYGON_OFFSET_POINTが有効になっている場合、
+		//	各フラグメントの深度値は、適切な頂点の深度値から補間された後にオフセットされます。 
+
+		//	polygonOffset(GLfloat factor, GLfloat units);
+		//	オフセットの値はfactor×DZ+r×unitsです。
+		//	ここで、DZはポリゴンの画面領域に対する深さの変化の測定値であり、
+		//	rは特定の値に対して解決可能なオフセットを生成することが保証されている最小値です。 
+		//	オフセットは、深度テストが実行される前、および値が深度バッファーに書き込まれる前に追加されます。
+	}
+	gl.enable( gl.DEPTH_TEST );
+	gl.depthFunc( gl.LEQUAL );	// gl.LESS;	最も奥が1.0、最も手前が0.0
+	gl.enable( gl.CULL_FACE );	// デフォルトでは反時計回りが表示
+	gl.cullFace(gl.BACK);		// defaulg:gl.BACK
+}
+
 
 
 const gl_vs_P2U = " 								"
@@ -5356,19 +5375,6 @@ function tvram_draw_end( tvram )
 	[tvram.idxFboBack, tvram.idxFboMain] = [tvram.idxFboMain,tvram.idxFboBack];
 }
 //-----------------------------------------------------------------------------
-function font_begin( font, mdlTbl )
-//-----------------------------------------------------------------------------
-{
-
-}
-
-//-----------------------------------------------------------------------------
-function font_end( font )
-//-----------------------------------------------------------------------------
-{
-}
-
-//-----------------------------------------------------------------------------
 function font_print( font, tx, ty, str, dw,dh )
 //-----------------------------------------------------------------------------
 {
@@ -5398,14 +5404,14 @@ function font_print( font, tx, ty, str, dw,dh )
 			let Y = -1.0 +dh*ty;
 			font.tblPos = font.tblPos.concat( 
 				[
-					X+W	, Y+H	, //2	縮退頂点
+					X	, Y+H	, //0	縮退頂点
 
-					X+W	, Y+H	, //2	逆Zの字順
 					X	, Y+H	, //0
-					X+W	, Y		, //3
+					X+W	, Y+H	, //2	Zの字順
 					X	, Y		, //1
+					X+W	, Y		, //3
 
-					X	, Y		, //1	縮退頂点
+					X+W	, Y		, //3	縮退頂点
 				]
 			);
 		}
@@ -5422,14 +5428,14 @@ function font_print( font, tx, ty, str, dw,dh )
 
 			font.tblUv = font.tblUv.concat( 
 				[
-					x1*DW	,	y1*DH,//2	縮退頂点
+					x0*DW	,	y1*DH,//0	縮退頂点
 
-					x1*DW	,	y1*DH,//2
 					x0*DW	,	y1*DH,//0
-					x1*DW	,	y0*DH,//3
+					x1*DW	,	y1*DH,//2
 					x0*DW	,	y0*DH, //1
+					x1*DW	,	y0*DH,//3
 
-					x0*DW	,	y0*DH, //1	縮退頂点
+					x1*DW	,	y0*DH,//3	縮退頂点
 				]
 			);
 
