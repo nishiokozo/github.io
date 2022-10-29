@@ -1,11 +1,14 @@
 "use strict";
 
-let canvas_out	= document.getElementById( "html_canvas" );				// 出力画面
-let canvas_gl	= document.getElementById( "html_canvas_gl" );			// g用l画面
+let canvas_out	= window.document.getElementById( "html_canvas" );				// 出力画面
+let canvas_gl	= window.document.getElementById( "html_canvas_gl" );			// g用l画面
 let gl = canvas_gl.getContext( "webgl", { antialias: false } );			// gl
 let font1 = gl_createFont_ascii( "font.bmp", 8, 8 );					// X1フォント ascii配列
 let font2 = gl_createFont_sjis( "k8x12_jisx0208R.png", 8, 12 )			// 美咲フォント sjis配列
 let tvram = gl_createTvram( gl, gl.canvas.width, gl.canvas.height );	// テキスト画面
+
+let original_width = canvas_out.width;
+let original_height = canvas_out.height;
 
 //-----------------------------------------------------------------------------
 window.onload = function( e )	// コンテンツがロード
@@ -74,7 +77,7 @@ window.onload = function( e )	// コンテンツがロード
 			// 合成・引き延ばし
 			{
 				const ctx = canvas_gl.getContext("webgl");
-				ctx.imageSmoothingEnabled = ctx.msImageSmoothingEnabled = 0; // スムージングOFF
+			//	ctx.imageSmoothingEnabled = ctx.msImageSmoothingEnabled = 0; // スムージングOFF
 			}
 			{
 				const ctx = canvas_out.getContext("2d");
@@ -83,7 +86,7 @@ window.onload = function( e )	// コンテンツがロード
 				ctx.drawImage(canvas_gl, 0, 0, canvas_out.width, canvas_out.height);	// canvasにはimageが継承されている
 
 			}
-//			document.getElementById( "html_now" ).innerHTML = Math.floor(now);
+//			window.document.getElementById( "html_now" ).innerHTML = Math.floor(now);
 		}
 
 		window.requestAnimationFrame( main_update );
@@ -99,16 +102,55 @@ window.onload = function( e )	// コンテンツがロード
 function html_setFullscreen()
 //-----------------------------------------------------------------
 {
-	const obj = document.querySelector("#html_canvas"); 
+	let cv = window.document.getElementById( "html_canvas" );
 
-	if( document.fullscreenEnabled )
-	{
-		obj.requestFullscreen.call(obj);
-	}
-	else
-	{
-		alert("フルスクリーンに対応していません");
-	}
+	let req = 
+		cv.requestFullScreen ||			//for chrome/edge/opera/firefox
+		cv.webkitRequestFullscreen ||	//for chrome/edge/opera
+		cv.webkitRequestFullScreen ||	//for chrome/edge/opera
+		cv.mozRequestFullScreen ||		//for firefox
+		cv.msRequestFullscreen;			//for IE
+
+    if( req ) 
+    {
+		function callback()
+		{
+			if ( window.document.fullscreenElement ||	window.document.webkitFullscreenElement )
+			{
+				// 入るとき
+				let W1 = window.outerWidth;		//モニタ画面サイズ
+				let H1 = window.outerHeight;	
+				let W0 = original_width;		//canvas初期設定サイズ
+				let H0 = original_height;		
+				
+				let w = W0;
+				let h = H0;
+				while( w<W1-W0 && h <H1-H0 )	//整数倍で最も大きくとれるサイズを求める
+				{
+					w += W0;
+					h += H0;
+				}
+				cv.width = w;
+				cv.height = h;
+			}
+			else
+			{
+				// 戻るとき
+				cv.width = original_width;
+				cv.height = original_height;
+			}
+		}
+		window.document.addEventListener("fullscreenchange", callback, false);			// for firefox
+		window.document.addEventListener("webkitfullscreenchange", callback, false);	// for chrome/edge/opera
+		req.apply( cv );
+    }
+    else
+    {
+		alert("このブラウザはフルスクリーンに対応していません");
+    }
+
+
+
 }
 //-----------------------------------------------------------------
 function html_setMessage()
