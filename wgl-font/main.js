@@ -19,21 +19,22 @@ window.onload = function( e )	// コンテンツがロード
 	const dw =2.0/tvram.width;
 	const dh =2.0/tvram.height;
 
-	font_begin( font1 );
-	font_begin( font2 );
 	let x = 0;
 	let y = 2;
-	font_print( font1, x,(y++)*12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", dw,dh );
-	font_print( font2, x,(y++)*12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", dw,dh );
-	font_print( font1, x,(y++)*12, "abcdefghijklmnopqrstuvwxyz", dw,dh );
-	font_print( font2, x,(y++)*12, "abcdefghijklmnopqrstuvwxyz", dw,dh );
+	
+	let mdlTbl = [];
+	
+	mdlTbl.push( font_print( font1, x,(y++)*12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", dw,dh ) );
+	mdlTbl.push( font_print( font1, x,(y++)*12, "abcdefghijklmnopqrstuvwxyz", dw,dh ) );
+	mdlTbl.push( font_print( font2, x,(y++)*12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", dw,dh ) );
+	mdlTbl.push( font_print( font2, x,(y++)*12, "abcdefghijklmnopqrstuvwxyz", dw,dh ) );
 	y++;
-	font_end( font2 );
-	font_end( font1 );
 
 	tvram_draw_begin( tvram );
-	gl_drawmShader( gl, font1.mesh, font1.shader, [font1.hdlTexture], null );
-	gl_drawmShader( gl, font2.mesh, font2.shader, [font2.hdlTexture], null );
+	for ( let mdl of mdlTbl )
+	{
+		gl_drawmMdl( gl, mdl, null );
+	}
 	tvram_draw_end( tvram );
 
 	html_setMessage();
@@ -46,24 +47,19 @@ window.onload = function( e )	// コンテンツがロード
 		function drawScene()
 		//------------------------------
 		{
-
-
-			font_begin( font1 );
-			font_begin( font2 );
+			let mdlTbl = [];
 
 			let x = 0;
 			let y = 0;
-			font_print( font1, x,(y++)*12, "X1 Font8x8 "+strfloat(now,5,0), dw,dh );
-			font_print( font2, x,(y++)*12, "美咲フォント12ｘ8 "+strfloat(now,5,0), dw,dh );
+			mdlTbl.push( font_print( font1, x,(y++)*12, "X1 Font8x8 "+strfloat(now,5,0), dw,dh ) );
+			mdlTbl.push( font_print( font2, x,(y++)*12, "美咲フォント12ｘ8 "+strfloat(now,5,0), dw,dh ) );
 			y++;
 
-			font_end( font2 );
-			font_end( font1 );
-
-
 			tvram_draw_begin( tvram );
-			gl_drawmShader( gl, font1.mesh, font1.shader, [font1.hdlTexture], null );
-			gl_drawmShader( gl, font2.mesh, font2.shader, [font2.hdlTexture], null );
+			for ( let mdl of mdlTbl )
+			{
+				gl_drawmMdl( gl, mdl, null );
+			}
 			tvram_draw_end( tvram );
 
 		}
@@ -72,21 +68,15 @@ window.onload = function( e )	// コンテンツがロード
 		if ( font2.loaded  )
 		{
 			drawScene()
-			//bloom.renderer( drawScene, "4x4", 1.5, 1.2 );
+//			bloom.renderer( drawScene, "4x4", 0.9, 1.2 );
 	
 			// 合成・引き延ばし
-			{
-				const ctx = canvas_gl.getContext("webgl");
-			//	ctx.imageSmoothingEnabled = ctx.msImageSmoothingEnabled = 0; // スムージングOFF
-			}
 			{
 				const ctx = canvas_out.getContext("2d");
 				ctx.imageSmoothingEnabled = ctx.msImageSmoothingEnabled = 0; // スムージングOFF
 				ctx.clearRect(0, 0, canvas_out.width, canvas_out.height);
 				ctx.drawImage(canvas_gl, 0, 0, canvas_out.width, canvas_out.height);	// canvasにはimageが継承されている
-
 			}
-//			window.document.getElementById( "html_now" ).innerHTML = Math.floor(now);
 		}
 
 		window.requestAnimationFrame( main_update );
@@ -94,9 +84,49 @@ window.onload = function( e )	// コンテンツがロード
 
 	main_update(0);
 
+}
+
+//-----------------------------------------------------------------
+function html_setMessage()
+//-----------------------------------------------------------------
+{
+
+	const dw =2.0/tvram.width;
+	const dh =2.0/tvram.height;
+	
+	let strlong = document.getElementById( "html_textarea" ).value;
+
+	let tblStr = strlong.split("\n");
+
+
+	let mdlTbl = [];
+	
+	let x = 0;
+	let y = 7;
+	for ( let str of tblStr )
+	{
+		while ( str.length > 40 )
+		{
+			let s1 = str.substr(0,40);
+			let s2 = str.substr(40);
+			mdlTbl.push( font_print( font2, x,(y)*12, "                                        ", dw,dh ) );
+			mdlTbl.push( font_print( font2, x,(y++)*12, s1, dw,dh ) );
+			str = s2;
+		}
+			mdlTbl.push( font_print( font2, x,(y)*12, "                                        ", dw,dh ) );
+			mdlTbl.push( font_print( font2, x,(y++)*12, str, dw,dh ) );
+	}
+
+	tvram_draw_begin( tvram );
+	for ( let mdl of mdlTbl )
+	{
+		gl_drawmMdl( gl, mdl, null );
+	}
+	tvram_draw_end( tvram );
 
 
 }
+
 
 //-----------------------------------------------------------------
 function html_setFullscreen()
@@ -120,12 +150,13 @@ function html_setFullscreen()
 				// 入るとき
 				let W1 = window.outerWidth;		//モニタ画面サイズ
 				let H1 = window.outerHeight;	
-				let W0 = original_width;		//canvas初期設定サイズ
+				//let W1 = window.screen.width;		//スクリーンサイズ
+				//let H1 = window.screen.height;	
+				let W0 = original_width;			//canvas初期設定サイズ
 				let H0 = original_height;		
-				
 				let w = W0;
 				let h = H0;
-				while( w<W1-W0 && h <H1-H0 )	//整数倍で最も大きくとれるサイズを求める
+				while( w<W1-W0 && h <H1-H0 )		//整数倍で最も大きくとれるサイズを求める
 				{
 					w += W0;
 					h += H0;
@@ -148,45 +179,4 @@ function html_setFullscreen()
     {
 		alert("このブラウザはフルスクリーンに対応していません");
     }
-
-
-
-}
-//-----------------------------------------------------------------
-function html_setMessage()
-//-----------------------------------------------------------------
-{
-
-	const dw =2.0/tvram.width;
-	const dh =2.0/tvram.height;
-	
-	let strlong = document.getElementById( "html_textarea" ).value;
-
-	let tblStr = strlong.split("\n");
-
-
-	font_begin( font2 );
-	let x = 0;
-	let y = 7;
-	for ( let str of tblStr )
-	{
-		while ( str.length > 40 )
-		{
-			let s1 = str.substr(0,40);
-			let s2 = str.substr(40);
-			font_print( font2, x,(y)*12, "                                        ", dw,dh );
-			font_print( font2, x,(y++)*12, s1, dw,dh );
-			str = s2;
-		}
-			font_print( font2, x,(y)*12, "                                        ", dw,dh );
-			font_print( font2, x,(y++)*12, str, dw,dh );
-	}
-
-	font_end( font2 );
-
-	tvram_draw_begin( tvram );
-	gl_drawmShader( gl, font1.mesh, font1.shader, [font1.hdlTexture], null );
-	gl_drawmShader( gl, font2.mesh, font2.shader, [font2.hdlTexture], null );
-	tvram_draw_end( tvram );
-
 }
