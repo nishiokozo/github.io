@@ -1,4 +1,4 @@
-// 2022/10/30	gra3dをgl_drawmMdlに対応、tvram,bloomが動かなくなっていたので修正。fontの表示座標を上下反転
+// 2022/10/30	gra3dをgl_drawmMdlに対応、tvram,bloomが動かなくなっていたので修正。
 // 2022/10/29	font表示
 // 2022/10/27	tvramを追加
 // 2022/10/27	gl_???? webglを簡易に使うための、低次元関数群の追加
@@ -253,7 +253,6 @@ if(1)
 				//		shader	:shader, 
 				//		tblTex	:tblTex
 
-				gl.drawArrays( it.type, it.offset, it.count );
 
 				let type		= it.type
 				let hdlPos		= shader.hdlPos;
@@ -1101,8 +1100,6 @@ function html_setFullscreen( name_canvas )
 				// 入るとき
 				let W1 = window.screen.width;		//スクリーンサイズ(インスペクターが開いている場合等、画面サイズとは限らない）
 				let H1 = window.screen.height;	
-//				let W1 = window.outerWidth;		//スクリーンサイズ(インスペクターが開いている場合等、画面サイズとは限らない）
-//				let H1 = window.outerHieght;	
 				let W0 = original_width;			//canvas初期設定サイズ
 				let H0 = original_height;		
 				let w = W0;
@@ -4717,6 +4714,15 @@ function gl_createTvram( gl, width, height, funcGetXY )
 		idxFboMain	:0,					// ダブルバッファメインの番号
 		idxFboBack	:1,					// ダブルバッファバックの番号
 		tblFbo		:[ fbo1, fbo2 ],	// ダブルバッファ本体
+		mesh2drev	:
+			gl_createMesh( 
+				gl,
+				gl.TRIANGLE_STRIP,
+				[	 1.0, 1.0,	-1.0, 1.0,	 1.0,-1.0,	-1.0, -1.0	],2,
+				[	 1.0, 0.0,	 0.0, 0.0,	 1.0, 1.0,	 0.0,  1.0	],
+				null,
+				[	0,1,2,3	]
+			),
 		mesh2d		:
 			gl_createMesh( 
 				gl,
@@ -4752,12 +4758,13 @@ function tvram_draw_end( tvram )
 	// フレームバッファとビューポートの設定を元に戻す
 	gl.bindFramebuffer( gl.FRAMEBUFFER, tvram.prim_fb );
 	gl.viewport( tvram.prim_vp[0], tvram.prim_vp[1], tvram.prim_vp[2], tvram.prim_vp[3] );
-
+/*
 	// 上下反転&プライマリフレームバッファに描画
-	gl_drawmMdl( gl, gl_MDL( tvram.mesh2d, tvram.shader	, [tvram.tblFbo[tvram.idxFboMain].tex_color] ), null ); 
-
+	gl_drawmMdl( gl, gl_MDL( tvram.mesh2drev, tvram.shader	, [tvram.tblFbo[tvram.idxFboMain].tex_color] ), null ); 
+*/
 	// フレームバッファの入れ替え
 	[tvram.idxFboBack, tvram.idxFboMain] = [tvram.idxFboMain,tvram.idxFboBack];
+
 }
 //-----------------------------------------------------------------------------
 function font_print( font, tx, ty, str, dw,dh )
@@ -4777,11 +4784,11 @@ function font_print( font, tx, ty, str, dw,dh )
 		let c = str.charCodeAt(i);
 		let [fx,fy] = font.getXY( c );
 
+
 		{
 			const W =dw * font.FW;
 			const H =dh * font.FH;
 			let X = -1.0 +dw*tx+i*font.FW*dw;
-//			let Y = -1.0 +dh*ty;
 			let Y = -1.0 +dh*(2.0/dh-font.FH-ty);
 			tblPos = tblPos.concat( 
 				[

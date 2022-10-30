@@ -4689,10 +4689,6 @@ function bloom_create( gl )
 function gl_createTvram( gl, width, height, funcGetXY )
 //-----------------------------------------------------------------------------
 {
-	let prim_fb = gl.getParameter(gl.FRAMEBUFFER_BINDING);
-	let prim_vp = gl.getParameter(gl.VIEWPORT);
-	let prim_cc = gl.getParameter(gl.COLOR_CLEAR_VALUE);
-
 	let fbo1			= gl_createFramebuf( gl, width, height, true );
 	gl.bindFramebuffer( gl.FRAMEBUFFER, fbo1.hdl );
 	gl.viewport( 0, 0, fbo1.width, fbo1.height );
@@ -4704,10 +4700,6 @@ function gl_createTvram( gl, width, height, funcGetXY )
 	gl.viewport( 0, 0, fbo2.width, fbo2.height );
 	gl_cls( gl, vec3(0,0,0) );
 	gl.bindFramebuffer( gl.FRAMEBUFFER, null );
-
-	gl.bindFramebuffer( gl.FRAMEBUFFER, prim_fb );
-	gl.viewport( prim_vp[0], prim_vp[1], prim_vp[2], prim_vp[3] );
-	gl.clearColor( prim_cc[0], prim_cc[1], prim_cc[2], prim_cc[3] );
 
 	return {
 		width		:width,

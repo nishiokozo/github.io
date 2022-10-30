@@ -16,8 +16,8 @@ window.onload = function( e )	// コンテンツがロード
 {
 	let bloom = bloom_create( gl );
 
-	const dw =2.0/tvram.width;
-	const dh =2.0/tvram.height;
+	const dw =2.0/canvas_gl.width;
+	const dh =2.0/canvas_gl.height;
 
 	let x = 0;
 	let y = 2;
@@ -53,6 +53,8 @@ window.onload = function( e )	// コンテンツがロード
 			let y = 0;
 			mdlTbl.push( font_print( font1, x,(y++)*12, "X1 Font8x8 "+strfloat(now,5,0), dw,dh ) );
 			mdlTbl.push( font_print( font2, x,(y++)*12, "美咲フォント12ｘ8 "+strfloat(now,5,0), dw,dh ) );
+//			gl_drawmMdl( gl, font_print( font1, x,(y++)*12, "X1 Font8x8 "+strfloat(now,5,0), dw,dh ) , null );
+//			gl_drawmMdl( gl, font_print( font2, x,(y++)*12, "美咲フォント12ｘ8 "+strfloat(now,5,0), dw,dh ),null );
 			y++;
 
 			tvram_draw_begin( tvram );
@@ -67,8 +69,8 @@ window.onload = function( e )	// コンテンツがロード
 		if ( font1.loaded  )
 		if ( font2.loaded  )
 		{
-			drawScene()
-//			bloom.renderer( drawScene, "4x4", 0.9, 1.2 );
+//			drawScene()
+			bloom.renderer( drawScene, "8x8", 1.0, 1.0 );
 	
 			// 合成・引き延ばし
 			{

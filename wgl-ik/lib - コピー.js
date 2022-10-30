@@ -1,4 +1,4 @@
-// 2022/10/30	gra3dをgl_drawmMdlに対応、tvram,bloomが動かなくなっていたので修正。fontの表示座標を上下反転
+// 2022/10/30	gra3dをgl_drawmMdlに対応
 // 2022/10/29	font表示
 // 2022/10/27	tvramを追加
 // 2022/10/27	gl_???? webglを簡易に使うための、低次元関数群の追加
@@ -1101,8 +1101,6 @@ function html_setFullscreen( name_canvas )
 				// 入るとき
 				let W1 = window.screen.width;		//スクリーンサイズ(インスペクターが開いている場合等、画面サイズとは限らない）
 				let H1 = window.screen.height;	
-//				let W1 = window.outerWidth;		//スクリーンサイズ(インスペクターが開いている場合等、画面サイズとは限らない）
-//				let H1 = window.outerHieght;	
 				let W0 = original_width;			//canvas初期設定サイズ
 				let H0 = original_height;		
 				let w = W0;
@@ -4290,6 +4288,8 @@ function gl_createFont( filename, FW, FH, funcGetXY )
 	font.FW			=FW;	// フォント幅
 	font.FH			=FH;	// フォント高さ
 	font.getXY		=funcGetXY;
+	font.tblPos = [];
+	font.tblUv = [];
 
 	return font;
 }
@@ -4579,7 +4579,7 @@ function bloom_create( gl )
 	let mesh = gl_createMesh( 
 		gl,
 		gl.TRIANGLE_STRIP,
-		[	-1.0,-1.0,	1.0,-1.0,	-1.0, 1.0,	 1.0, 1.0	],2,
+		[	-1.0,-1.0,	1.0,-1.0,	-1.0, 1.0,	 1.0, 1.0	],2
 		[	 0.0, 0.0,	1.0, 0.0,	 0.0, 1.0,	 1.0, 1.0	],
 		null,
 		[	0,1,2,3	]
@@ -4689,10 +4689,6 @@ function bloom_create( gl )
 function gl_createTvram( gl, width, height, funcGetXY )
 //-----------------------------------------------------------------------------
 {
-	let prim_fb = gl.getParameter(gl.FRAMEBUFFER_BINDING);
-	let prim_vp = gl.getParameter(gl.VIEWPORT);
-	let prim_cc = gl.getParameter(gl.COLOR_CLEAR_VALUE);
-
 	let fbo1			= gl_createFramebuf( gl, width, height, true );
 	gl.bindFramebuffer( gl.FRAMEBUFFER, fbo1.hdl );
 	gl.viewport( 0, 0, fbo1.width, fbo1.height );
@@ -4705,10 +4701,6 @@ function gl_createTvram( gl, width, height, funcGetXY )
 	gl_cls( gl, vec3(0,0,0) );
 	gl.bindFramebuffer( gl.FRAMEBUFFER, null );
 
-	gl.bindFramebuffer( gl.FRAMEBUFFER, prim_fb );
-	gl.viewport( prim_vp[0], prim_vp[1], prim_vp[2], prim_vp[3] );
-	gl.clearColor( prim_cc[0], prim_cc[1], prim_cc[2], prim_cc[3] );
-
 	return {
 		width		:width,
 		height		:height,
@@ -4717,11 +4709,20 @@ function gl_createTvram( gl, width, height, funcGetXY )
 		idxFboMain	:0,					// ダブルバッファメインの番号
 		idxFboBack	:1,					// ダブルバッファバックの番号
 		tblFbo		:[ fbo1, fbo2 ],	// ダブルバッファ本体
+		mesh2drev	:
+			gl_createMesh( 
+				gl,
+				gl.TRIANGLE_STRIP,
+				[	 1.0, 1.0,	-1.0, 1.0,	 1.0,-1.0,	-1.0, -1.0	],2
+				[	 1.0, 0.0,	 0.0, 0.0,	 1.0, 1.0,	 0.0,  1.0	],
+				null,
+				[	0,1,2,3	]
+			),
 		mesh2d		:
 			gl_createMesh( 
 				gl,
 				gl.TRIANGLE_STRIP,
-				[	 1.0, 1.0,	-1.0, 1.0,	 1.0,-1.0,	-1.0, -1.0	],2,
+				[	 1.0, 1.0,	-1.0, 1.0,	 1.0,-1.0,	-1.0, -1.0	],2
 				[	 1.0, 1.0,	 0.0, 1.0,	 1.0, 0.0,	 0.0,  0.0	],
 				null,
 				[	0,1,2,3	]
@@ -4754,7 +4755,7 @@ function tvram_draw_end( tvram )
 	gl.viewport( tvram.prim_vp[0], tvram.prim_vp[1], tvram.prim_vp[2], tvram.prim_vp[3] );
 
 	// 上下反転&プライマリフレームバッファに描画
-	gl_drawmMdl( gl, gl_MDL( tvram.mesh2d, tvram.shader	, [tvram.tblFbo[tvram.idxFboMain].tex_color] ), null ); 
+	gl_drawmMdl( gl, gl_MDL( tvram.mesh2drev, tvram.shader	, [tvram.tblFbo[tvram.idxFboMain].tex_color] ), null ); 
 
 	// フレームバッファの入れ替え
 	[tvram.idxFboBack, tvram.idxFboMain] = [tvram.idxFboMain,tvram.idxFboBack];
@@ -4763,11 +4764,16 @@ function tvram_draw_end( tvram )
 function font_print( font, tx, ty, str, dw,dh )
 //-----------------------------------------------------------------------------
 {
-	let hdlPos = gl.createBuffer();	// Pos
-	let hdlUv = gl.createBuffer();	// Uv
+	let mesh= gl_MESH( gl.TRIANGLE_STRIP, null, null, null, null, 0, 0  );
+	
+	// 表示する文字数分のメッシュを生成する
+	if ( mesh.hdlPos != null ) gl.deleteBuffer( mesh.hdlPos );
+	mesh.hdlPos = gl.createBuffer();	// Pos
+	if ( mesh.hdlUv != null ) gl.deleteBuffer( mesh.hdlUv );
+	mesh.hdlUv = gl.createBuffer();	// Uv
 
-	let tblPos = [];
-	let tblUv = [];
+	font.tblPos = [];
+	font.tblUv = [];
 
 	///
 
@@ -4781,9 +4787,8 @@ function font_print( font, tx, ty, str, dw,dh )
 			const W =dw * font.FW;
 			const H =dh * font.FH;
 			let X = -1.0 +dw*tx+i*font.FW*dw;
-//			let Y = -1.0 +dh*ty;
-			let Y = -1.0 +dh*(2.0/dh-font.FH-ty);
-			tblPos = tblPos.concat( 
+			let Y = -1.0 +dh*ty;
+			font.tblPos = font.tblPos.concat( 
 				[
 					X	, Y+H	, //0	縮退頂点
 
@@ -4807,17 +4812,16 @@ function font_print( font, tx, ty, str, dw,dh )
 			let x1 = x0+1*font.FW;	
 			let y1 = y0+1*font.FH;	
 
-			tblUv = tblUv.concat( 
+			font.tblUv = font.tblUv.concat( 
 				[
-					x1*DW	,	y0*DH,//3	縮退頂点
-
-					x0*DW	,	y0*DH, //1
-					x1*DW	,	y0*DH,//3
-					x0*DW	,	y1*DH,//0
-					x1*DW	,	y1*DH,//2
-
 					x0*DW	,	y1*DH,//0	縮退頂点
 
+					x0*DW	,	y1*DH,//0
+					x1*DW	,	y1*DH,//2
+					x0*DW	,	y0*DH, //1
+					x1*DW	,	y0*DH,//3
+
+					x1*DW	,	y0*DH,//3	縮退頂点
 				]
 			);
 
@@ -4826,7 +4830,18 @@ function font_print( font, tx, ty, str, dw,dh )
 
 	////
 
-	let mesh = gl_createMesh( gl, gl.TRIANGLE_STRIP, tblPos, 2, tblUv, null, null );
+	{
+		gl.bindBuffer( gl.ARRAY_BUFFER, mesh.hdlPos );
+		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( font.tblPos ), gl.STATIC_DRAW );
+    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
+	}
+	{
+		gl.bindBuffer( gl.ARRAY_BUFFER, mesh.hdlUv );
+		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( font.tblUv ), gl.STATIC_DRAW );
+		gl.bindBuffer( gl.ARRAY_BUFFER, null );
+	}
+	
+	mesh.cntVertex = font.tblPos.length/2;	// Pos2だから/2
 
 	return gl_MDL( mesh, font.shader, [font.hdlTexture] );
 }

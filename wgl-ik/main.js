@@ -5,6 +5,9 @@ let canvas_dbg = document.getElementById( "html_canvas_dbg" );
 let canvas_out = document.getElementById( "html_canvas" );
 
 let gl = canvas_gl.getContext( "webgl", { antialias: false } );			// gl
+let font1 = gl_createFont_ascii( "font.bmp", 8, 8 );					// X1フォント ascii配列
+let font2 = gl_createFont_sjis( "k8x12_jisx0208R.png", 8, 12 )			// 美咲フォント sjis配列
+let tvram = gl_createTvram( gl, gl.canvas.width, gl.canvas.height );	// テキスト画面
 
 
 	const MaxAct = 100;
@@ -131,6 +134,12 @@ function QP( Q, P )
 window.onload = function( e )
 //-----------------------------------------------------------------------------
 {
+	gl.enable( gl.DEPTH_TEST );
+	gl.depthFunc( gl.LEQUAL );	// gl.LESS;	最も奥が1.0、最も手前が0.0
+
+	const dw =2.0/canvas_gl.width;
+	const dh =2.0/canvas_gl.height;
+
 
 	let peri = pad_create();
 	let ey = 2;
@@ -1371,8 +1380,6 @@ let motiondata0= '[{"0":[{"Q":{"x":0,"y":0,"z":0.043619387365336,"w":0.999048221
 	}
 
 
-	let g_flgStop = false;
-
 	//---------------------------------------------------------------------
 	function ik_qrot( va, vb )	// vaからvbに球状線形回転するクォータニオンを返す
 	//---------------------------------------------------------------------
@@ -1654,6 +1661,7 @@ let motiondata0= '[{"0":[{"Q":{"x":0,"y":0,"z":0.043619387365336,"w":0.999048221
 		{
 			game_play( pad, play_cam );
 		}
+				gl_drawmMdl( gl, font_print( font2, 0,0, "美咲フォント12ｘ8 "+strfloat(now,5,0), dw,dh ), null );
 
 
 		// キャンバス2D 
@@ -1663,6 +1671,22 @@ let motiondata0= '[{"0":[{"Q":{"x":0,"y":0,"z":0.043619387365336,"w":0.999048221
 			gra.symbol( ""+now						, tx, 16*(ty++), 16, "LT", 0 );
 		}
 
+		if(0)
+		{
+			let mdlTbl = [];
+			let x = 0;
+			let y = 0;
+			mdlTbl.push( font_print( font1, x,(y++)*12, "X1 Font8x8 "+strfloat(now,5,0), dw,dh ) );
+			mdlTbl.push( font_print( font2, x,(y++)*12, "美咲フォント12ｘ8 "+strfloat(now,5,0), dw,dh ) );
+			y++;
+			tvram_draw_begin( tvram );
+			for ( let mdl of mdlTbl )
+			{
+				gl_drawmMdl( gl, mdl, null );
+			}
+			tvram_draw_end( tvram );
+		}
+
 		// 合成
 		{
 			const ctx = canvas_out.getContext("2d");
@@ -1670,7 +1694,7 @@ let motiondata0= '[{"0":[{"Q":{"x":0,"y":0,"z":0.043619387365336,"w":0.999048221
 			ctx.drawImage(canvas_gl, 0, 0, canvas_out.width, canvas_out.height);
 			ctx.drawImage(canvas_dbg, 0, 0, canvas_out.width, canvas_out.height);
 		}
-		if( g_flgStop == false  ) window.requestAnimationFrame( update_paint );
+		window.requestAnimationFrame( update_paint );
 	}
 
 
