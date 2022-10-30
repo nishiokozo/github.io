@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>n-polygon</title>
+		<style>
+
+			.group
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:center;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.group-left
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:left;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.readme
+			{
+				display:inline-block; 
+				text-align:center;
+				font-size:16px;
+//				font-family:monospace;
+			}
+			.readme-left
+			{
+				display:inline-block; 
+				text-align:left;
+				font-size:12px;
+//				font-family:monospace;
+			}
+		</style>
+		<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script>
+
+</script>
+	</head>
+	<body align="center">
+		<H1>n角形の描画</H1>
+		<canvas id="html_canvas"  width="400" height="400" style="border:1px solid" ></canvas>
+		<br>
+
+			  <input type="text" id="html_n" value="3" size="3" onchange="html_onchange();" autofocus>角形
+			  <br>
+<!--
+			  <input type="button" id="html_update" value="描画"  onclick="html_onchange();" >
+			  <input type="text" id="html_step" value="3" size="3" readonly style="border:0px; background-color:#ddd">内角 <br>
+-->
+				<textarea id="html_textarea" cols="40" rows="8"  ></textarea><br>
+
+		<script src="lib.js"></script>
+		<script src="main.js"></script>
+
+</body>
+</html> 
