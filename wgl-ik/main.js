@@ -1538,7 +1538,7 @@ let motiondata0= '[{"0":[{"Q":{"x":0,"y":0,"z":0.043619387365336,"w":0.999048221
 	function	update_paint( now )
 	//---------------------------------------------------------------------
 	{
-		gra.backcolor([1,0,0]);
+		gra.setBackcolor([1,0,0]);
 		gra.cls();
 
 		peri.setCont(13,6);
