@@ -1101,6 +1101,8 @@ function html_setFullscreen( name_canvas )
 				// 入るとき
 				let W1 = window.screen.width;		//スクリーンサイズ(インスペクターが開いている場合等、画面サイズとは限らない）
 				let H1 = window.screen.height;	
+//				let W1 = window.outerWidth;		//スクリーンサイズ(インスペクターが開いている場合等、画面サイズとは限らない）
+//				let H1 = window.outerHieght;	
 				let W0 = original_width;			//canvas初期設定サイズ
 				let H0 = original_height;		
 				let w = W0;
