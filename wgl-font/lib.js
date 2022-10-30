@@ -1,3 +1,4 @@
+// 2022/10/30	gra3dをgl_drawmMdlに対応、tvramが動かなくなっていたので修正。
 // 2022/10/29	font表示
 // 2022/10/27	tvramを追加
 // 2022/10/27	gl_???? webglを簡易に使うための、低次元関数群の追加
@@ -85,11 +86,6 @@ function shader_create_PCIWF( gl )
 //-----------------------------------------------------------------------------
 {
 	let	shader = {};
-	shader.m_hdlBufPos = null;
-	shader.m_hdlBufCol = null;
-	shader.m_tblPos = [];
-	shader.m_tblColor = [];
-	shader.m_tblDisp = [];
 
 	//----------------------------
 	function compile( type, src )
@@ -106,458 +102,170 @@ function shader_create_PCIWF( gl )
 	}
 
 	// シェーダー構成
-	{
+	shader		= gl_createShader( gl, gl_vs_P4C, gl_fs_color	, ["Pos4","Col"],[] );
+	shader.hdlPos = null;
+	shader.hdlCol = null;
 
-		let src_vs = 
-			 "attribute vec4 Pos;"
-			+"attribute vec3 Col;"
-			+"varying vec3 vColor;"
-			+"void main( void )"
-			+"{"
-		//挙動確認用コード 
-		//	+   "mat4 S = mat4( 0.5,  0.0,  0.0,  0.0,"
-		//	+   "              0.0,  0.5,  0.0,  0.0,"
-		//	+   "              0.0,  0.0,  0.5,  0.0,"
-		//	+   "              0.0,  0.0,  0.0,  1.0 );"
-		//	+   "float th = radians( 15.0 );"
-		//	+   "float c = cos( th );"
-		//	+   "float s = sin( th );"
-		//	+   "mat4 Rx = mat4( 1.0,  0.0,  0.0,  0.0,"
-		//	+   "               0.0,    c,   -s,  0.0,"
-		//	+   "               0.0,    s,    c,  0.0,"
-		//	+   "               0.0,  0.0,  0.0,  1.0 );"
-		//	+   "mat4 Ry = mat4(  c,  0.0,    s,  0.0,"
-		//	+   "               0.0,  1.0,  0.0,  0.0,"
-		//	+   "                -s,  0.0,    c,  0.0,"
-		//	+   "               0.0,  0.0,  0.0,  1.0 );"
-		//	+   "mat4 Rz = mat4(  c,   -s,  0.0,  0.0,"
-		//	+   "                 s,    c,  0.0,  0.0,"
-		//	+   "               0.0,  0.0,  1.0,  0.0,"
-		//	+   "               0.0,  0.0,  0.0,  1.0 );"
-		//	+   "mat4 Tx = mat4( 1.0,  0.0,  0.0, -1.0,"
-		//	+   "               0.0,  1.0,  0.0,  0.0,"
-		//	+   "               0.0,  0.0,  1.0,  0.0,"
-		//	+   "               0.0,  0.0,  0.0,  1.0 );"
-		//	+   "mat4 Ty = mat4( 1.0,  0.0,  0.0,  0.0,"
-		//	+   "               0.0,  1.0,  0.0,  1.0,"
-		//	+   "               0.0,  0.0,  1.0,  0.0,"
-		//	+   "               0.0,  0.0,  0.0,  1.0 );"
-		//	+   "mat4 Tz = mat4( 1.0,  0.0,  0.0,  0.0,"
-		//	+   "               0.0,  1.0,  0.0,  0.0,"
-		//	+   "               0.0,  0.0,  1.0, -9.0,"
-		//	+   "               0.0,  0.0,  0.0,  1.0 );"
-		//	+   "mat4 T = Rz;         "
-		//	+   "float fovy=radians( 45.0 );     "
-		//	+   "float sc=1.0/tan( fovy/2.0 );   "
-		//	+   "float n=0.0;                  "
-		//	+   "float f=-1.0;                 "
-		//	+   "float aspect=1.0;             "
-		//	+	"mat4 Pm = mat4(               "
-		//	+	"	sc/aspect,     0.0,          0.0,              0.0,"
-		//	+	"	      0.0,      sc,          0.0,              0.0,"
-		//	+	"	      0.0,     0.0, -( f+n )/( f-n ), -( 2.0*f*n )/( f-n ),"
-		//	+	"	      0.0,     0.0,         -1.0,              0.0 );"
-			+   "gl_Position = Pos;"
-			+   "vColor = Col;"
-			+"}"
-		;
-				
-		let src_fs =
-			 "precision mediump float;"
-			+"varying vec3 vColor;"
-			+"void main( void )"
-			+"{"
-			+	"gl_FragColor = vec4( vColor, 1.0 );"
-			+"}"
-		;
-		shader.hdlProg	= gl.createProgram();			//WebGLProgram オブジェクトを作成		
-															//※gl.createProgram()	⇔  gl.deleteProgram( program );
-		let vs	= compile( gl.VERTEX_SHADER, src_vs );
-		let fs	= compile( gl.FRAGMENT_SHADER, src_fs );
-		gl.attachShader( shader.hdlProg, vs );			//シェーダーを WebGLProgram にアタッチ
-		gl.attachShader( shader.hdlProg, fs );			//シェーダーを WebGLProgram にアタッチ
-		gl.deleteShader( vs );
-		gl.deleteShader( fs );
-		gl.linkProgram( shader.hdlProg );				//WebGLProgram に接続されたシェーダーをリンク
-		shader.hdlPos		= gl.getAttribLocation( shader.hdlProg, "Pos" );
-		shader.hdlCol		= gl.getAttribLocation( shader.hdlProg, "Col" );
-		gl.enableVertexAttribArray( shader.hdlPos );
-		gl.enableVertexAttribArray( shader.hdlCol );
+	let orgmesh = {};
+	orgmesh.m_tblPos = [];
+	orgmesh.m_tblColor = [];
+	orgmesh.m_tblDisp = [];
+
+	return 	[shader,orgmesh];
+}
+
+//-----------------------------------------------------------------------------
+let orgmesh_entry_LINE = function( gl, orgmesh, s, e )			// {"pos":vec4(),"col":vec3()}
+//-----------------------------------------------------------------------------
+{
+	orgmesh.m_tblPos.push( s.pos.x, s.pos.y, s.pos.z, s.pos.w );
+	orgmesh.m_tblPos.push( e.pos.x, e.pos.y, e.pos.z, e.pos.w );
+
+	orgmesh.m_tblColor.push( s.col.x, s.col.y, s.col.z );
+	orgmesh.m_tblColor.push( e.col.x, e.col.y, e.col.z );
+
+	if ( orgmesh.m_tblDisp.length > 0 && orgmesh.m_tblDisp[orgmesh.m_tblDisp.length-1].type == gl.LINES )
+	{
+		orgmesh.m_tblDisp[orgmesh.m_tblDisp.length-1].count+=2;
 	}
-	//-----------------------------
-	shader.draw = function()	// PCIWF
-	//-----------------------------
+	else
 	{
-		// 頂点データの再ロード
+		orgmesh.m_tblDisp.push( {"type":gl.LINES, "offset":orgmesh.m_tblPos.length/4-2, "count":2} ); 
+	}
+}
+
+//------------------------------------------
+let orgmesh_drawModel = function( gl, P, V, M, model, shader,orgmesh )
+//------------------------------------------
+{
+	// 座標計算
+	let tmpPos3 = []; 
+	{
+		for ( let i = 0 ; i < model.tblPos3.length ; i++ )
 		{
-			gl.deleteBuffer( shader.m_hdlBufPos );
-			gl.deleteBuffer( shader.m_hdlBufCol );
-
-			shader.m_hdlBufPos = gl.createBuffer();				// ※gl.createBuffer() ⇔  gl.deleteBuffer( buffer );
-			{
-				gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufPos );
-				gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( shader.m_tblPos ), gl.STATIC_DRAW );
-		    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
-			}
-			
-			shader.m_hdlBufCol = gl.createBuffer();				// ※gl.createBuffer() ⇔  gl.deleteBuffer( buffer );
-			{
-				gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufCol );
-				gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( shader.m_tblColor ), gl.STATIC_DRAW );
-		    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
-			}
-
-			shader.m_tblPos = [];	// VRAMに転送するので保存しなくてよい
-			shader.m_tblColor = [];	// VRAMに転送するので保存しなくてよい
-
-		}
-
-		gl.useProgram( shader.hdlProg );
-		{
-			gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufPos );
-			gl.vertexAttribPointer( shader.hdlPos, 4, gl.FLOAT, false, 0, 0 ) ;
-	    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
-
-			gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufCol );
-			gl.vertexAttribPointer( shader.hdlCol, 3, gl.FLOAT, false, 0, 0 ) ;
-	    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
-
-			for ( let it of shader.m_tblDisp )
-			{
-				if ( it.type == gl.TRIANGLES )
-				{
-					gl.enable( gl.POLYGON_OFFSET_FILL );
-				}
-				else
-				{
-					gl.disable( gl.POLYGON_OFFSET_FILL );
-				}
-				gl.drawArrays( it.type, it.offset, it.count );
-			}
+			// 透視変換	//pos = PVMv;
+			let v = vec4( 
+				model.tblPos3[i].x,
+				model.tblPos3[i].y,
+				model.tblPos3[i].z,
+				1,
+			 );
+			v = vec4_vmul_Mv( M ,v );
+			v = vec4_vmul_Mv( V ,v );
+			v = vec4_vmul_Mv( P ,v );
+			tmpPos3.push( v );
 		}
 	}
 
-	//-----------------------------------------------------------------------------
-	shader.entry_LINE = function( s, e )			// {"pos":vec4(),"col":vec3()}
-	//-----------------------------------------------------------------------------
+	// 描画	共有頂点を独立三角形にして描画
 	{
-		shader.m_tblPos.push( s.pos.x, s.pos.y, s.pos.z, s.pos.w );
-		shader.m_tblPos.push( e.pos.x, e.pos.y, e.pos.z, e.pos.w );
-
-		shader.m_tblColor.push( s.col.x, s.col.y, s.col.z );
-		shader.m_tblColor.push( e.col.x, e.col.y, e.col.z );
-
-		if ( shader.m_tblDisp.length > 0 && shader.m_tblDisp[shader.m_tblDisp.length-1].type == gl.LINES )
-		{
-			shader.m_tblDisp[shader.m_tblDisp.length-1].count+=2;
-		}
-		else
-		{
-			shader.m_tblDisp.push( {"type":gl.LINES, "offset":shader.m_tblPos.length/4-2, "count":2} ); 
-		}
-	}
-	//------------------------------------------
-	shader.drawModel = function( P, V, M, model )
-	//------------------------------------------
-	{
-		// 座標計算
-		let tmpPos3 = []; 
-		{
-			for ( let i = 0 ; i < model.tblPos3.length ; i++ )
+		{ // 陰線処理用
+			for ( let i = 0 ; i < model.tblIndex_flat.length ; i+=3 )	// 独立３頂点ポリゴン
 			{
-				// 透視変換	//pos = PVMv;
-				let v = vec4( 
-					model.tblPos3[i].x,
-					model.tblPos3[i].y,
-					model.tblPos3[i].z,
-					1,
-				 );
-				v = vec4_vmul_Mv( M ,v );
-				v = vec4_vmul_Mv( V ,v );
-				v = vec4_vmul_Mv( P ,v );
-				tmpPos3.push( v );
-			}
-		}
-
-		// 描画	共有頂点を独立三角形にして描画
-		{
-			{ // 陰線処理用
-				for ( let i = 0 ; i < model.tblIndex_flat.length ; i+=3 )	// 独立３頂点ポリゴン
+				let i0 = model.tblIndex_flat[i+0];
+				let i1 = model.tblIndex_flat[i+1];
+				let i2 = model.tblIndex_flat[i+2];
+				let p0 = tmpPos3[i0];
+				let p1 = tmpPos3[i1];
+				let p2 = tmpPos3[i2];
+				let c0 = model.tblCol3[i0];
+				let c1 = model.tblCol3[i1];
+				let c2 = model.tblCol3[i2];
 				{
-					let i0 = model.tblIndex_flat[i+0];
-					let i1 = model.tblIndex_flat[i+1];
-					let i2 = model.tblIndex_flat[i+2];
-					let p0 = tmpPos3[i0];
-					let p1 = tmpPos3[i1];
-					let p2 = tmpPos3[i2];
-					let c0 = model.tblCol3[i0];
-					let c1 = model.tblCol3[i1];
-					let c2 = model.tblCol3[i2];
+					orgmesh.m_tblPos.push( p0.x, p0.y, p0.z, p0.w );
+					orgmesh.m_tblPos.push( p1.x, p1.y, p1.z, p1.w );
+					orgmesh.m_tblPos.push( p2.x, p2.y, p2.z, p2.w );
+					orgmesh.m_tblColor.push( c0.x, c0.y, c0.z );
+					orgmesh.m_tblColor.push( c1.x, c1.y, c1.z );
+					orgmesh.m_tblColor.push( c2.x, c2.y, c2.z );
+					if ( orgmesh.m_tblDisp.length > 0 && orgmesh.m_tblDisp[orgmesh.m_tblDisp.length-1].type == gl.TRIANGLES )
 					{
-						shader.m_tblPos.push( p0.x, p0.y, p0.z, p0.w );
-						shader.m_tblPos.push( p1.x, p1.y, p1.z, p1.w );
-						shader.m_tblPos.push( p2.x, p2.y, p2.z, p2.w );
-						shader.m_tblColor.push( c0.x, c0.y, c0.z );
-						shader.m_tblColor.push( c1.x, c1.y, c1.z );
-						shader.m_tblColor.push( c2.x, c2.y, c2.z );
-						if ( shader.m_tblDisp.length > 0 && shader.m_tblDisp[shader.m_tblDisp.length-1].type == gl.TRIANGLES )
-						{
-							shader.m_tblDisp[shader.m_tblDisp.length-1].count+=3;
-						}
-						else
-						{
-							shader.m_tblDisp.push( {"type":gl.TRIANGLES, "offset":shader.m_tblPos.length/4-3, "count":3 } ); 
-						}
+						orgmesh.m_tblDisp[orgmesh.m_tblDisp.length-1].count+=3;
+					}
+					else
+					{
+						orgmesh.m_tblDisp.push( {"type":gl.TRIANGLES, "offset":orgmesh.m_tblPos.length/4-3, "count":3 } ); 
 					}
 				}
 			}
-			{ // 線描画
-				for ( let i = 0 ; i < model.tblIndex_wire.length ; i+=2 )
-				{
-					let i0 = model.tblIndex_wire[i+0];
-					let i1 = model.tblIndex_wire[i+1];
-					let s = {"pos":tmpPos3[i0], "col":model.tblCol3[i0]};//, "uv":model.tblUv2[i0]};
-					let e = {"pos":tmpPos3[i1], "col":model.tblCol3[i1]};//, "uv":model.tblUv2[i1]};
-					shader.entry_LINE( s, e );
+		}
+/*
+		{ // 線描画
+			for ( let i = 0 ; i < model.tblIndex_wire.length ; i+=2 )
+			{
+				let i0 = model.tblIndex_wire[i+0];
+				let i1 = model.tblIndex_wire[i+1];
+				let s = {"pos":tmpPos3[i0], "col":model.tblCol3[i0]};//, "uv":model.tblUv2[i0]};
+				let e = {"pos":tmpPos3[i1], "col":model.tblCol3[i1]};//, "uv":model.tblUv2[i1]};
+				orgmesh_entry_LINE( gl, model.shader,model.orgmesh, s, e );
 
-				}
 			}
-
-		}
-	}
-	
-	return 	shader;
-}
-//-----------------------------------------------------------------------------
-function shader_create_PTF( gl, tex )
-//-----------------------------------------------------------------------------
-{
-	let	shader = {};
-	shader.m_hdlBufPos = null;	// ロード済みバッファへのハンドル
-//	shader.m_hdlBufCol = null;	// ロード済みバッファへのハンドル
-	shader.m_hdlBufUv = null;	// ロード済みバッファへのハンドル
-	shader.m_tblPos = [];		// ロード可能なフォーマットのデータ
-//	shader.m_tblColor = [];		// ロード可能なフォーマットのデータ
-	shader.m_tblUv = [];		// ロード可能なフォーマットのデータ
-	shader.m_tblDisp = [];
-
-	//----------------------------
-	function compile( type, src )
-	//----------------------------
-	{
-		let sdr = gl.createShader( type );				//※ gl.createShader( type )⇔  gl.deleteShader( shader );
-		gl.shaderSource( sdr, src );
-		gl.compileShader( sdr );
-		if( gl.getShaderParameter( sdr, gl.COMPILE_STATUS ) == false )
-		{
-			console.log( gl.getShaderInfoLog( sdr ) );
-		}
-		return sdr
-	}
-
-	// シェーダー構成
-	{
-
-		let src_vs = 
-			 "attribute vec4 Pos;"
-//			+"attribute vec3 Col;"
-			+"attribute vec2 Uv;"
-//			+"varying vec3 vColor;"
-			+"varying highp vec2 uv;"
-			+"void main( void )"
-			+"{"
-		//挙動確認用コード 
-		//	+   "mat4 S = mat4( 0.5,  0.0,  0.0,  0.0,"
-		//	+   "              0.0,  0.5,  0.0,  0.0,"
-		//	+   "              0.0,  0.0,  0.5,  0.0,"
-		//	+   "              0.0,  0.0,  0.0,  1.0 );"
-		//	+   "float th = radians( 15.0 );"
-		//	+   "float c = cos( th );"
-		//	+   "float s = sin( th );"
-		//	+   "mat4 Rx = mat4( 1.0,  0.0,  0.0,  0.0,"
-		//	+   "               0.0,    c,   -s,  0.0,"
-		//	+   "               0.0,    s,    c,  0.0,"
-		//	+   "               0.0,  0.0,  0.0,  1.0 );"
-		//	+   "mat4 Ry = mat4(  c,  0.0,    s,  0.0,"
-		//	+   "               0.0,  1.0,  0.0,  0.0,"
-		//	+   "                -s,  0.0,    c,  0.0,"
-		//	+   "               0.0,  0.0,  0.0,  1.0 );"
-		//	+   "mat4 Rz = mat4(  c,   -s,  0.0,  0.0,"
-		//	+   "                 s,    c,  0.0,  0.0,"
-		//	+   "               0.0,  0.0,  1.0,  0.0,"
-		//	+   "               0.0,  0.0,  0.0,  1.0 );"
-		//	+   "mat4 Tx = mat4( 1.0,  0.0,  0.0, -1.0,"
-		//	+   "               0.0,  1.0,  0.0,  0.0,"
-		//	+   "               0.0,  0.0,  1.0,  0.0,"
-		//	+   "               0.0,  0.0,  0.0,  1.0 );"
-		//	+   "mat4 Ty = mat4( 1.0,  0.0,  0.0,  0.0,"
-		//	+   "               0.0,  1.0,  0.0,  1.0,"
-		//	+   "               0.0,  0.0,  1.0,  0.0,"
-		//	+   "               0.0,  0.0,  0.0,  1.0 );"
-		//	+   "mat4 Tz = mat4( 1.0,  0.0,  0.0,  0.0,"
-		//	+   "               0.0,  1.0,  0.0,  0.0,"
-		//	+   "               0.0,  0.0,  1.0, -9.0,"
-		//	+   "               0.0,  0.0,  0.0,  1.0 );"
-		//	+   "mat4 T = Rz;         "
-		//	+   "float fovy=radians( 45.0 );     "
-		//	+   "float sc=1.0/tan( fovy/2.0 );   "
-		//	+   "float n=0.0;                  "
-		//	+   "float f=-1.0;                 "
-		//	+   "float aspect=1.0;             "
-		//	+	"mat4 Pm = mat4(               "
-		//	+	"	sc/aspect,     0.0,          0.0,              0.0,"
-		//	+	"	      0.0,      sc,          0.0,              0.0,"
-		//	+	"	      0.0,     0.0, -( f+n )/( f-n ), -( 2.0*f*n )/( f-n ),"
-		//	+	"	      0.0,     0.0,         -1.0,              0.0 );"
-			+   "gl_Position = Pos;"
-//			+   "vColor = Col;"
-			+	"uv = Uv;"
-			+"}"
-		;
-				
-		let src_fs =
-			 "precision mediump float;"
-//			+"varying vec3 vColor;"
-			+"varying highp vec2 uv;"
-			+"uniform sampler2D Tex0;"
-			+"void main( void )"
-			+"{"
-//			+	"gl_FragColor = vec4( vColor, 1.0 );"
-			+	"gl_FragColor = texture2D( Tex0, uv );"
-			+"}"
-		;
-		shader.hdlProg	= gl.createProgram();			//WebGLProgram オブジェクトを作成		
-															//※gl.createProgram()	⇔  gl.deleteProgram( program );
-		let vs	= compile( gl.VERTEX_SHADER, src_vs );
-		let fs	= compile( gl.FRAGMENT_SHADER, src_fs );
-		gl.attachShader( shader.hdlProg, vs );			//シェーダーを WebGLProgram にアタッチ
-		gl.attachShader( shader.hdlProg, fs );			//シェーダーを WebGLProgram にアタッチ
-		gl.deleteShader( vs );
-		gl.deleteShader( fs );
-		gl.linkProgram( shader.hdlProg );				//WebGLProgram に接続されたシェーダーをリンク
-		shader.hdlPos		= gl.getAttribLocation( shader.hdlProg, "Pos" );
-//		shader.hdlCol		= gl.getAttribLocation( shader.hdlProg, "Col" );
-		shader.hdlUv		= gl.getAttribLocation( shader.hdlProg, "Uv" );
-		shader.hdlTex0	= gl.getUniformLocation( shader.hdlProg, 'Tex0' );
-		gl.enableVertexAttribArray( shader.hdlPos );
-//		gl.enableVertexAttribArray( shader.hdlCol );
-		gl.enableVertexAttribArray( shader.hdlUv );
-	}
-
-	shader.hdlTexture = gl.createTexture();
-	{
-		gl.bindTexture( gl.TEXTURE_2D, shader.hdlTexture );
-
-		const level = 0;
-		const internalFormat = gl.RGB;
-		const border = 0;
-		const srcFormat = gl.RGB;
-		const srcType = gl.UNSIGNED_BYTE;
-		if ( 1 )
-		{
-			const width = tex.width;
-			const height = tex.height;
-			const pixel = new Uint8Array( tex.buf );
-			gl.bindTexture( gl.TEXTURE_2D, shader.hdlTexture );
-			gl.texImage2D( gl.TEXTURE_2D, level, internalFormat,width,height,0,srcFormat, srcType, pixel );
-		}
-/*		else
-		if ( 1 )
-		{
-			const width = 4;
-			const height = 4;
-			const pixel = new Uint8Array( [
-				0	,	0	,	255,		0,	255	,	0	,		0,	0,	255	,		0	,	255	,	255	,	
-				0	,	255	,	0,		0,	0	,	255	,		0,	0,	0	,		255	,	0	,	255	,
-				255	,	0	,	255	,	0,		0,	0	,	255	,		0,	0,	0	,		255	,	0	,
-				255	,	255	,	0	,	255	,	0,		0,	0	,	255	,		0,	0,	0	,		255	,
-			  ] );	
-
-			gl.bindTexture( gl.TEXTURE_2D, shader.hdlTexture );
-			gl.texImage2D( gl.TEXTURE_2D, level, internalFormat,width,height,0,srcFormat, srcType, pixel );
-		}
-		else
-		{
-			const width = 1;
-			const height = 1;
-			const pixel = new Uint8Array( [255,255,255]);
-			gl.bindTexture( gl.TEXTURE_2D, shader.hdlTexture );
-			gl.texImage2D( gl.TEXTURE_2D, level, internalFormat,width,height,0,srcFormat, srcType, pixel );
 		}
 */
-		gl.generateMipmap( gl.TEXTURE_2D );
-		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE );
-		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE );
-		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR );
 
 	}
-
-	//-----------------------------
-	shader.draw = function()	//PTF
-	//-----------------------------
+}
+//-----------------------------
+let shader_draw = function( gl, shader,orgmesh )	// PCIWF
+//-----------------------------
+{
+if(1)
 	{
 		// 頂点データの再ロード
-		//------------------------
-//		function reload_to_VRAM()
-		//------------------------
+//		gl.deleteBuffer( shader.hdlPos );
+//		gl.deleteBuffer( shader.hdlCol );
+
+		shader.hdlPos = gl.createBuffer();				// ※gl.createBuffer() ⇔  gl.deleteBuffer( buffer );
 		{
-			gl.deleteBuffer( shader.m_hdlBufPos );
-//			gl.deleteBuffer( shader.m_hdlBufCol );
-			gl.deleteBuffer( shader.m_hdlBufUv );
-
-			shader.m_hdlBufPos = gl.createBuffer();				// ※gl.createBuffer() ⇔  gl.deleteBuffer( buffer );
-			{
-				gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufPos );
-				gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( shader.m_tblPos ), gl.STATIC_DRAW );
-		    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
-			}
-			
-//			shader.m_hdlBufCol = gl.createBuffer();				// ※gl.createBuffer() ⇔  gl.deleteBuffer( buffer );
-//			{
-//				gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufCol );
-//				gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( shader.m_tblColor ), gl.STATIC_DRAW );
-//		    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
-//			}
-	//		m_tblUv = [
-	//			0.0,	0.0,
-	//			1.0,	0.0,
-	//			1.0,	1.0,
-	//			0.0,	1.0,
-	//		];
-
-			shader.m_hdlBufUv = gl.createBuffer();	//PTF
-			{
-				gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufUv );
-				gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( shader.m_tblUv ), gl.STATIC_DRAW );
-				gl.bindBuffer( gl.ARRAY_BUFFER, null );
-			}
-
-			shader.m_tblPos = [];	// VRAMに転送するので保存しなくてよい
-//			shader.m_tblColor = [];	// VRAMに転送するので保存しなくてよい
-			shader.m_tblUv =  [];	// VRAMに転送するので保存しなくてよい
-
+			gl.bindBuffer( gl.ARRAY_BUFFER, shader.hdlPos );
+			gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( orgmesh.m_tblPos ), gl.STATIC_DRAW );
+	    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
 		}
-//		reload_to_VRAM();	
-		gl.useProgram( shader.hdlProg );
+		
+		shader.hdlCol = gl.createBuffer();				// ※gl.createBuffer() ⇔  gl.deleteBuffer( buffer );
 		{
-			gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufPos );
-			gl.vertexAttribPointer( shader.hdlPos, 4, gl.FLOAT, false, 0, 0 ) ;
+			gl.bindBuffer( gl.ARRAY_BUFFER, shader.hdlCol );
+			gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( orgmesh.m_tblColor ), gl.STATIC_DRAW );
 	    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
+		}
 
-//			gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufCol );
-//			gl.vertexAttribPointer( shader.hdlCol, 3, gl.FLOAT, false, 0, 0 ) ;
-//	    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
+		orgmesh.m_tblPos = [];	// VRAMに転送するので保存しなくてよい
+		orgmesh.m_tblColor = [];	// VRAMに転送するので保存しなくてよい
 
-			gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufUv );
-			gl.vertexAttribPointer( shader.hdlUv, 2, gl.FLOAT, false, 0, 0 );	//kozo
-	    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
-
-			gl.activeTexture( gl.TEXTURE0 );
-			gl.bindTexture( gl.TEXTURE_2D, shader.hdlTexture );
-			gl.uniform1i( shader.hdlTex0, null );
-
-			for ( let it of shader.m_tblDisp )
+	}
+	{
+			for ( let it of orgmesh.m_tblDisp )
 			{
+				//function gl_MESH( type, hdlPos, hdlUv, hdlCol, hdlIndex, length )	// メッシュフォーマット
+				//		drawtype	:type,
+				//		hdlPos		:hdlPos,
+				//		hdlUv		:hdlUv,
+				//		hdlCol		:hdlCol,
+				//		hdlIndex	:hdlIndex,	// インデックスド頂点でない場合はnull
+				//		cntVertex	:length,
+
+				//function gl_SHADER( prog, hashHdl )	// シェーダーフォーマット
+				//		hdlProg	:prog,
+				//		hashHdl	:hashHdl
+
+				//function gl_MDL( mesh, shader, tblTex )	// モデルフォーマット
+				//		mesh	:mesh, 
+				//		shader	:shader, 
+				//		tblTex	:tblTex
+
+				gl.drawArrays( it.type, it.offset, it.count );
+
+				let type		= it.type
+				let hdlPos		= shader.hdlPos;
+				let hdlUv		= null;
+				let hdlCol		= shader.hdlCol;
+				let hdlIndex	= null;
+				let offset		= it.offset;
+				let length		= it.count;
+				let mesh = gl_MESH( type, hdlPos, hdlUv, hdlCol, hdlIndex, offset, length );
+
+				let mdl = gl_MDL( mesh, shader, [] );
+
 				if ( it.type == gl.TRIANGLES )
 				{
 					gl.enable( gl.POLYGON_OFFSET_FILL );
@@ -566,628 +274,153 @@ function shader_create_PTF( gl, tex )
 				{
 					gl.disable( gl.POLYGON_OFFSET_FILL );
 				}
-				gl.drawArrays( it.type, it.offset, it.count );
+				gl_drawmMdl( gl, mdl, false );
+	
 			}
-		}
+		
+
 	}
 
-	//-----------------------------------------------------------------------------
-	shader.entry_LINE = function( s, e )			// {"pos":vec4(),"col":vec3()}
-	//-----------------------------------------------------------------------------
+
+}
+
+
+//---------------------------------------------------------------------
+let model_calc = function( tree, parent_qp )	
+//---------------------------------------------------------------------
+{
+	let model = null;
+	let qp = parent_qp;
+	for ( let t of tree )
 	{
-		shader.m_tblPos.push( s.pos.x, s.pos.y, s.pos.z, s.pos.w );
-		shader.m_tblPos.push( e.pos.x, e.pos.y, e.pos.z, e.pos.w );
-
-		shader.m_tblColor.push( s.col.x, s.col.y, s.col.z );
-		shader.m_tblColor.push( e.col.x, e.col.y, e.col.z );
-
-		if ( shader.m_tblDisp.length > 0 && shader.m_tblDisp[shader.m_tblDisp.length-1].type == gl.LINES )
+		if ( t instanceof Array == true ) 
 		{
-			shader.m_tblDisp[shader.m_tblDisp.length-1].count+=2;
+			model_calc(t,qp);
 		}
 		else
 		{
-			shader.m_tblDisp.push( {"type":gl.LINES, "offset":shader.m_tblPos.length/4-2, "count":2} ); 
-		}
-	}
-	//------------------------------------------
-	shader.drawModel = function( P, V, M, model )		//PTF
-	//------------------------------------------
-	{
-		// 座標計算
-		let tmpPos3 = []; 
-		{
-			for ( let i = 0 ; i < model.tblPos3.length ; i++ )
+			model = t;
 			{
-				// 透視変換	//pos = PVMv;
-				let v = vec4( 
-					model.tblPos3[i].x,
-					model.tblPos3[i].y,
-					model.tblPos3[i].z,
-					1,
-				 );
-				v = vec4_vmul_Mv( M ,v );
-				v = vec4_vmul_Mv( V ,v );
-				v = vec4_vmul_Mv( P ,v );
-				tmpPos3.push( v );
+				// 計算部
+				qp = QP_mul( parent_qp, model.qp );
+				model.global_qp = qp;
 			}
 		}
-
-		// 描画	共有頂点を独立三角形にして描画
-		{
-			{ // 陰線処理用
-				for ( let i = 0 ; i < model.tblIndex_flat.length ; i+=3 )	// 独立３頂点ポリゴン
-				{
-					let i0 = model.tblIndex_flat[i+0];
-					let i1 = model.tblIndex_flat[i+1];
-					let i2 = model.tblIndex_flat[i+2];
-					let p0 = tmpPos3[i0];
-					let p1 = tmpPos3[i1];
-					let p2 = tmpPos3[i2];
-//					let c0 = model.tblCol3[i0];
-//					let c1 = model.tblCol3[i1];
-//					let c2 = model.tblCol3[i2];
-					let u0 = model.tblUv2[i0];
-					let u1 = model.tblUv2[i1];
-					let u2 = model.tblUv2[i2];
-//					shader.entry_TRIANGLE( v0, v1, v2 );
-					{
-						shader.m_tblPos.push( p0.x, p0.y, p0.z, p0.w );
-						shader.m_tblPos.push( p1.x, p1.y, p1.z, p1.w );
-						shader.m_tblPos.push( p2.x, p2.y, p2.z, p2.w );		//PTF
-//						shader.m_tblColor.push( c0.x, c0.y, c0.z );
-//						shader.m_tblColor.push( c1.x, c1.y, c1.z );
-//						shader.m_tblColor.push( c2.x, c2.y, c2.z );
-						shader.m_tblUv.push( u0.x, u0.y );
-						shader.m_tblUv.push( u1.x, u1.y );
-						shader.m_tblUv.push( u2.x, u2.y );
-						if ( shader.m_tblDisp.length > 0 && shader.m_tblDisp[shader.m_tblDisp.length-1].type == gl.TRIANGLES )
-						{
-							shader.m_tblDisp[shader.m_tblDisp.length-1].count+=3;
-						}
-						else
-						{
-							shader.m_tblDisp.push( {"type":gl.TRIANGLES, "offset":shader.m_tblPos.length/4-3, "count":3 } ); 
-						}
-					}
-				}
-			}
-			{ // 線描画
-//				for ( let i = 0 ; i < model.tblIndex_wire.length ; i+=2 )
-//				{
-//					let i0 = model.tblIndex_wire[i+0];
-//					let i1 = model.tblIndex_wire[i+1];
-//					let s = {"pos":tmpPos3[i0], "col":model.tblCol3[i0]};//, "uv":model.tblUv2[i0]};
-//					let e = {"pos":tmpPos3[i1], "col":model.tblCol3[i1]};//, "uv":model.tblUv2[i1]};
-//					shader.entry_LINE( s, e );
-
-//				}
-			}
-
-		}
+		
 	}
-	
-	return 	shader;
 }
 //-----------------------------------------------------------------------------
-function shader_create_TEX( gl, tex )	//TEX
+let model_comvert_single = function( data )// 内部フォーマットに変換
 //-----------------------------------------------------------------------------
 {
-	let	shader = {};
-	shader.m_hdlBufPos = null;	// ロード済みバッファへのハンドル
-	shader.m_hdlBufUv = null;	// ロード済みバッファへのハンドル
-	shader.m_tblPos = [];		// ロード可能なフォーマットのデータ
-	shader.m_tblUv = [];		// ロード可能なフォーマットのデータ
-	shader.m_tblDisp = [];
+	let model = {};
 
-	//----------------------------
-	function compile( type, src )
-	//----------------------------
+	// for model
+	model.name = data.name;
+	model.tblPos3 = [];		// vec3
+	model.tblUv2 = [];		// vec2
+	model.tblCol3 = [];		// vec3
+	model.tblIndex_wire = [];
+	model.tblIndex_flat = [];
+
+	//--基本の方向
+	model.qp = QP( qidentity(), vec3( data.xyzOfs[0], data.xyzOfs[1], data.xyzOfs[2] ) );
+
+	//--
+	if ( data.type == "PCIWF" )
 	{
-		let sdr = gl.createShader( type );				//※ gl.createShader( type )⇔  gl.deleteShader( shader );
-		gl.shaderSource( sdr, src );
-		gl.compileShader( sdr );
-		if( gl.getShaderParameter( sdr, gl.COMPILE_STATUS ) == false )
+		let ofs = model.tblPos3.length/3;
+		for ( let p of data.xyzPos )
 		{
-			console.log( gl.getShaderInfoLog( sdr ) );
+			model.tblPos3.push( vec3(p[0],p[1],p[2]) );
 		}
-		return sdr
+		for ( let p of data.rgbCol )
+		{
+			model.tblCol3.push( vec3(p[0],p[1],p[2]) );
+		}
+		for ( let id of data.index_wire )
+		{
+			model.tblIndex_wire.push( id+ofs );
+		}
+		for ( let id of data.index_flat )
+		{
+			model.tblIndex_flat.push( id+ofs );
+		}
+		[model.shader,model.orgmesh] = shader_create_PCIWF(gl);
 	}
-
-	// シェーダー構成
+	else
 	{
-
-		let src_vs = 
-			 "attribute vec4 Pos;"
-			+"attribute vec2 Uv;"
-			+"varying highp vec2 uv;"
-			+"void main( void )"
-			+"{"
-			+   "gl_Position = Pos;"
-			+	"uv = Uv;"
-			+"}"
-		;
-				
-		let src_fs =
-			 "precision mediump float;"
-			+"varying highp vec2 uv;"
-			+"uniform sampler2D Tex0;"
-			+"void main( void )"
-			+"{"
-			+	"gl_FragColor = texture2D( Tex0, uv );"
-			+"}"
-		;
-		shader.hdlProg	= gl.createProgram();			//WebGLProgram オブジェクトを作成		
-															//※gl.createProgram()	⇔  gl.deleteProgram( program );
-		let vs	= compile( gl.VERTEX_SHADER, src_vs );
-		let fs	= compile( gl.FRAGMENT_SHADER, src_fs );
-		gl.attachShader( shader.hdlProg, vs );			//シェーダーを WebGLProgram にアタッチ
-		gl.attachShader( shader.hdlProg, fs );			//シェーダーを WebGLProgram にアタッチ
-		gl.deleteShader( vs );
-		gl.deleteShader( fs );
-		gl.linkProgram( shader.hdlProg );				//WebGLProgram に接続されたシェーダーをリンク
-		shader.hdlPos		= gl.getAttribLocation( shader.hdlProg, "Pos" );
-		shader.hdlUv		= gl.getAttribLocation( shader.hdlProg, "Uv" );
-		shader.hdlTex0	= gl.getUniformLocation( shader.hdlProg, 'Tex0' );
-		gl.enableVertexAttribArray( shader.hdlPos );
-		gl.enableVertexAttribArray( shader.hdlUv );
-	}
-
-	shader.hdlTexture = gl.createTexture();		// TEX
-	{
-		const level = 0;
-		const internalFormat = gl.RGB;
-		const border = 0;
-		const srcFormat = gl.RGB;
-		const srcType = gl.UNSIGNED_BYTE;
-		const width = tex.width;
-		const height = tex.height;
-		const pixel = new Uint8Array( tex.rgb );
-		gl.bindTexture( gl.TEXTURE_2D, shader.hdlTexture );
-		gl.texImage2D( gl.TEXTURE_2D, level, internalFormat,width,height,0,srcFormat, srcType, pixel );
-		gl.generateMipmap( gl.TEXTURE_2D );
-		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE );
-		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE );
-		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR );
-	}
-
-	//-----------------------------
-	shader.draw = function()	//TEX
-	//-----------------------------
-	{
-		// 頂点データの再ロード
-		{
-			gl.deleteBuffer( shader.m_hdlBufPos );
-			gl.deleteBuffer( shader.m_hdlBufUv );
-
-			shader.m_hdlBufPos = gl.createBuffer();				// ※gl.createBuffer() ⇔  gl.deleteBuffer( buffer );
-			{
-				gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufPos );
-				gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( shader.m_tblPos ), gl.STATIC_DRAW );
-		    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
-			}
-
-			shader.m_hdlBufUv = gl.createBuffer();	//TEX
-			{
-				gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufUv );
-				gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( shader.m_tblUv ), gl.STATIC_DRAW );
-				gl.bindBuffer( gl.ARRAY_BUFFER, null );
-			}
-
-			shader.m_tblPos = [];	// VRAMに転送するので保存しなくてよい
-			shader.m_tblUv =  [];	// VRAMに転送するので保存しなくてよい
-
-		}
-
-		gl.useProgram( shader.hdlProg );
-		{
-			gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufPos );
-			gl.vertexAttribPointer( shader.hdlPos, 4, gl.FLOAT, false, 0, 0 ) ;
-	    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
-
-			gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufUv );
-			gl.vertexAttribPointer( shader.hdlUv, 2, gl.FLOAT, false, 0, 0 );	//kozo
-	    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
-
-			gl.activeTexture( gl.TEXTURE0 );
-			gl.bindTexture( gl.TEXTURE_2D, shader.hdlTexture );
-			gl.uniform1i( shader.hdlTex0, null );
-
-			for ( let it of shader.m_tblDisp )
-			{
-				if ( it.type == gl.TRIANGLES )
-				{
-					gl.enable( gl.POLYGON_OFFSET_FILL );
-				}
-				else
-				{
-					gl.disable( gl.POLYGON_OFFSET_FILL );
-				}
-				gl.drawArrays( it.type, it.offset, it.count );
-			}
-		}
-	}
-
-	//------------------------------------------
-	shader.drawModel = function( P, V, M, model )		//TEX
-	//------------------------------------------
-	{
-		// 座標計算
-		let tmpPos3 = []; 
-		{
-			for ( let i = 0 ; i < model.tblPos3.length ; i++ )
-			{
-				// 透視変換	//pos = PVMv;
-				let v = vec4( 
-					model.tblPos3[i].x,
-					model.tblPos3[i].y,
-					model.tblPos3[i].z,
-					1,
-				 );
-				v = vec4_vmul_Mv( M ,v );
-				v = vec4_vmul_Mv( V ,v );
-				v = vec4_vmul_Mv( P ,v );
-				tmpPos3.push( v );
-			}
-		}
-
-		// 描画	共有頂点を独立三角形にして描画
-		{
-			{ // 陰線処理用
-				for ( let i = 0 ; i < model.tblIndex_flat.length ; i+=3 )	// 独立３頂点ポリゴン
-				{
-					let i0 = model.tblIndex_flat[i+0];
-					let i1 = model.tblIndex_flat[i+1];
-					let i2 = model.tblIndex_flat[i+2];
-					let p0 = tmpPos3[i0];
-					let p1 = tmpPos3[i1];
-					let p2 = tmpPos3[i2];
-					let u0 = model.tblUv2[i0];
-					let u1 = model.tblUv2[i1];
-					let u2 = model.tblUv2[i2];
-					{
-						shader.m_tblPos.push( p0.x, p0.y, p0.z, p0.w );
-						shader.m_tblPos.push( p1.x, p1.y, p1.z, p1.w );
-						shader.m_tblPos.push( p2.x, p2.y, p2.z, p2.w );		//TEX
-						shader.m_tblUv.push( u0.x, u0.y );
-						shader.m_tblUv.push( u1.x, u1.y );
-						shader.m_tblUv.push( u2.x, u2.y );
-						if ( shader.m_tblDisp.length > 0 && shader.m_tblDisp[shader.m_tblDisp.length-1].type == gl.TRIANGLES )
-						{
-							shader.m_tblDisp[shader.m_tblDisp.length-1].count+=3;
-						}
-						else
-						{
-							shader.m_tblDisp.push( {"type":gl.TRIANGLES, "offset":shader.m_tblPos.length/4-3, "count":3 } ); 
-						}
-					}
-				}
-			}
-
-		}
+		console.error("unknown type used:"+data.type );
 	}
 	
-	return 	shader;
+	model.global_qp = QP( qidentity(),vec3(0,0,0) );
+
+	return model;
 }
 
-const flg_zero_runlength = true;
-//-----------------------------------------------------------------------------
-function imgidname2json_FONT( name )
-//-----------------------------------------------------------------------------
-{
-	let img = document.getElementById( name );
-	
-	let font = {};
+
+
+
+	//-----------------------------------------------------------------------------
+	let gra3d_pers = function( P, V, v )	// vec3 v
+	//-----------------------------------------------------------------------------
 	{
-
-		let FW = img.width;
-		let FH = img.height;
-		let ctx = document.createElement('canvas').getContext("2d");
-		ctx.canvas.width=FW;
-		ctx.canvas.height=FH;
-		ctx.drawImage( img, 0, 0 );
-		let dt = ctx.getImageData(  0,0, FW, FH );
-
-		font.width = FW;
-		font.height = FH;
-		font.buf = [];
-
-		// エンコード
-		let fa = 0;
-		let zlen = 0;	// 0のみランレングス圧縮
-		for ( let y = 0 ; y < FH ; y++ )
-		{
-			for ( let x = 0 ; x < FW/8 ; x++ )	 // 8dot per 1byteのフォーマットだから
-			{
-				let b = 0;
-				for ( let i = 0 ; i < 8 ; i++ )	 // 8dot per 1byteのフォーマットだから
-				{
-					b |= (dt.data[fa+=4] > 0) << i;	// imageフォーマットはRGBAなので4バイトアラインで読みだす
-				}
-				if ( flg_zero_runlength )
-				{	// 0だけランレングスモード
-					if ( b == 0 ) 
-					{
-						zlen++;
-					}
-					else
-					{
-						if ( zlen > 0 )
-						{
-							font.buf.push(0);
-							font.buf.push(zlen);
-							zlen=0;
-						}
-						font.buf.push(b);
-					}
-				}
-				else
-				{
-					font.buf.push(b);
-				}
-
-			}
-		}
-
+		// 透視変換	//pos = PVMv;
+		let s2 = vec4( v.x, v.y, v.z, 1 );
+		s2 = vec4_vmul_Mv( V ,s2 );
+		s2 = vec4_vmul_Mv( P ,s2 );
+		return s2;
 	}
-	/*
-		console.log( JSON.stringify( font ) );
-	*/
-	return font;
-
-}
-//-----------------------------------------------------------------------------
-function shader_create_FONT( gl, font )	//FONT
-//-----------------------------------------------------------------------------
-{
-	let	shader = {};
-	shader.m_hdlBufPos = null;	// ロード済みバッファへのハンドル
-	shader.m_hdlBufUv = null;	// ロード済みバッファへのハンドル
-	shader.m_tblPos = [];		// ロード可能なフォーマットのデータ
-	shader.m_tblUv = [];		// ロード可能なフォーマットのデータ
-	shader.m_tblDisp = [];
-
-	//----------------------------
-	function compile( type, src )
-	//----------------------------
+	//-----------------------------------------------------------------------------
+	let gra3d_pers2d = function( P, V, vt )	// vec3 v 2Dcanvasの座標系に変換
+	//-----------------------------------------------------------------------------
 	{
-		let sdr = gl.createShader( type );				//※ gl.createShader( type )⇔  gl.deleteShader( shader );
-		gl.shaderSource( sdr, src );
-		gl.compileShader( sdr );
-		if( gl.getShaderParameter( sdr, gl.COMPILE_STATUS ) == false )
-		{
-			console.log( gl.getShaderInfoLog( sdr ) );
-		}
-		return sdr
+		// 透視変換	//pos = PVMv;
+		let v = gra3d_pers( P, V, vt );
+
+		let W	= gl.canvas.width/2;
+		let H	= gl.canvas.height/2;
+		let px	=  (v.x/v.w)*W+W;	
+		let py	= -(v.y/v.w)*H+H;	
+		return vec2(px,py);
+	}
+	//-----------------------------------------------------------------------------
+	let gra3d_persScreen = function( P, V,vt )	// vec3 v 2Dcanvasの座標系に変換
+	//-----------------------------------------------------------------------------
+	{
+		// 透視変換	//pos = PVMv;
+		let v = gra3d_pers( P, V, vt );
+
+		let px	=  (v.x/v.w);	
+		let py	=  (v.y/v.w);	
+		let pz	=  (v.z);	
+		return vec3(px,py,pz);
+	}
+	//-----------------------------------------------------------------------------
+	let gra3d_line = function( gl, orgmesh, s, e, col, P, V )	// vec3 s, vec3 e, [n,n,n] col
+	//-----------------------------------------------------------------------------
+	{
+		// 透視変換	//pos = PVMv;
+		let s3 = {"pos":gra3d_pers(P, V,s), "col":col};
+		let e3 = {"pos":gra3d_pers(P, V,e), "col":col};
+		orgmesh_entry_LINE( gl, orgmesh, s3, e3 );
 	}
 
-	// シェーダー構成
+	//-----------------------------------------------------------------------------
+	let gra3d_getScreenPos_vec2 = function( P, V, vt )	//  vec4 v return vec2
+	//-----------------------------------------------------------------------------
 	{
+		let v = vcopy4(vr);
+		// 透視変換	//pos = PVMv;
+		v = vec4_vmul_Mv( V ,v );
+		v = vec4_vmul_Mv( P ,v );
 
-		let src_vs = 
-			 "attribute vec4 Pos;"
-			+"attribute vec2 Uv;"
-			+"varying highp vec2 uv;"
-			+"void main( void )"
-			+"{"
-			+   "gl_Position = Pos;"
-			+	"uv = Uv;"
-			+"}"
-		;
-				
-		let src_fs =
-			 "precision mediump float;"
-			+"varying highp vec2 uv;"
-			+"uniform sampler2D Tex0;"
-			+"void main( void )"
-			+"{"
-			+	"gl_FragColor = texture2D( Tex0, uv );"
-			+"}"
-		;
-		shader.hdlProg	= gl.createProgram();			//WebGLProgram オブジェクトを作成		
-															//※gl.createProgram()	⇔  gl.deleteProgram( program );
-		let vs	= compile( gl.VERTEX_SHADER, src_vs );
-		let fs	= compile( gl.FRAGMENT_SHADER, src_fs );
-		gl.attachShader( shader.hdlProg, vs );			//シェーダーを WebGLProgram にアタッチ
-		gl.attachShader( shader.hdlProg, fs );			//シェーダーを WebGLProgram にアタッチ
-		gl.deleteShader( vs );
-		gl.deleteShader( fs );
-		gl.linkProgram( shader.hdlProg );				//WebGLProgram に接続されたシェーダーをリンク
-		shader.hdlPos		= gl.getAttribLocation( shader.hdlProg, "Pos" );
-		shader.hdlUv		= gl.getAttribLocation( shader.hdlProg, "Uv" );
-		shader.hdlTex0	= gl.getUniformLocation( shader.hdlProg, 'Tex0' );
-		gl.enableVertexAttribArray( shader.hdlPos );
-		gl.enableVertexAttribArray( shader.hdlUv );
+		let W	= gl.canvas.width/2;
+		let H	= gl.canvas.height/2;
+		let px	=  (v.x/v.w)*W+W;	
+		let py	= -(v.y/v.w)*H+H;	
+		return vec2(px,py);
 	}
-
-	shader.hdlTexture = gl.createTexture();		// FONT
-	{
-		const level = 0;
-		const internalFormat = gl.LUMINANCE;
-		const border = 0;
-		const srcFormat = gl.LUMINANCE;
-		const srcType = gl.UNSIGNED_BYTE;
-
-		function expow2( sz ) // 2のべき乗に変換
-		{
-			let i = 0;
-			do 
-			{
-				sz = Math.floor(sz>>1);
-				i++;
-			} while( sz > 0 );
-			return Math.pow(2,i);
-		}
-		const FW = font.width;
-		const FH = font.height;
-		const TW = expow2( FW );
-		const TH = expow2( FH );
-		const pixel = new Uint8Array( TW*TH );
-		let ta = 0;
-		let b = 0;
-		let zlen = 0;	// 0ランレングスの数
-
-		// デコード
-		for ( let y = 0 ; y < FH ; y++ ) 
-		{
-			ta = TW*y;
-			for ( let x = 0 ; x < FW/8 ; x++ )  // 8dot per 1byteのフォーマットだから
-			{
-				if ( font.buf.length <= 0 ) break;
-
-				if ( flg_zero_runlength )
-				{	// 0だけランレングスモード
-					if ( zlen > 0 )
-					{
-						zlen--;
-					}
-					else
-					{
-						b = font.buf.shift();
-						if( b == 0 )
-						{
-							zlen = font.buf.shift()-1;
-						}
-					}
-				}
-				else
-				{
-						b = font.buf.shift();
-				}
-				for ( let i = 0 ; i < 8 ; i++ )	 // 8dot per 1byteのフォーマットだから
-				{
-					pixel[ta++] = (( b >> i )&0x1)*255;
-				}
-
-			}
-
-		}
-		gl.bindTexture( gl.TEXTURE_2D, shader.hdlTexture );
-		gl.texImage2D( gl.TEXTURE_2D, level, internalFormat,TW,TH,0,srcFormat, srcType, pixel );
-		gl.generateMipmap( gl.TEXTURE_2D );
-		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE );
-		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE );
-		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR );
-	}
-
-	//-----------------------------
-	shader.draw = function()	//FONT
-	//-----------------------------
-	{
-		// 頂点データの再ロード
-		{
-			gl.deleteBuffer( shader.m_hdlBufPos );
-			gl.deleteBuffer( shader.m_hdlBufUv );
-
-			shader.m_hdlBufPos = gl.createBuffer();				// ※gl.createBuffer() ⇔  gl.deleteBuffer( buffer );
-			{
-				gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufPos );
-				gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( shader.m_tblPos ), gl.STATIC_DRAW );
-		    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
-			}
-
-			shader.m_hdlBufUv = gl.createBuffer();	//FONT
-			{
-				gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufUv );
-				gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( shader.m_tblUv ), gl.STATIC_DRAW );
-				gl.bindBuffer( gl.ARRAY_BUFFER, null );
-			}
-
-			shader.m_tblPos = [];	// VRAMに転送するので保存しなくてよい
-			shader.m_tblUv =  [];	// VRAMに転送するので保存しなくてよい
-
-		}
-
-		gl.useProgram( shader.hdlProg );
-		{
-			gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufPos );
-			gl.vertexAttribPointer( shader.hdlPos, 4, gl.FLOAT, false, 0, 0 ) ;
-	    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
-
-			gl.bindBuffer( gl.ARRAY_BUFFER, shader.m_hdlBufUv );
-			gl.vertexAttribPointer( shader.hdlUv, 2, gl.FLOAT, false, 0, 0 );	//kozo
-	    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
-
-			gl.activeTexture( gl.TEXTURE0 );
-			gl.bindTexture( gl.TEXTURE_2D, shader.hdlTexture );
-			gl.uniform1i( shader.hdlTex0, null );
-
-			for ( let it of shader.m_tblDisp )
-			{
-				if ( it.type == gl.TRIANGLES )
-				{
-					gl.enable( gl.POLYGON_OFFSET_FILL );
-				}
-				else
-				{
-					gl.disable( gl.POLYGON_OFFSET_FILL );
-				}
-				gl.drawArrays( it.type, it.offset, it.count );
-			}
-		}
-	}
-
-	//------------------------------------------
-	shader.drawModel = function( P, V, M, model )		//FONT
-	//------------------------------------------
-	{
-		// 座標計算
-		let tmpPos3 = []; 
-		{
-			for ( let i = 0 ; i < model.tblPos3.length ; i++ )
-			{
-				// 透視変換	//pos = PVMv;
-				let v = vec4( 
-					model.tblPos3[i].x,
-					model.tblPos3[i].y,
-					model.tblPos3[i].z,
-					1,
-				 );
-				v = vec4_vmul_Mv( M ,v );
-				v = vec4_vmul_Mv( V ,v );
-				v = vec4_vmul_Mv( P ,v );
-				tmpPos3.push( v );
-			}
-		}
-
-		// 描画	共有頂点を独立三角形にして描画
-		{
-			{ // 陰線処理用
-				for ( let i = 0 ; i < model.tblIndex_flat.length ; i+=3 )	// 独立３頂点ポリゴン
-				{
-					let i0 = model.tblIndex_flat[i+0];
-					let i1 = model.tblIndex_flat[i+1];
-					let i2 = model.tblIndex_flat[i+2];
-					let p0 = tmpPos3[i0];
-					let p1 = tmpPos3[i1];
-					let p2 = tmpPos3[i2];
-					let u0 = model.tblUv2[i0];
-					let u1 = model.tblUv2[i1];
-					let u2 = model.tblUv2[i2];
-					{
-						shader.m_tblPos.push( p0.x, p0.y, p0.z, p0.w );
-						shader.m_tblPos.push( p1.x, p1.y, p1.z, p1.w );
-						shader.m_tblPos.push( p2.x, p2.y, p2.z, p2.w );		//FONT
-						shader.m_tblUv.push( u0.x, u0.y );
-						shader.m_tblUv.push( u1.x, u1.y );
-						shader.m_tblUv.push( u2.x, u2.y );
-						if ( shader.m_tblDisp.length > 0 && shader.m_tblDisp[shader.m_tblDisp.length-1].type == gl.TRIANGLES )
-						{
-							shader.m_tblDisp[shader.m_tblDisp.length-1].count+=3;
-						}
-						else
-						{
-							shader.m_tblDisp.push( {"type":gl.TRIANGLES, "offset":shader.m_tblPos.length/4-3, "count":3 } ); 
-						}
-					}
-				}
-			}
-
-		}
-	}
-	
-	return 	shader;
-}
 
 //-----------------------------------------------------------------------------
 function gra3d_create( cv )	// 2022/06/10
@@ -1202,237 +435,171 @@ function gra3d_create( cv )	// 2022/06/10
 	//	・graライブラリと似せる
 
 	let gra3d = {}
-	
+//	let	m_shader = {};
+	let	m_hdlVertexbuf;
+	let	m_hdlColorbuf;
+	let m_tblVertex = [];
+	let m_tblColor = [];
+	let m_tblDisplay = [];
 	let m_offset = 0;
 
 	let gl = cv.getContext( "webgl", { antialias: false } );
+	gra3d.gl = gl; 
+	gra3d.P = midentity(); 
+	gra3d.V = midentity(); 
+	gra3d.color = vec3(0,0,0);
+
+	{
+//		gl.enable( gl.POLYGON_OFFSET_FILL );
+//		gl.polygonOffset(1,1);
+		/*
+		GL_POLYGON_OFFSET_FILL、GL_POLYGON_OFFSET_LINE、またはGL_POLYGON_OFFSET_POINTが有効になっている場合、
+		各フラグメントの深度値は、適切な頂点の深度値から補間された後にオフセットされます。 
+
+		polygonOffset(GLfloat factor, GLfloat units);
+		オフセットの値はfactor×DZ+r×unitsです。
+		ここで、DZはポリゴンの画面領域に対する深さの変化の測定値であり、
+		rは特定の値に対して解決可能なオフセットを生成することが保証されている最小値です。 
+		オフセットは、深度テストが実行される前、および値が深度バッファーに書き込まれる前に追加されます。
+		*/
+	}
+
 	if ( gl == null )
 	{
 		alert( "ブラウザがwebGL2に対応していません。Safariの場合は設定>Safari>詳細>ExperimentalFeatures>webGL2.0をonにすると動作すると思います。" );
 	}
-
-	let	prim_shader = shader_create_PCIWF( gl );
-
-	gra3d.gl = gl; 
-	gra3d.P = midentity(); 
-	gra3d.V = midentity(); 
-	gra3d.def_color = vec3(0,0,0);
+//	gl.enable( gl.DEPTH_TEST );
+//	gl.depthFunc( gl.LEQUAL );// gl.LESS;	最も奥が1.0、最も手前が0.0
 /*
-	{
-		gl.enable( gl.POLYGON_OFFSET_FILL );
-		gl.polygonOffset(1,1);
-		//	GL_POLYGON_OFFSET_FILL、GL_POLYGON_OFFSET_LINE、またはGL_POLYGON_OFFSET_POINTが有効になっている場合、
-		//	各フラグメントの深度値は、適切な頂点の深度値から補間された後にオフセットされます。 
 
-		//	polygonOffset(GLfloat factor, GLfloat units);
-		//	オフセットの値はfactor×DZ+r×unitsです。
-		//	ここで、DZはポリゴンの画面領域に対する深さの変化の測定値であり、
-		//	rは特定の値に対して解決可能なオフセットを生成することが保証されている最小値です。 
-		//	オフセットは、深度テストが実行される前、および値が深度バッファーに書き込まれる前に追加されます。
-	}
-
-
-	gl.enable( gl.DEPTH_TEST );
-	gl.depthFunc( gl.LEQUAL );// gl.LESS;	最も奥が1.0、最も手前が0.0
 	gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
 	gl.clearDepth( 1.0 );
 	gl.viewport( 0.0, 0.0, gl.canvas.width, gl.canvas.height );
 	gl.enable( gl.CULL_FACE );	// デフォルトでは反時計回りが表示
 */
 
-
-
-	//-----------------------------------------------------------------------------
-	gra3d.model_comvert_single = function( data )// 内部フォーマットに変換
-	//-----------------------------------------------------------------------------
-	{
-		let model = {};
-
-		// for model
-		model.name = data.name;
-		model.tblPos3 = [];		// vec3
-		model.tblUv2 = [];		// vec2
-		model.tblCol3 = [];		// vec3
-		model.tblIndex_wire = [];
-		model.tblIndex_flat = [];
-
-		//--基本の方向
-		model.qp = QP( qidentity(), vec3( data.xyzOfs[0], data.xyzOfs[1], data.xyzOfs[2] ) );
-
-		//--
-		if ( data.type == "PCIWF" )
-		{
-			let ofs = model.tblPos3.length/3;
-			for ( let p of data.xyzPos )
-			{
-				model.tblPos3.push( vec3(p[0],p[1],p[2]) );
-			}
-			for ( let p of data.rgbCol )
-			{
-				model.tblCol3.push( vec3(p[0],p[1],p[2]) );
-			}
-			for ( let id of data.index_wire )
-			{
-				model.tblIndex_wire.push( id+ofs );
-			}
-			for ( let id of data.index_flat )
-			{
-				model.tblIndex_flat.push( id+ofs );
-			}
-			model.shader = shader_create_PCIWF(gl);
-		}
-		else
-		if ( data.type == "PTF" )
-		{
-			let ofs = model.tblPos3.length/3;
-			for ( let p of data.xyzPos )
-			{
-				model.tblPos3.push( vec3(p[0],p[1],p[2]) );
-			}
-			for ( let p of data.uvUV )
-			{
-				model.tblUv2.push( vec2(p[0],p[1]) );
-			}
-			for ( let id of data.index_flat )
-			{
-				model.tblIndex_flat.push( id+ofs );
-			}
-			model.shader = shader_create_PTF(gl, data.tex );
-		}
-		else
-		if ( data.type == "FONT" )
-		{
-			let ofs = model.tblPos3.length/3;
-			for ( let p of data.xyzPos )
-			{
-				model.tblPos3.push( vec3(p[0],p[1],p[2]) );
-			}
-			for ( let p of data.uvUV )
-			{
-				model.tblUv2.push( vec2(p[0],p[1]) );
-			}
-			for ( let id of data.index_flat )
-			{
-				model.tblIndex_flat.push( id+ofs );
-			}
-
-			let fontjson = imgidname2json_FONT( data.font_imageid );
-			model.shader = shader_create_FONT(gl, fontjson );
-		}
-		else
-		{
-			console.error("unknown type used:"+data.type );
-		}
-		
-		model.global_qp = QP( qidentity(),vec3(0,0,0) );
-
-		return model;
-	}
-	//-----------------------------------------------------------------------------
-	gra3d.model_comvert = function( tree )	
-	//-----------------------------------------------------------------------------
-	{
-		let tbl = [];
-		for ( let t of tree )
-		{
-			if ( t instanceof Array == true ) 
-			{
-				tbl.push( gra3d.model_comvert(t) );
-			}
-			else
-			{
-				let dat = gra3d.model_comvert_single( t );
-				tbl.push( dat );
-			}
-		}
-		return tbl;
-	}
-
-	//---------------------------------------------------------------------
-	gra3d.model_draw = function( tree )	
-	//---------------------------------------------------------------------
-	{
-		let model = null;
-		for ( let t of tree )
-		{
-			if ( t instanceof Array == true ) 
-			{
-				gra3d.model_draw(t);
-			}
-			else
-			{
-				model = t;
-				{
-					// 描画部
-					let M = mmul( mtrans(model.global_qp.P), mq(model.global_qp.Q) );	//cul:64
-					model.shader.drawModel( gra3d.P, gra3d.V, M, model );
-				}
-			}
-			
-		}
-	}
-
-	//---------------------------------------------------------------------
-	gra3d.model_calc = function( tree, parent_qp )	
-	//---------------------------------------------------------------------
-	{
-		let model = null;
-		let qp = parent_qp;
-		for ( let t of tree )
-		{
-			if ( t instanceof Array == true ) 
-			{
-				gra3d.model_calc(t,qp);
-			}
-			else
-			{
-				model = t;
-				{
-					// 計算部
-					qp = QP_mul( parent_qp, model.qp );
-					model.global_qp = qp;
-				}
-			}
-			
-		}
-	}
-
-	//---------------------------------------------------------------------
-	gra3d.model_reload = function( tree )	
-	//---------------------------------------------------------------------
-	{
-		for ( let t of tree )
-		{
-			if ( t instanceof Array == true ) 
-			{
-				gra3d.model_reload(t);
-			}
-			else
-			{
-				let model = t;
-				model.shader.draw();
-				model.shader.m_tblDisp = [];
-
-			}
-			
-		}
-	}
-
 	
+	// シェーダー構成
+	let m_shader		= gl_createShader( gl, gl_vs_P4C, gl_fs_color	, ["Pos4","Col"],[] );
+
 	//-----------------------------------------------------------------------------
 	gra3d.reload_flush_display = function()
 	//-----------------------------------------------------------------------------
 	{
-		prim_shader.draw();
 		
+		// 頂点データの再ロード
+		{
+			gl.deleteBuffer( m_hdlVertexbuf );
+			gl.deleteBuffer( m_hdlColorbuf );
+
+			m_hdlVertexbuf = gl.createBuffer();				// ※gl.createBuffer() ⇔  gl.deleteBuffer( buffer );
+			{
+				gl.bindBuffer( gl.ARRAY_BUFFER, m_hdlVertexbuf );
+				gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( m_tblVertex ), gl.STATIC_DRAW );
+		    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
+			}
+			
+			m_hdlColorbuf = gl.createBuffer();				// ※gl.createBuffer() ⇔  gl.deleteBuffer( buffer );
+			{
+				gl.bindBuffer( gl.ARRAY_BUFFER, m_hdlColorbuf );
+				gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( m_tblColor ), gl.STATIC_DRAW );
+		    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
+			}
+
+			m_tblVertex = [];	// VRAMに転送するので保存しなくてよい
+			m_tblColor = [];	// VRAMに転送するので保存しなくてよい
+
+
+		}
+
+
+
+		{
+			for ( let it of m_tblDisplay )
+			{
+				let shader		= m_shader;
+
+				let type		= it.type;
+				let hdlPos		= m_hdlVertexbuf;
+				let hdlUv		= null;
+				let hdlCol		= m_hdlColorbuf;
+				let hdlIndex	= null;
+				let offset		= it.offset;
+				let length		= it.count;
+				let mesh		= gl_MESH( type, hdlPos, hdlUv, hdlCol, hdlIndex, offset, length );
+
+				let mdl = gl_MDL( mesh, shader, [] );
+
+				if ( it.type == gl.TRIANGLES )
+				{
+					gl.enable( gl.POLYGON_OFFSET_FILL );
+				}
+				else
+				{
+					gl.disable( gl.POLYGON_OFFSET_FILL );
+				}
+				gl_drawmMdl( gl, mdl, false );
+	
+			}
+			
+
+		}
+
 		gl.flush();
-		prim_shader.m_tblDisp = [];
+		m_tblDisplay = [];
 	}
-//	//-----------------------------------------------------------------------------
-//	gra3d.drawModel_single = function( M, model )	// モデル表示
-//	//-----------------------------------------------------------------------------
-//	{
-//	}
+
+	//-----------------------------------------------------------------------------
+	gra3d.draw_primitive = function( type, verts )	// [ {"pos":vec4(),"col":vec3()} ] vert
+	//-----------------------------------------------------------------------------
+	{
+		for ( let v of verts )
+		{
+			m_tblVertex.push( v.pos.x, v.pos.y, v.pos.z, v.pos.w );
+			m_tblColor.push( v.col.x, v.col.y, v.col.z );
+		}
+		m_tblDisplay.push( {"type":type, "offset":m_tblVertex.length/4-verts.length, "count":verts.length } ); 
+	}
+	//-----------------------------------------------------------------------------
+	gra3d.entry_TRIANGLE = function( a,b,c )		// {"pos":vec4(),"col":vec3()}
+	//-----------------------------------------------------------------------------
+	{
+		m_tblVertex.push( a.pos.x, a.pos.y, a.pos.z, a.pos.w );
+		m_tblVertex.push( b.pos.x, b.pos.y, b.pos.z, b.pos.w );
+		m_tblVertex.push( c.pos.x, c.pos.y, c.pos.z, c.pos.w );
+
+		m_tblColor.push( a.col.x, b.col.y, c.col.z );
+		m_tblColor.push( a.col.x, b.col.y, c.col.z );
+		m_tblColor.push( a.col.x, b.col.y, c.col.z );
+	
+		if ( m_tblDisplay.length > 0 && m_tblDisplay[m_tblDisplay.length-1].type == gl.TRIANGLES )
+		{
+			m_tblDisplay[m_tblDisplay.length-1].count+=3;
+		}
+		else
+		{
+			m_tblDisplay.push( {"type":gl.TRIANGLES, "offset":m_tblVertex.length/4-3, "count":3 } ); 
+		}
+	}	
+	//-----------------------------------------------------------------------------
+	gra3d.entry_LINE = function( s, e )			// {"pos":vec4(),"col":vec3()}
+	//-----------------------------------------------------------------------------
+	{
+		m_tblVertex.push( s.pos.x, s.pos.y, s.pos.z, s.pos.w );
+		m_tblVertex.push( e.pos.x, e.pos.y, e.pos.z, e.pos.w );
+
+		m_tblColor.push( s.col.x, s.col.y, s.col.z );
+		m_tblColor.push( e.col.x, e.col.y, e.col.z );
+
+		if ( m_tblDisplay.length > 0 && m_tblDisplay[m_tblDisplay.length-1].type == gl.LINES )
+		{
+			m_tblDisplay[m_tblDisplay.length-1].count+=2;
+		}
+		else
+		{
+			m_tblDisplay.push( {"type":gl.LINES, "offset":m_tblVertex.length/4-2, "count":2} ); 
+		}
+	}
 	
 	//-----------------------------------------------------------------------------
 	gra3d.setProjectionMatrix = function( P )
@@ -1483,19 +650,19 @@ function gra3d_create( cv )	// 2022/06/10
 		return vec3(px,py,pz);
 	}
 	//-----------------------------------------------------------------------------
-	gra3d.setColor = function( col )
+	gra3d.colorv = function( col )
 	//-----------------------------------------------------------------------------
 	{
-		gra3d.def_color = col;
+		gra3d.color = col;
 	}
 	//-----------------------------------------------------------------------------
 	gra3d.line = function( s, e, col )	// vec3 s, vec3 e, [n,n,n] col
 	//-----------------------------------------------------------------------------
 	{
 		// 透視変換	//pos = PVMv;
-		let s3 = {"pos":gra3d.pers(s), "col":gra3d.def_color};
-		let e3 = {"pos":gra3d.pers(e), "col":gra3d.def_color};
-		prim_shader.entry_LINE( s3, e3 );
+		let s3 = {"pos":gra3d.pers(s), "col":gra3d.color};
+		let e3 = {"pos":gra3d.pers(e), "col":gra3d.color};
+		gra3d.entry_LINE( s3, e3 );
 	}
 
 	//-----------------------------------------------------------------------------
@@ -1514,7 +681,54 @@ function gra3d_create( cv )	// 2022/06/10
 		return vec2(px,py);
 	}
 	//-----------------------------------------------------------------------------
-	gra3d.setBackcolor = function( rgb ) 
+	gra3d.drawModel = function( M, model )	// モデル表示
+	//-----------------------------------------------------------------------------
+	{
+		// 座標計算
+		let tmp = []; 
+		{
+			for ( let i = 0 ; i < model.tblVertex3.length ; i+=3 )
+			{
+				// 透視変換	//pos = PVMv;
+				let v = vec4( 
+					model.tblVertex3[i+0],
+					model.tblVertex3[i+1],
+					model.tblVertex3[i+2],
+					1,
+				 );
+				v = vec4_vmul_Mv( M ,v );
+				v = vec4_vmul_Mv( gra3d.V ,v );
+				v = vec4_vmul_Mv( gra3d.P ,v );
+				tmp.push( v );
+			}
+		}
+
+		// 描画	共有頂点を独立三角形にして描画
+		{
+			{ // 陰線処理用
+				for ( let i = 0 ; i < model.tblIndex_flat.length ; i+=3 )
+				{
+					let v1 = {"pos":tmp[model.tblIndex_flat[i+0]], "col":model.col_flat};
+					let v2 = {"pos":tmp[model.tblIndex_flat[i+1]], "col":model.col_flat};
+					let v3 = {"pos":tmp[model.tblIndex_flat[i+2]], "col":model.col_flat};
+					gra3d.entry_TRIANGLE( v1, v2, v3 );
+				}
+			}
+			{ // 線描画
+				for ( let i = 0 ; i < model.tblIndex_wire.length ; i+=2 )
+				{
+					let s = {"pos":tmp[model.tblIndex_wire[i+0]], "col":model.col_wire};
+					let e = {"pos":tmp[model.tblIndex_wire[i+1]], "col":model.col_wire};
+					gra3d.entry_LINE( s, e );
+
+				}
+			}
+
+		}
+
+	}
+	//-----------------------------------------------------------------------------
+	gra3d.backcolor = function( rgb ) 
 	//-----------------------------------------------------------------------------
 	{
 		gl.clearColor( rgb.x, rgb.y, rgb.z, 1.0 );
@@ -1859,6 +1073,62 @@ let html =
 		}
 	},
 };
+
+let original_width = null;
+let original_height = null;
+//-----------------------------------------------------------------
+function html_setFullscreen( name_canvas )
+//-----------------------------------------------------------------
+{
+	let cv = window.document.getElementById( name_canvas );
+
+	if ( original_width == null ) original_width = cv.width;		// 最初にフルスクスクリーンが起動するときの値を覚えておく
+	if ( original_height == null ) original_height = cv.height;
+
+	let req = 
+		cv.requestFullScreen ||			//for chrome/edge/opera/firefox
+		cv.webkitRequestFullscreen ||	//for chrome/edge/opera
+		cv.webkitRequestFullScreen ||	//for chrome/edge/opera
+		cv.mozRequestFullScreen ||		//for firefox
+		cv.msRequestFullscreen;			//for IE
+
+    if( req ) 
+    {
+		function callback()
+		{
+			if ( window.document.fullscreenElement ||	window.document.webkitFullscreenElement )
+			{
+				// 入るとき
+				let W1 = window.screen.width;		//スクリーンサイズ(インスペクターが開いている場合等、画面サイズとは限らない）
+				let H1 = window.screen.height;	
+				let W0 = original_width;			//canvas初期設定サイズ
+				let H0 = original_height;		
+				let w = W0;
+				let h = H0;
+				while( w<W1-W0 && h <H1-H0 )		//整数倍で最も大きくとれるサイズを求める
+				{
+					w += W0;
+					h += H0;
+				}
+				cv.width = w;
+				cv.height = h;
+			}
+			else
+			{
+				// 戻るとき
+				cv.width = original_width;
+				cv.height = original_height;
+			}
+		}
+		window.document.addEventListener("fullscreenchange", callback, false);			// for firefox
+		window.document.addEventListener("webkitfullscreenchange", callback, false);	// for chrome/edge/opera
+		req.apply( cv );
+    }
+    else
+    {
+		alert("このブラウザはフルスクリーンに対応していません");
+    }
+}
 
 //-----------------------------------------------------------------------------
 function strfloat( v, r=4, f=2 ) // v値、r指数部桁、f小数部桁
@@ -4761,6 +4031,69 @@ function gl_reset()
 
 
 
+let gl_vs_P4C = 
+	 "attribute vec4 Pos4;"
+	+"attribute vec3 Col;"
+	+"varying vec3 vColor;"
+	+"void main( void )"
+	+"{"
+//挙動確認用コード 
+//	+   "mat4 S = mat4( 0.5,  0.0,  0.0,  0.0,"
+//	+   "              0.0,  0.5,  0.0,  0.0,"
+//	+   "              0.0,  0.0,  0.5,  0.0,"
+//	+   "              0.0,  0.0,  0.0,  1.0 );"
+//	+   "float th = radians( 15.0 );"
+//	+   "float c = cos( th );"
+//	+   "float s = sin( th );"
+//	+   "mat4 Rx = mat4( 1.0,  0.0,  0.0,  0.0,"
+//	+   "               0.0,    c,   -s,  0.0,"
+//	+   "               0.0,    s,    c,  0.0,"
+//	+   "               0.0,  0.0,  0.0,  1.0 );"
+//	+   "mat4 Ry = mat4(  c,  0.0,    s,  0.0,"
+//	+   "               0.0,  1.0,  0.0,  0.0,"
+//	+   "                -s,  0.0,    c,  0.0,"
+//	+   "               0.0,  0.0,  0.0,  1.0 );"
+//	+   "mat4 Rz = mat4(  c,   -s,  0.0,  0.0,"
+//	+   "                 s,    c,  0.0,  0.0,"
+//	+   "               0.0,  0.0,  1.0,  0.0,"
+//	+   "               0.0,  0.0,  0.0,  1.0 );"
+//	+   "mat4 Tx = mat4( 1.0,  0.0,  0.0, -1.0,"
+//	+   "               0.0,  1.0,  0.0,  0.0,"
+//	+   "               0.0,  0.0,  1.0,  0.0,"
+//	+   "               0.0,  0.0,  0.0,  1.0 );"
+//	+   "mat4 Ty = mat4( 1.0,  0.0,  0.0,  0.0,"
+//	+   "               0.0,  1.0,  0.0,  1.0,"
+//	+   "               0.0,  0.0,  1.0,  0.0,"
+//	+   "               0.0,  0.0,  0.0,  1.0 );"
+//	+   "mat4 Tz = mat4( 1.0,  0.0,  0.0,  0.0,"
+//	+   "               0.0,  1.0,  0.0,  0.0,"
+//	+   "               0.0,  0.0,  1.0, -9.0,"
+//	+   "               0.0,  0.0,  0.0,  1.0 );"
+//	+   "mat4 T = Rz;         "
+//	+   "float fovy=radians( 45.0 );     "
+//	+   "float sc=1.0/tan( fovy/2.0 );   "
+//	+   "float n=0.0;                  "
+//	+   "float f=-1.0;                 "
+//	+   "float aspect=1.0;             "
+//	+	"mat4 Pm = mat4(               "
+//	+	"	sc/aspect,     0.0,          0.0,              0.0,"
+//	+	"	      0.0,      sc,          0.0,              0.0,"
+//	+	"	      0.0,     0.0, -( f+n )/( f-n ), -( 2.0*f*n )/( f-n ),"
+//	+	"	      0.0,     0.0,         -1.0,              0.0 );"
+	+   "gl_Position = Pos4;"
+	+   "vColor = Col;"
+	+"}"
+;
+		
+let gl_fs_color =
+	 "precision mediump float;"
+	+"varying vec3 vColor;"
+	+"void main( void )"
+	+"{"
+	+	"gl_FragColor = vec4( vColor, 1.0 );"
+	+"}"
+;
+		
 const gl_vs_P2U = " 								"
 	+"attribute vec2	Pos2;					" // Pos2 = attribte["Pos2"][n]
 	+"attribute vec2	Uv;						" // Uv  = attribte["Uv"][n]
@@ -4920,16 +4253,29 @@ function gl_MDL( mesh, shader, tblTex )	// モデルフォーマット
 		tblTex	:tblTex
 	};
 }
+
 //-----------------------------------------------------------------------------
-function gl_MESH( type, hdlPos, hdlUv, hdlIndex, length )	// メッシュフォーマット
+function gl_SHADER( prog, hashHdl )	// シェーダーフォーマット
 //-----------------------------------------------------------------------------
 {
 	return {
+		hdlProg	:prog,
+		hashHdl	:hashHdl
+	};
+}
+
+//-----------------------------------------------------------------------------
+function gl_MESH( type, hdlPos, hdlUv, hdlCol, hdlIndex, offset, length )	// メッシュフォーマット
+//-----------------------------------------------------------------------------
+{
+	return {
+		drawtype	:type,
 		hdlPos		:hdlPos,
 		hdlUv		:hdlUv,
+		hdlCol		:hdlCol,
 		hdlIndex	:hdlIndex,	// インデックスド頂点でない場合はnull
+		ofsVertex	:offset,
 		cntVertex	:length,
-		drawtype	:type,
 	}
 }
 //-----------------------------------------------------------------------------
@@ -4942,8 +4288,6 @@ function gl_createFont( filename, FW, FH, funcGetXY )
 	font.FW			=FW;	// フォント幅
 	font.FH			=FH;	// フォント高さ
 	font.getXY		=funcGetXY;
-	font.tblPos = [];
-	font.tblUv = [];
 
 	return font;
 }
@@ -5061,41 +4405,64 @@ function gl_createShader( gl, src_vs, src_fs, tblAttribute, tblUniform )
 		return null;
 	}
 
-	let tblHdl = {};
+	let hashHdl = {};
 	for ( let name of tblAttribute )
 	{
-		tblHdl[name] = gl.getAttribLocation( prog, name );
+		hashHdl[name] = gl.getAttribLocation( prog, name );
 	}
 	for ( let name of tblUniform )
 	{
-		tblHdl[name] = gl.getUniformLocation( prog, name );
+		hashHdl[name] = gl.getUniformLocation( prog, name );
 	}
-	return {
-		program	:prog,
-		tblHdl	:tblHdl
-	};
 
-	return shader;
+	return gl_SHADER( prog, hashHdl );	// シェーダーフォーマット
 }
 
 // メッシュ作成
+
 //-----------------------------------------------------------------------------
-function gl_createIndexedMesh( gl, type, tblPos, tblUv, tblIndex )
+function gl_createMesh( gl, type, tblPos, sizePos, tblUv, tblCol, tblIndex )
 //-----------------------------------------------------------------------------
 {
-	let hdlPos = gl.createBuffer();
-	gl.bindBuffer( gl.ARRAY_BUFFER, hdlPos );
-	gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( tblPos ), gl.STATIC_DRAW );
+	let hdlPos = null;
+	if ( tblPos )
+	{
+		hdlPos = gl.createBuffer();
+		gl.bindBuffer( gl.ARRAY_BUFFER, hdlPos );
+		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( tblPos ), gl.STATIC_DRAW );
+	}
 
-	let hdlUv = gl.createBuffer();
-	gl.bindBuffer( gl.ARRAY_BUFFER, hdlUv );
-	gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( tblUv ), gl.STATIC_DRAW );
+	let hdlUv = null;
+	if ( tblUv )
+	{
+		hdlUv = gl.createBuffer();
+		gl.bindBuffer( gl.ARRAY_BUFFER, hdlUv );
+		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( tblUv ), gl.STATIC_DRAW );
+	}
 
-	let hdlIndex = gl.createBuffer();
-	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, hdlIndex );
-	gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Uint16Array( tblIndex ), gl.STATIC_DRAW );
+	let hdlCol = null;
+	if ( tblCol )
+	{
+		hdlCol = gl.createBuffer();
+		gl.bindBuffer( gl.ARRAY_BUFFER, hdlCol );
+		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( tblCol ), gl.STATIC_DRAW );
+	}
 
-	return gl_MESH( type, hdlPos, hdlUv, hdlIndex, tblIndex.length );
+	let cntVertex = 0;
+	let hdlIndex = null;
+	if ( tblIndex )
+	{
+		hdlIndex = gl.createBuffer();
+		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, hdlIndex );
+		gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Uint16Array( tblIndex ), gl.STATIC_DRAW );
+		cntVertex = tblIndex.length;
+	}
+	else
+	{
+		cntVertex = tblPos.length / sizePos;
+	}
+
+	return gl_MESH( type, hdlPos, hdlUv, hdlCol, hdlIndex, 0, cntVertex );
 }
 
 // 描画
@@ -5104,74 +4471,82 @@ function gl_drawmMdl( gl, mdl, tblGaus )
 //-----------------------------------------------------------------------------
 {
 	// shader setup
-	gl.useProgram( mdl.shader.program );
+	gl.useProgram( mdl.shader.hdlProg );
 	{
 
-		if ( mdl.shader.tblHdl["Pos2"] != undefined )						// Pos2
+		if ( mdl.shader.hashHdl["Pos2"] != undefined )						// Pos2
 		{
 			gl.bindBuffer( gl.ARRAY_BUFFER, mdl.mesh.hdlPos );
-			gl.vertexAttribPointer( mdl.shader.tblHdl["Pos2"], 2, gl.FLOAT, false, 0, 0 );
-			gl.enableVertexAttribArray( mdl.shader.tblHdl["Pos2"] );
+			gl.vertexAttribPointer( mdl.shader.hashHdl["Pos2"], 2, gl.FLOAT, false, 0, 0 );
+			gl.enableVertexAttribArray( mdl.shader.hashHdl["Pos2"] );
 		}
 
-		if ( mdl.shader.tblHdl["Pos3"] != undefined )						// Pos3
+		if ( mdl.shader.hashHdl["Pos3"] != undefined )						// Pos3
 		{
 			gl.bindBuffer( gl.ARRAY_BUFFER, mdl.mesh.hdlPos );
-			gl.vertexAttribPointer( mdl.shader.tblHdl["Pos3"], 3, gl.FLOAT, false, 0, 0 );
-			gl.enableVertexAttribArray( mdl.shader.tblHdl["Pos3"] );
+			gl.vertexAttribPointer( mdl.shader.hashHdl["Pos3"], 3, gl.FLOAT, false, 0, 0 );
+			gl.enableVertexAttribArray( mdl.shader.hashHdl["Pos3"] );
 		}
 
-		if ( mdl.shader.tblHdl["Pos4"] != undefined )						// Pos4
+		if ( mdl.shader.hashHdl["Pos4"] != undefined )						// Pos4
 		{
 			gl.bindBuffer( gl.ARRAY_BUFFER, mdl.mesh.hdlPos );
-			gl.vertexAttribPointer( mdl.shader.tblHdl["Pos4"], 4, gl.FLOAT, false, 0, 0 );
-			gl.enableVertexAttribArray( mdl.shader.tblHdl["Pos4"] );
+			gl.vertexAttribPointer( mdl.shader.hashHdl["Pos4"], 4, gl.FLOAT, false, 0, 0 );
+			gl.enableVertexAttribArray( mdl.shader.hashHdl["Pos4"] );
 		}
 
-		if ( mdl.shader.tblHdl["Uv"] != undefined )						// UV
+		if ( mdl.shader.hashHdl["Uv"] != undefined )						// UV
 		{
 			gl.bindBuffer( gl.ARRAY_BUFFER, mdl.mesh.hdlUv );
-			gl.vertexAttribPointer( mdl.shader.tblHdl["Uv"], 2, gl.FLOAT, false, 0, 0 );
-			gl.enableVertexAttribArray( mdl.shader.tblHdl["Uv"] );
+			gl.vertexAttribPointer( mdl.shader.hashHdl["Uv"], 2, gl.FLOAT, false, 0, 0 );
+			gl.enableVertexAttribArray( mdl.shader.hashHdl["Uv"] );
 		}
 
-		if ( mdl.shader.tblHdl["Tex0"] != undefined )						// テクスチャ0
+		if ( mdl.shader.hashHdl["Col"] != undefined )						// UV
+		{
+			gl.bindBuffer( gl.ARRAY_BUFFER, mdl.mesh.hdlCol );
+			gl.vertexAttribPointer( mdl.shader.hashHdl["Col"], 3, gl.FLOAT, false, 0, 0 );
+			gl.enableVertexAttribArray( mdl.shader.hashHdl["Col"] );
+		}
+
+		if ( mdl.shader.hashHdl["Tex0"] != undefined )						// テクスチャ0
 		{
 			gl.activeTexture( gl.TEXTURE0 );						
 			gl.bindTexture( gl.TEXTURE_2D, mdl.tblTex[0] );			
- 			gl.uniform1i( mdl.shader.tblHdl["Tex0"], 0 );						
+ 			gl.uniform1i( mdl.shader.hashHdl["Tex0"], 0 );						
+			gl.activeTexture( gl.TEXTURE0 );						
 		}
 
-		if ( mdl.shader.tblHdl["Tex1"] != undefined )						// テクスチャ1
+		if ( mdl.shader.hashHdl["Tex1"] != undefined )						// テクスチャ1
 		{
 			gl.activeTexture( gl.TEXTURE1 );						
 			gl.bindTexture( gl.TEXTURE_2D, mdl.tblTex[1] );			
- 			gl.uniform1i( mdl.shader.tblHdl["Tex1"], 1 );						
+ 			gl.uniform1i( mdl.shader.hashHdl["Tex1"], 1 );						
 		}
 
-		if ( mdl.shader.tblHdl["Tex2"] != undefined )						// テクスチャ2
+		if ( mdl.shader.hashHdl["Tex2"] != undefined )						// テクスチャ2
 		{
 			gl.activeTexture( gl.TEXTURE2 );						
 			gl.bindTexture( gl.TEXTURE_2D, mdl.tblTex[2] );			
- 			gl.uniform1i( mdl.shader.tblHdl["Tex2"], 1 );						
+ 			gl.uniform1i( mdl.shader.hashHdl["Tex2"], 1 );						
 		}
 
-		if ( mdl.shader.tblHdl["Tex3"] != undefined )						// テクスチャ3
+		if ( mdl.shader.hashHdl["Tex3"] != undefined )						// テクスチャ3
 		{
 			gl.activeTexture( gl.TEXTURE3 );						
 			gl.bindTexture( gl.TEXTURE_2D, mdl.tblTex[3] );			
- 			gl.uniform1i( mdl.shader.tblHdl["Tex3"], 1 );						
+ 			gl.uniform1i( mdl.shader.hashHdl["Tex3"], 1 );						
 		}
 
-		if ( mdl.shader.tblHdl["Dot"] != undefined )						// ドットピッチ
+		if ( mdl.shader.hashHdl["Dot"] != undefined )						// ドットピッチ
 		{
 			let m_viewport = gl.getParameter( gl.VIEWPORT );
-			gl.uniform2f( mdl.shader.tblHdl["Dot"], 1.0/m_viewport[2] , 1.0/m_viewport[3] );
+			gl.uniform2f( mdl.shader.hashHdl["Dot"], 1.0/m_viewport[2] , 1.0/m_viewport[3] );
 		}
 
-		if ( mdl.shader.tblHdl["Gaus"] != undefined && tblGaus != null )	// Gasussian
+		if ( mdl.shader.hashHdl["Gaus"] != undefined && tblGaus != null )	// Gasussian
 		{
-			gl.uniform1fv( mdl.shader.tblHdl["Gaus"], tblGaus );
+			gl.uniform1fv( mdl.shader.hashHdl["Gaus"], tblGaus );
 
 		}
 	}
@@ -5181,12 +4556,17 @@ function gl_drawmMdl( gl, mdl, tblGaus )
 	{
 		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, mdl.mesh.hdlIndex );
 		gl.drawElements( mdl.mesh.drawtype, mdl.mesh.cntVertex, gl.UNSIGNED_SHORT, 0 );
-		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null );
 	}
 	else
 	{
-		gl.drawArrays( mdl.mesh.drawtype, 0, mdl.mesh.cntVertex );
+		gl.drawArrays( mdl.mesh.drawtype, mdl.mesh.ofsVertex, mdl.mesh.cntVertex );
 	}
+
+	// バインド解除
+	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null );
+  	gl.bindBuffer( gl.ARRAY_BUFFER, null );
+	gl.bindTexture( gl.TEXTURE_2D, null );
+
 }
 
 // 2021/05/11 ver0.01	bloom_create追加
@@ -5194,11 +4574,12 @@ function gl_drawmMdl( gl, mdl, tblGaus )
 function bloom_create( gl )
 //-----------------------------------------------------------------------------
 {
-	let mesh = gl_createIndexedMesh( 
+	let mesh = gl_createMesh( 
 		gl,
 		gl.TRIANGLE_STRIP,
-		[	-1.0,-1.0,	1.0,-1.0,	-1.0, 1.0,	 1.0, 1.0	],
+		[	-1.0,-1.0,	1.0,-1.0,	-1.0, 1.0,	 1.0, 1.0	],2
 		[	 0.0, 0.0,	1.0, 0.0,	 0.0, 1.0,	 1.0, 1.0	],
+		null,
 		[	0,1,2,3	]
 	);
 	let shader_v		= gl_createShader( gl, gl_vs_P2U, gl_fs_gaussian_v	, ["Pos2","Uv"],["Tex0","Dot","Gaus"] );
@@ -5327,19 +4708,21 @@ function gl_createTvram( gl, width, height, funcGetXY )
 		idxFboBack	:1,					// ダブルバッファバックの番号
 		tblFbo		:[ fbo1, fbo2 ],	// ダブルバッファ本体
 		mesh2drev	:
-			gl_createIndexedMesh( 
+			gl_createMesh( 
 				gl,
 				gl.TRIANGLE_STRIP,
-				[	 1.0, 1.0,	-1.0, 1.0,	 1.0,-1.0,	-1.0, -1.0	],
+				[	 1.0, 1.0,	-1.0, 1.0,	 1.0,-1.0,	-1.0, -1.0	],2,
 				[	 1.0, 0.0,	 0.0, 0.0,	 1.0, 1.0,	 0.0,  1.0	],
+				null,
 				[	0,1,2,3	]
 			),
 		mesh2d		:
-			gl_createIndexedMesh( 
+			gl_createMesh( 
 				gl,
 				gl.TRIANGLE_STRIP,
-				[	 1.0, 1.0,	-1.0, 1.0,	 1.0,-1.0,	-1.0, -1.0	],
+				[	 1.0, 1.0,	-1.0, 1.0,	 1.0,-1.0,	-1.0, -1.0	],2,
 				[	 1.0, 1.0,	 0.0, 1.0,	 1.0, 0.0,	 0.0,  0.0	],
+				null,
 				[	0,1,2,3	]
 			),
 		shader			:gl_createShader( gl, gl_vs_P2U, gl_fs_constant		, ["Pos2","Uv"],["Tex0"]   ),
@@ -5379,16 +4762,11 @@ function tvram_draw_end( tvram )
 function font_print( font, tx, ty, str, dw,dh )
 //-----------------------------------------------------------------------------
 {
-	let mesh= gl_MESH( gl.TRIANGLE_STRIP, null, null, null, 0  );
-	
-	// 表示する文字数分のメッシュを生成する
-	if ( mesh.hdlPos != null ) gl.deleteBuffer( mesh.hdlPos );
-	mesh.hdlPos = gl.createBuffer();	// Pos
-	if ( mesh.hdlUv != null ) gl.deleteBuffer( mesh.hdlUv );
-	mesh.hdlUv = gl.createBuffer();	// Uv
+	let hdlPos = gl.createBuffer();	// Pos
+	let hdlUv = gl.createBuffer();	// Uv
 
-	font.tblPos = [];
-	font.tblUv = [];
+	let tblPos = [];
+	let tblUv = [];
 
 	///
 
@@ -5403,7 +4781,7 @@ function font_print( font, tx, ty, str, dw,dh )
 			const H =dh * font.FH;
 			let X = -1.0 +dw*tx+i*font.FW*dw;
 			let Y = -1.0 +dh*ty;
-			font.tblPos = font.tblPos.concat( 
+			tblPos = tblPos.concat( 
 				[
 					X	, Y+H	, //0	縮退頂点
 
@@ -5427,7 +4805,7 @@ function font_print( font, tx, ty, str, dw,dh )
 			let x1 = x0+1*font.FW;	
 			let y1 = y0+1*font.FH;	
 
-			font.tblUv = font.tblUv.concat( 
+			tblUv = tblUv.concat( 
 				[
 					x0*DW	,	y1*DH,//0	縮退頂点
 
@@ -5445,18 +4823,7 @@ function font_print( font, tx, ty, str, dw,dh )
 
 	////
 
-	{
-		gl.bindBuffer( gl.ARRAY_BUFFER, mesh.hdlPos );
-		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( font.tblPos ), gl.STATIC_DRAW );
-    	gl.bindBuffer( gl.ARRAY_BUFFER, null );
-	}
-	{
-		gl.bindBuffer( gl.ARRAY_BUFFER, mesh.hdlUv );
-		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( font.tblUv ), gl.STATIC_DRAW );
-		gl.bindBuffer( gl.ARRAY_BUFFER, null );
-	}
-	
-	mesh.cntVertex = font.tblPos.length/2;	// Pos2だから/2
+	let mesh = gl_createMesh( gl, gl.TRIANGLE_STRIP, tblPos, 2, tblUv, null, null );
 
 	return gl_MDL( mesh, font.shader, [font.hdlTexture] );
 }

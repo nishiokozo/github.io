@@ -7,8 +7,8 @@ let font1 = gl_createFont_ascii( "font.bmp", 8, 8 );					// X1フォント ascii
 let font2 = gl_createFont_sjis( "k8x12_jisx0208R.png", 8, 12 )			// 美咲フォント sjis配列
 let tvram = gl_createTvram( gl, gl.canvas.width, gl.canvas.height );	// テキスト画面
 
-let original_width = canvas_out.width;
-let original_height = canvas_out.height;
+//let original_width = canvas_out.width;
+//let original_height = canvas_out.height;
 
 //-----------------------------------------------------------------------------
 window.onload = function( e )	// コンテンツがロード
@@ -127,7 +127,7 @@ function html_setMessage()
 
 }
 
-
+/*
 //-----------------------------------------------------------------
 function html_setFullscreen()
 //-----------------------------------------------------------------
@@ -180,3 +180,4 @@ function html_setFullscreen()
 		alert("このブラウザはフルスクリーンに対応していません");
     }
 }
+*/
