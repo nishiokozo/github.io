@@ -1,9 +1,10 @@
 "use strict";
 
-let canvas3d = document.getElementById( "html_canvas" );
-let canvas2d = document.getElementById( "html_canvas2" );
-let canvasOut = document.getElementById( "html_canvas3" );
+let canvas_gl = document.getElementById( "html_canvas_gl" );
+let canvas_dbg = document.getElementById( "html_canvas_dbg" );
+let canvas_out = document.getElementById( "html_canvas" );
 
+let gl = canvas_gl.getContext( "webgl", { antialias: false } );			// gl
 
 
 	const MaxAct = 100;
@@ -130,19 +131,22 @@ function QP( Q, P )
 window.onload = function( e )
 //-----------------------------------------------------------------------------
 {
+
 	let peri = pad_create();
 	let ey = 2;
 //	let edit_cam = cam_create( vec3(  0, ey, 12 ), vec3( 0, ey ,0 ), 28, 1.0,1000.0  );
 	let edit_cam = cam_create( vec3( -12, ey, 0 ), vec3( 0, ey ,0 ), 28, 1.0,1000.0  );
 //	ey-=0.75;let edit_cam = cam_create( vec3(  -10, ey, 0 ), vec3( 0, ey ,0 ), 28, 1.0,1000.0  );
 	let play_cam = cam_create( vec3( -12, ey, 0 ), vec3( 0, ey ,0 ), 28, 1.0,1000.0  );
-	let gra3d = gra3d_create( canvas3d );
-	let gra = gra_create( canvas2d );
+	let gra3d = gra3d_create( canvas_gl );
+	let gra = gra_create( canvas_dbg );
+
+	gl_reset( gra3d.gl );
 
 	let text_x = 0;
 	let text_y = 0;
-	let text_W = canvas2d.width/16;
-	let text_H = canvas2d.height/16;
+	let text_W = canvas_dbg.width/16;
+	let text_H = canvas_dbg.height/16;
 	let text_buf = Array( text_W*text_H );
 	function  text_print( str )
 	{
@@ -151,7 +155,7 @@ window.onload = function( e )
 			let s = str[i];
 			gra.symbol( s, text_x,text_y,  16, "LT", 0 );
 			text_x++;
-			if ( text_x > canvas2d.width / 16 )
+			if ( text_x > canvas_dbg.width / 16 )
 			{
 				text_x=0;
 				text_y++;
@@ -728,7 +732,7 @@ let motiondata0= '[{"0":[{"Q":{"x":0,"y":0,"z":0.043619387365336,"w":0.999048221
 	//---------------------------------------------------------------------
 	{
 		// プロジェクション計算
-		let P = mperspective( cam.fovy,  canvas3d.width/ canvas3d.height, cam.near, cam.far );
+		let P = mperspective( cam.fovy,  canvas_gl.width/ canvas_gl.height, cam.near, cam.far );
 		let V = mlookat( cam.pos, cam.at );
 
 		// 描画 play
@@ -1661,10 +1665,10 @@ let motiondata0= '[{"0":[{"Q":{"x":0,"y":0,"z":0.043619387365336,"w":0.999048221
 
 		// 合成
 		{
-			const ctx = canvasOut.getContext("2d");
-			ctx.clearRect(0, 0, canvasOut.width, canvasOut.height);
-			ctx.drawImage(canvas3d, 0, 0, canvasOut.width, canvasOut.height);
-			ctx.drawImage(canvas2d, 0, 0, canvasOut.width, canvasOut.height);
+			const ctx = canvas_out.getContext("2d");
+			ctx.clearRect(0, 0, canvas_out.width, canvas_out.height);
+			ctx.drawImage(canvas_gl, 0, 0, canvas_out.width, canvas_out.height);
+			ctx.drawImage(canvas_dbg, 0, 0, canvas_out.width, canvas_out.height);
 		}
 		if( g_flgStop == false  ) window.requestAnimationFrame( update_paint );
 	}

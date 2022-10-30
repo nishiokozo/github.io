@@ -31,9 +31,12 @@
 	<body align="center" style="font-family:monospace">
 		<H2 style="font-family:sans-serif">ボクシングプロトタイプ一体：表示</H2>
 
-		<canvas id="html_canvas" width="640" height="400"  style="border: 1px solid;display: none;" ></canvas>
-	    <canvas id="html_canvas2" width="640" height="400" style="border:1px solid;display: none;"></canvas>
-	    <canvas id="html_canvas3" width="640" height="400"style="border:1px solid;"></canvas>
+		<canvas id="html_canvas_gl" width="640" height="400"  style="border: 1px solid;display: none;" ></canvas>
+	    <canvas id="html_canvas_dbg" width="640" height="400" style="border:1px solid;display: none;"></canvas>
+	    <canvas id="html_canvas" width="640" height="400"style="border:1px solid;"></canvas>
+
+		<br>
+			<input type="button" value="フルスクリーン" onClick="html_setFullscreen('html_canvas')" >
 
 		<br>
 		<span id="html_error"></span>
