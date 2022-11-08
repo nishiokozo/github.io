@@ -3,12 +3,13 @@
 let canvas_out	= window.document.getElementById( "html_canvas" );		// 出力画面
 let canvas_gl	= window.document.getElementById( "html_canvas_gl" );	// g用l画面
 let gl = canvas_gl.getContext( "webgl", { antialias: false } );			// gl
-let font1 = gl_createFont_ascii( "font.bmp", 8, 8 );					// X1フォント ascii配列
-let font2 = gl_createFont_sjis( "k8x12_jisx0208R.png", 8, 12 )			// 美咲フォント sjis配列
-let tvram = gl_createTvram( gl, gl.canvas.width, gl.canvas.height );	// テキスト画面
 
-//let original_width = canvas_out.width;
-//let original_height = canvas_out.height;
+let fontdata1 = { font:null, filename:"font.bmp", W:8, H:8, getUV:getUV_ascii };
+let fontdata2 = { font:null, filename:"k8x12_jisx0208R.png", W:8, H:12, getUV:getUV_sjis };
+fontdata1.image = requestLoadImagefile( fontdata1.filename );
+fontdata2.image = requestLoadImagefile( fontdata2.filename );
+
+let tvram = gl_createTvram( gl, gl.canvas.width, gl.canvas.height );	// テキスト画面
 
 //-----------------------------------------------------------------------------
 window.onload = function( e )	// コンテンツがロード
@@ -22,23 +23,7 @@ window.onload = function( e )	// コンテンツがロード
 	let x = 0;
 	let y = 2;
 	
-	let mdlTbl = [];
-	
-	mdlTbl.push( font_print( font1, x,(y++)*12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", dw,dh ) );
-	mdlTbl.push( font_print( font1, x,(y++)*12, "abcdefghijklmnopqrstuvwxyz", dw,dh ) );
-	mdlTbl.push( font_print( font2, x,(y++)*12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", dw,dh ) );
-	mdlTbl.push( font_print( font2, x,(y++)*12, "abcdefghijklmnopqrstuvwxyz", dw,dh ) );
-	y++;
-
-	tvram_draw_begin( tvram );
-	for ( let mdl of mdlTbl )
-	{
-		gl_drawmMdl( gl, mdl, null );
-	}
-	tvram_draw_end( tvram );
-
-	html_setMessage();
-
+	let flgFirst = false;
 	//---------------------------------------------------------------------
 	function	main_update( now )
 	//---------------------------------------------------------------------
@@ -51,23 +36,60 @@ window.onload = function( e )	// コンテンツがロード
 
 			let x = 0;
 			let y = 0;
-			mdlTbl.push( font_print( font1, x,(y++)*12, "X1 Font8x8 "+strfloat(now,5,0), dw,dh ) );
-			mdlTbl.push( font_print( font2, x,(y++)*12, "美咲フォント12ｘ8 "+strfloat(now,5,0), dw,dh ) );
-//			gl_drawmMdl( gl, font_print( font1, x,(y++)*12, "X1 Font8x8 "+strfloat(now,5,0), dw,dh ) , null );
-//			gl_drawmMdl( gl, font_print( font2, x,(y++)*12, "美咲フォント12ｘ8 "+strfloat(now,5,0), dw,dh ),null );
+			fontdata1.font.premesh.cntVertex=0;
+			fontdata2.font.premesh.cntVertex=0;
+			mdlTbl.push( gl_font_prints( gl,fontdata1.font, x,y, "SHARP X1 Font8x8 "+strfloat(now,5,0), dw,dh ));
+			y+=fontdata1.H;
+			mdlTbl.push( gl_font_prints( gl,fontdata2.font, x,y, "美咲フォント12ｘ8 "+strfloat(now,5,0), dw,dh ) );
+			y+=fontdata2.H;
 			y++;
 
 			tvram_draw_begin( tvram );
 			for ( let mdl of mdlTbl )
 			{
-				gl_drawmMdl( gl, mdl, null );
+				gl_drawmMdl( gl, mdl );
 			}
 			tvram_draw_end( tvram );
 
+			if ( flgFirst == false )
+			{
+				flgFirst = true;
+				let x = 0;
+				let y = 2;
+				fontdata1.font.premesh.cntVertex=0;
+				fontdata2.font.premesh.cntVertex=0;
+				mdlTbl.push( gl_font_prints( gl,fontdata1.font, x,(y++)*12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", dw,dh ) );
+				mdlTbl.push( gl_font_prints( gl,fontdata1.font, x,(y++)*12, "abcdefghijklmnopqrstuvwxyz", dw,dh ) );
+				mdlTbl.push( gl_font_prints( gl,fontdata2.font, x,(y++)*12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", dw,dh ) );
+				mdlTbl.push( gl_font_prints( gl,fontdata2.font, x,(y++)*12, "abcdefghijklmnopqrstuvwxyz", dw,dh ) );
+				y++;
+
+				tvram_draw_begin( tvram );
+				for ( let mdl of mdlTbl )
+				{
+					gl_drawmMdl( gl, mdl );
+				}
+				tvram_draw_end( tvram );
+			}
+
 		}
 
-		if ( font1.loaded  )
-		if ( font2.loaded  )
+		if ( fontdata1.image.height>0 && fontdata1.font == null )
+		{
+			// フォントファイルの読み込みが終わったら、ＧＬテクスチャ化して、フォント管理
+			let tex = gl_createTexFromImage( fontdata1.image );
+			fontdata1.font = gl_createFontFromTex( gl, tex, fontdata1.W,fontdata1.H, fontdata1.getUV, 2048 );
+		}
+		if ( fontdata2.image.height>0 && fontdata2.font == null )
+		{
+			// フォントファイルの読み込みが終わったら、ＧＬテクスチャ化して、フォント管理
+			let tex = gl_createTexFromImage( fontdata2.image );
+			fontdata2.font = gl_createFontFromTex( gl, tex, fontdata2.W,fontdata2.H, fontdata2.getUV, 2048 );
+			html_setMessage();
+		}
+
+		if ( fontdata1.font )
+		if ( fontdata2.font )
 		{
 //			drawScene()
 			bloom.renderer( drawScene, "8x8", 1.0, 1.0 );
@@ -103,6 +125,7 @@ function html_setMessage()
 
 	let mdlTbl = [];
 	
+				fontdata2.font.premesh.cntVertex=0;
 	let x = 0;
 	let y = 7;
 	for ( let str of tblStr )
@@ -111,18 +134,18 @@ function html_setMessage()
 		{
 			let s1 = str.substr(0,40);
 			let s2 = str.substr(40);
-			mdlTbl.push( font_print( font2, x,(y)*12, "                                        ", dw,dh ) );
-			mdlTbl.push( font_print( font2, x,(y++)*12, s1, dw,dh ) );
+			mdlTbl.push( gl_font_prints( gl,fontdata2.font, x,(y  )*fontdata2.H, "                                        ", dw,dh ) );
+			mdlTbl.push( gl_font_prints( gl,fontdata2.font, x,(y++)*fontdata2.H, s1, dw,dh ) );
 			str = s2;
 		}
-			mdlTbl.push( font_print( font2, x,(y)*12, "                                        ", dw,dh ) );
-			mdlTbl.push( font_print( font2, x,(y++)*12, str, dw,dh ) );
+			mdlTbl.push( gl_font_prints( gl,fontdata2.font, x,(y  )*fontdata2.H, "                                        ", dw,dh ) );
+			mdlTbl.push( gl_font_prints( gl,fontdata2.font, x,(y++)*fontdata2.H, str, dw,dh ) );
 	}
 
 	tvram_draw_begin( tvram );
 	for ( let mdl of mdlTbl )
 	{
-		gl_drawmMdl( gl, mdl, null );
+		gl_drawmMdl( gl, mdl );
 	}
 	tvram_draw_end( tvram );
 
