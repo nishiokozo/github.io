@@ -106,20 +106,12 @@ function shader_create_PCIWF( gl )
 	shader.hdlPos = null;
 	shader.hdlCol = null;
 
-
-	return 	shader;
-}
-//-----------------------------------------------------------------------------
-function orgmesh_create_PCIWF()
-//-----------------------------------------------------------------------------
-{
-
 	let orgmesh = {};
 	orgmesh.m_tblPos = [];
 	orgmesh.m_tblColor = [];
 	orgmesh.m_tblDisp = [];
 
-	return 	orgmesh;
+	return 	[shader,orgmesh];
 }
 
 //-----------------------------------------------------------------------------
@@ -354,8 +346,7 @@ let model_comvert_single = function( data )// 内部フォーマットに変換
 		{
 			model.tblIndex_flat.push( id+ofs );
 		}
-		model.shader = shader_create_PCIWF(gl);
-		model.orgmesh = orgmesh_create_PCIWF();
+		[model.shader,model.orgmesh] = shader_create_PCIWF(gl);
 	}
 	else
 	{
@@ -4769,7 +4760,7 @@ function tvram_draw_end( tvram )
 	[tvram.idxFboBack, tvram.idxFboMain] = [tvram.idxFboMain,tvram.idxFboBack];
 }
 //-----------------------------------------------------------------------------
-function font_print( font, tx, ty, str, DW,DH )
+function font_print( font, tx, ty, str, dw,dh )
 //-----------------------------------------------------------------------------
 {
 	let hdlPos = gl.createBuffer();	// Pos
@@ -4778,24 +4769,26 @@ function font_print( font, tx, ty, str, DW,DH )
 	let tblPos = [];
 	let tblUv = [];
 
-	// DW,DHはドットピッチ
+	///
 
+	// ドットピッチ
 	for ( let i = 0 ; i < str.length ; i++ )
 	{
 		let c = str.charCodeAt(i);
 		let [fx,fy] = font.getXY( c );
 
 		{
-			const W = DW * font.FW;
-			const H = DH * font.FH;
-			let X = -1.0 +DW*tx+i*font.FW*DW;
-			let Y = -1.0 +DH*(2.0/DH-font.FH-ty);
+			const W =dw * font.FW;
+			const H =dh * font.FH;
+			let X = -1.0 +dw*tx+i*font.FW*dw;
+//			let Y = -1.0 +dh*ty;
+			let Y = -1.0 +dh*(2.0/dh-font.FH-ty);
 			tblPos = tblPos.concat( 
 				[
 					X	, Y+H	, //0	縮退頂点
 
 					X	, Y+H	, //0
-					X+W	, Y+H	, //2	
+					X+W	, Y+H	, //2	Zの字順
 					X	, Y		, //1
 					X+W	, Y		, //3
 
@@ -4806,8 +4799,8 @@ function font_print( font, tx, ty, str, DW,DH )
 		
 		{
 			// テクセルピッチ
-			const TW = 1.0 / font.width;
-			const TH = 1.0 / font.height;
+			const DW = 1.0 / font.width;
+			const DH = 1.0 / font.height;
 
 			let x0 = fx*font.FW;	
 			let y0 = fy*font.FH;	
@@ -4816,14 +4809,14 @@ function font_print( font, tx, ty, str, DW,DH )
 
 			tblUv = tblUv.concat( 
 				[
-					x1*TW	,	y0*TH,//3	縮退頂点
+					x1*DW	,	y0*DH,//3	縮退頂点
 
-					x0*TW	,	y0*TH, //1
-					x1*TW	,	y0*TH,//3
-					x0*TW	,	y1*TH,//0
-					x1*TW	,	y1*TH,//2
+					x0*DW	,	y0*DH, //1
+					x1*DW	,	y0*DH,//3
+					x0*DW	,	y1*DH,//0
+					x1*DW	,	y1*DH,//2
 
-					x0*TW	,	y1*TH,//0	縮退頂点
+					x0*DW	,	y1*DH,//0	縮退頂点
 
 				]
 			);

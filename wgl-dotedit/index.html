@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>dot-editor</title>
+		<style>
+			.group
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:right;
+			}
+			.readme
+			{
+				display:inline-block; 
+				text-align:center;
+				font-size:12px;
+				font-family:monospace;
+			}
+			.readme-left
+			{
+				display:inline-block; 
+				text-align:left;
+				font-size:12px;
+				font-family:monospace;
+			}
+		</style>
+	</head>
+	<body align="center" style="font-family:monospace">
+		<H2 style="font-family:sans-serif">ドットエディット160x90</H2>
+
+	    <canvas id="html_canvas" 		width="640" height="360" style="border:0px solid;"></canvas>
+		<canvas id="html_canvas_gl"		width="320" height="180" style="border:1px solid;display: none;" ></canvas>
+		<p id="html_fps">--</p>
+		<br>
+			<input type="button" value="フルスクリーン" onClick="html_setFullscreen('html_canvas')" >
+		<br>
+		<script src="lib.js"></script>
+		<script src="main.js"></script>
+		<br>
+
+		   X: <span id="html_mouseX"		>0</span>px / Y: <span id="html_mouseY"	>0</span>px<br>
+		client   X: <span id="html_clientX"		>0</span>px / Y: <span id="html_clientY"	>0</span>px<br>
+		movement X: <span id="html_movementX"	>0</span>px / Y: <span id="html_movementY"	>0</span>px<br>
+		offset   X: <span id="html_offsetX"		>0</span>px / Y: <span id="html_offsetY"	>0</span>px<br>
+		page     X: <span id="html_pageX"		>0</span>px / Y: <span id="html_pageY"		>0</span>px<br>
+		screen   X: <span id="html_screenX"		>0</span>px / Y: <span id="html_screenY"	>0</span>px<br>
+		         X: <span id="html_x"			>0</span>px / Y: <span id="html_y"			>0</span>px<br>
+		button: <span id="html_button">-</span><br>
+
+
+		<img src="font.bmp" id="html_fontid" draggable=true>
+<br>
+		<div class="readme">
+							<p>～概要～</p>
+							<p>～2022/06/10 ①立方体を表示</p>
+		</div>
+	</body>
+</html>

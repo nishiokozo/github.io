@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>dot-editor</title>
+		<style>
+			.group
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:right;
+			}
+			.readme
+			{
+				display:inline-block; 
+				text-align:center;
+				font-size:12px;
+				font-family:monospace;
+			}
+			.readme-left
+			{
+				display:inline-block; 
+				text-align:left;
+				font-size:12px;
+				font-family:monospace;
+			}
+		</style>
+	</head>
+	<body align="center" style="font-family:monospace">
+		<H2 style="font-family:sans-serif">ドットエディット160x90</H2>
+
+	    <canvas id="html_canvas" 		width="640" height="360" style="border:0px solid;"></canvas>
+		<canvas id="html_canvas_gl"		width="320" height="180" style="border:1px solid;display: none;" ></canvas>
+		<p id="html_fps">--</p>
+		<br>
+			<input type="button" value="フルスクリーン" onClick="html_setFullscreen('html_canvas')" >
+
+		<br>
+		<script src="lib.js"></script>
+		<script src="main.js"></script>
+		<br>
+
+		<img src="font.bmp" id="html_fontid" draggable=false>
+<br>
+		<div class="readme">
+							<p>～概要～</p>
+							<p>～2022/06/10 ①立方体を表示</p>
+		</div>
+	</body>
+</html>

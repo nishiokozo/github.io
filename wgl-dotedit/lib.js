@@ -1,3 +1,4 @@
+// 2022/11/03	html_系追加。<table>用
 // 2022/10/30	gra3dをgl_drawmMdlに対応、tvram,bloomが動かなくなっていたので修正。fontの表示座標を上下反転
 // 2022/10/29	font表示
 // 2022/10/27	tvramを追加
@@ -102,7 +103,7 @@ function shader_create_PCIWF( gl )
 	}
 
 	// シェーダー構成
-	shader		= gl_createShader( gl, gl_vs_P4C, gl_fs_color	, ["Pos4","Col"],[] );
+	shader		= gl_createShader( gl, gl_vs_P4C, gl_fs_color	, ["Pos4","Col3"],[] );
 	shader.hdlPos = null;
 	shader.hdlCol = null;
 
@@ -116,7 +117,7 @@ function orgmesh_create_PCIWF()
 
 	let orgmesh = {};
 	orgmesh.m_tblPos = [];
-	orgmesh.m_tblColor = [];
+	orgmesh.m_tblColor = []
 	orgmesh.m_tblDisp = [];
 
 	return 	orgmesh;
@@ -244,23 +245,6 @@ if(1)
 	{
 			for ( let it of orgmesh.m_tblDisp )
 			{
-				//function gl_MESH( type, hdlPos, hdlUv, hdlCol, hdlIndex, length )	// メッシュフォーマット
-				//		drawtype	:type,
-				//		hdlPos		:hdlPos,
-				//		hdlUv		:hdlUv,
-				//		hdlCol		:hdlCol,
-				//		hdlIndex	:hdlIndex,	// インデックスド頂点でない場合はnull
-				//		cntVertex	:length,
-
-				//function gl_SHADER( prog, hashHdl )	// シェーダーフォーマット
-				//		hdlProg	:prog,
-				//		hashHdl	:hashHdl
-
-				//function gl_MDL( mesh, shader, tblTex )	// モデルフォーマット
-				//		mesh	:mesh, 
-				//		shader	:shader, 
-				//		tblTex	:tblTex
-
 				gl.drawArrays( it.type, it.offset, it.count );
 
 				let type		= it.type
@@ -270,7 +254,16 @@ if(1)
 				let hdlIndex	= null;
 				let offset		= it.offset;
 				let length		= it.count;
-				let mesh = gl_MESH( type, hdlPos, hdlUv, hdlCol, hdlIndex, offset, length );
+//				let mesh = gl_MESH( type, hdlPos, hdlUv, hdlCol, hdlIndex, offset, length );
+				let mesh		= gl_MESH( {
+					drawtype	:type, 
+					hdlPos		:hdlPos, 
+					hdlUv		:hdlUv, 
+					hdlCol		:hdlCol, 
+					hdlIndex	:hdlIndex, 
+					offset		:offset, 
+					length		:length
+				} );
 
 				let mdl = gl_MDL( mesh, shader, [] );
 
@@ -282,7 +275,7 @@ if(1)
 				{
 					gl.disable( gl.POLYGON_OFFSET_FILL );
 				}
-				gl_drawmMdl( gl, mdl, false );
+				gl_drawmMdl( gl, mdl );
 	
 			}
 		
@@ -489,7 +482,7 @@ function gra3d_create( cv )	// 2022/06/10
 
 	
 	// シェーダー構成
-	let m_shader		= gl_createShader( gl, gl_vs_P4C, gl_fs_color	, ["Pos4","Col"],[] );
+	let m_shader		= gl_createShader( gl, gl_vs_P4C, gl_fs_color	, ["Pos4","Col3"],[] );
 
 	//-----------------------------------------------------------------------------
 	gra3d.reload_flush_display = function()
@@ -535,7 +528,17 @@ function gra3d_create( cv )	// 2022/06/10
 				let hdlIndex	= null;
 				let offset		= it.offset;
 				let length		= it.count;
-				let mesh		= gl_MESH( type, hdlPos, hdlUv, hdlCol, hdlIndex, offset, length );
+	//			let mesh		= gl_MESH( type, hdlPos, hdlUv, hdlCol, hdlIndex, offset, length );
+				let mesh		= gl_MESH( {
+					drawtype	:type, 
+					hdlPos		:hdlPos, 
+					hdlUv		:hdlUv, 
+					hdlCol		:hdlCol, 
+					hdlIndex	:hdlIndex, 
+					offset		:offset, 
+					length		:length
+				} );
+
 
 				let mdl = gl_MDL( mesh, shader, [] );
 
@@ -547,7 +550,7 @@ function gra3d_create( cv )	// 2022/06/10
 				{
 					gl.disable( gl.POLYGON_OFFSET_FILL );
 				}
-				gl_drawmMdl( gl, mdl, false );
+				gl_drawmMdl( gl, mdl );
 	
 			}
 			
@@ -810,6 +813,47 @@ function rand_create( type = "xorshift32" ) //2022/06/09
 //-----------------------------------------------------------------------------
 // html への書き換えタイミングを管理したり、読込タイミングを管理したり
 //-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+function html_addTable( idname )
+//-----------------------------------------------------------------------------
+{
+	let table = document.createElement("table");
+	document.getElementById( idname ).appendChild( table );
+	return table;  
+}
+//-----------------------------------------------------------------------------
+function html_addRow( table )
+//-----------------------------------------------------------------------------
+{
+	let row = table.insertRow(-1);  // -1 は後ろに追加
+	return row;
+}
+//-----------------------------------------------------------------------------
+function html_addCell( row, str, col="#ddd" )
+//-----------------------------------------------------------------------------
+{
+	let cell = row.insertCell(-1); // -1 は後ろに追加
+	cell.appendChild( document.createTextNode( str ) );
+	cell.style.backgroundColor = col; // ヘッダ列
+	return cell;
+}
+//-----------------------------------------------------------------------------
+function html_addCells( table, strs, cols )
+//-----------------------------------------------------------------------------
+{
+	let row = html_addRow( table );
+	let col0 = "#fff";
+	for ( let i = 0 ; i < strs.length ; i++ )
+	{
+		let str = strs[i];
+		let col = cols[i];
+		if ( !col ) col = col0;
+		html_addCell( row, str ,col );
+		col0 = col;
+	}
+}
+
 let html =
 {
 	/*sample
@@ -1085,6 +1129,7 @@ let html =
 
 let original_width = null;
 let original_height = null;
+let fullscreen_flgIn = false;
 //-----------------------------------------------------------------
 function html_setFullscreen( name_canvas )
 //-----------------------------------------------------------------
@@ -1100,7 +1145,8 @@ function html_setFullscreen( name_canvas )
 		cv.webkitRequestFullScreen ||	//for chrome/edge/opera
 		cv.mozRequestFullScreen ||		//for firefox
 		cv.msRequestFullscreen;			//for IE
-
+//console.log( window.screen.width, window.outerWidth);
+//console.log( window.screen, window);
     if( req ) 
     {
 		function callback()
@@ -1123,9 +1169,11 @@ function html_setFullscreen( name_canvas )
 				}
 				cv.width = w;
 				cv.height = h;
+				fullscreen_flgIn = true;
 			}
 			else
 			{
+				fullscreen_flgIn = false;
 				// 戻るとき
 				cv.width = original_width;
 				cv.height = original_height;
@@ -1142,7 +1190,7 @@ function html_setFullscreen( name_canvas )
 }
 
 //-----------------------------------------------------------------------------
-function strfloat( v, r=4, f=2 ) // v値、r指数部桁、f小数部桁
+function strfloat( v, r=7, f=2 ) // v値、r指数部桁、f小数部桁
 //-----------------------------------------------------------------------------
 {
 	let a = Number.parseFloat(v).toFixed(f);
@@ -4016,6 +4064,18 @@ function ene_create( cv )	// 2021/08/15 U K Eのエネルギーを算出して�
 }
 
 
+//HTML ラッパー関数
+
+//-----------------------------------------------------------------------------
+function	requestLoadImagefile( filename )
+//-----------------------------------------------------------------------------
+{
+	let image  = new Image();
+	image.src = filename;
+	return image;
+}
+
+
 // GL ラッパー関数＆定数
 
 //-----------------------------------------------------------------------------
@@ -4044,7 +4104,7 @@ function gl_reset()
 
 let gl_vs_P4C = 
 	 "attribute vec4 Pos4;"
-	+"attribute vec3 Col;"
+	+"attribute vec3 Col3;"
 	+"varying vec3 vColor;"
 	+"void main( void )"
 	+"{"
@@ -4092,7 +4152,17 @@ let gl_vs_P4C =
 //	+	"	      0.0,     0.0, -( f+n )/( f-n ), -( 2.0*f*n )/( f-n ),"
 //	+	"	      0.0,     0.0,         -1.0,              0.0 );"
 	+   "gl_Position = Pos4;"
-	+   "vColor = Col;"
+	+   "vColor = Col3;"
+	+"}"
+;
+let gl_vs_P3C = 
+	 "attribute vec3 Pos3;"
+	+"attribute vec3 Col3;"
+	+"varying vec3 vColor;"
+	+"void main( void )"
+	+"{"
+	+	"gl_Position = vec4( Pos3, 1.0 );"
+	+   "vColor = Col3;"
 	+"}"
 ;
 		
@@ -4138,33 +4208,33 @@ const gl_fs_gaussian_v = "  					" // ガウシアンブラーV
 	+"	vec4 col  = texture2D( Tex0, uv ) * Gaus[0] ;						"
 	+"	float v = 1.0;														"
 	+"	for ( int i=1 ; i < 20 ; i++ ) {									" // version 200だと可変のforが使えない
-	+"		col += texture2D( Tex0, uv + vec2( 0.0,  Dot.y*v ) ) * Gaus[i];"
-	+"		col += texture2D( Tex0, uv + vec2( 0.0, -Dot.y*v ) ) * Gaus[i];"
+	+"		col += texture2D( Tex0, uv + vec2( 0.0,  Dot.y*v ) ) * Gaus[i]; "
+	+"		col += texture2D( Tex0, uv + vec2( 0.0, -Dot.y*v ) ) * Gaus[i]; "
 	+"		v+=1.0;															"
 	+"	}																	"
 	+"	gl_FragColor = col;													"
 	+"}																		";
 
-const gl_fs_gaussian_h = "  							" // ガウシアンブラーH
+const gl_fs_gaussian_h = "  					" // ガウシアンブラーH
 	+"precision highp float;					" 
 	+"uniform sampler2D	Tex0;					" // Tex0 = sampler2D[ uniform["Tex0"] ] 
 	+"uniform vec2		Dot;					"
 	+"uniform float		Gaus[20];				"
 	+"											" 
 	+"varying vec2	uv;							" 
-	+"void main ( void )							" 
+	+"void main ( void )						" 
 	+"{																		"
 	+"	vec4 col  = texture2D( Tex0, uv ) * Gaus[0] ;						"
 	+"	float v = 1.0;														"
 	+"	for ( int i=1 ; i < 20 ; i++ ) {									" // version 200だと可変のforが使えない
-	+"		col += texture2D( Tex0, uv + vec2(  Dot.x*v, 0.0 ) ) * Gaus[i];"
-	+"		col += texture2D( Tex0, uv + vec2( -Dot.x*v, 0.0 ) ) * Gaus[i];"
+	+"		col += texture2D( Tex0, uv + vec2(  v*Dot.x, 0.0 ) ) * Gaus[i]; "
+	+"		col += texture2D( Tex0, uv + vec2( -v*Dot.x, 0.0 ) ) * Gaus[i]; "
 	+"		v+=1.0;															"
 	+"	}																	"
 	+"	gl_FragColor = col;													"
 	+"}																		";
 
-const gl_fs_add = "				 			" // 加算合成
+const gl_fs_add = "				 			   " // 加算合成
 	+"precision highp float;					"
 	+"uniform sampler2D Tex0;					"
 	+"uniform sampler2D	Tex1;					"
@@ -4184,7 +4254,7 @@ function gl_cls( gl, rgb )
 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 }
 //-----------------------------------------------------------------------------
-function gl_createTextureFromImage( gl, width, height, buf, flgLiner )
+function gl_createTextureFromBuffer( gl, width, height, buf, flgLiner )
 //-----------------------------------------------------------------------------
 {
 	let hdlTexture = gl.createTexture();
@@ -4215,41 +4285,31 @@ function gl_createTextureFromImage( gl, width, height, buf, flgLiner )
 	gl.bindTexture( gl.TEXTURE_2D, null );
 	return hdlTexture ;
 }
+
 //-----------------------------------------------------------------------------
-function gl_createTextureFromFile( gl, filename ) 
+function gl_createTexFromImage( image )
 //-----------------------------------------------------------------------------
 {
-	let body ={};
-	body.loaded = false;
-	body.width = 1;
-	body.height = 1;
-	let hdlTexture = gl_createTextureFromImage( gl, 1, 1, new Uint8Array( [0,0,0,0] ), false );
-	body.hdlTexture = hdlTexture;
+	let tex = {isActive:false};
+	tex.hdl = gl.createTexture();
+	
+	gl.bindTexture(gl.TEXTURE_2D, tex.hdl );
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image ); 
+	gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE );
+	gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE );
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	gl.bindTexture(gl.TEXTURE_2D, null);
 
-	let image  = new Image();
-	image.onload = function() 
-	{
-		function expow2( sz ) // 2のべき乗に変換
-		{
-			let i = 0;
-			do 
-			{
-				sz = Math.floor(sz>>1);
-				i++;
-			} while( sz > 0 );
-			return Math.pow(2,i);
-		}
-		gl.bindTexture(gl.TEXTURE_2D, hdlTexture);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image ); 
-		//gl.generateMipmap(gl.TEXTURE_2D);	// ミップマップテクスチャを使うのなら、2のn乗サイズでないといけない。
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		body.width = image.width;
-		body.height = image.height;
-		body.loaded = true;
-	}
-	image.src = filename;
-	return body; 				// ロード前から描画は可能
+	tex.width = image.width;
+	tex.height = image.height;
+	tex.isActive = true;
+	return tex;
 }
+
+
+
+
 
 // フォントファイルを読み込んでフォントを作成
 
@@ -4266,21 +4326,33 @@ function gl_MDL( mesh, shader, tblTex )	// モデルフォーマット
 }
 
 //-----------------------------------------------------------------------------
-function gl_SHADER( prog, hashHdl )	// シェーダーフォーマット
+function gl_SHADER( {Prog=null,Pos4=null,Pos3=null,Pos2=null,Uv=null,Col4=null,Col3=null,Tex0=null,Tex1=null,Tex2=null,Tex3=null,Dot=null,Gaus=null,Scl=null})	// シェーダーフォーマット
 //-----------------------------------------------------------------------------
 {
 	return {
-		hdlProg	:prog,
-		hashHdl	:hashHdl
+		"Prog"	:Prog,
+		"Pos4"	:Pos4,
+		"Pos3"	:Pos3,
+		"Pos2"	:Pos2,
+		"Uv"	:Uv,
+		"Col4"	:Col4,
+		"Col3"	:Col3,
+		"Tex0"	:Tex0,
+		"Tex1"	:Tex1,
+		"Tex2"	:Tex2,
+		"Tex3"	:Tex3,
+		"Dot"	:Dot,
+		"Gaus"	:Gaus,
+		"Scl"	:Scl,
 	};
 }
 
 //-----------------------------------------------------------------------------
-function gl_MESH( type, hdlPos, hdlUv, hdlCol, hdlIndex, offset, length )	// メッシュフォーマット
+function gl_MESH( {drawtype, hdlPos, hdlUv, hdlCol, hdlIndex, offset, length} )	// メッシュフォーマット
 //-----------------------------------------------------------------------------
 {
 	return {
-		drawtype	:type,
+		drawtype	:drawtype,
 		hdlPos		:hdlPos,
 		hdlUv		:hdlUv,
 		hdlCol		:hdlCol,
@@ -4290,49 +4362,89 @@ function gl_MESH( type, hdlPos, hdlUv, hdlCol, hdlIndex, offset, length )	// メ
 	}
 }
 //-----------------------------------------------------------------------------
-function gl_createFont( filename, FW, FH, funcGetXY )
+function gl_PREMESH( {drawtype, sizePos, length=0, tblPos=null, tblUv=null, tblCol=null, tblIndex=null} )	// プリメッシュ：gl化する前のメッシュフォーマット
 //-----------------------------------------------------------------------------
 {
-	let font = gl_createTextureFromFile( gl, filename );
+	return {
+		drawtype	:drawtype,
+		tblPos		:tblPos,
+		sizePos		:sizePos, 
+		tblUv		:tblUv,
+		tblCol		:tblCol,
+		tblIndex	:tblIndex,
+		cntVertex	:length,
+	}
+}
 
-	font.shader		=gl_createShader( gl, gl_vs_P2U, gl_fs_constant	, ["Pos2","Uv"],["Tex0"]   );
-	font.FW			=FW;	// フォント幅
-	font.FH			=FH;	// フォント高さ
-	font.getXY		=funcGetXY;
+//-----------------------------------------------------------------------------
+function gl_createFontFromTex( gl, tex, FW, FH, funcGetXY, max=2048 ) // max:最大表示文字数
+//-----------------------------------------------------------------------------
+{
+	const maxSiz = max*12;
 
-	return font;
+	return{
+		tex			: tex,
+		shader		: gl_createShader( gl, gl_vs_P2U, gl_fs_constant	, ["Pos2","Uv"],["Tex0"]   ),
+		FW			: FW,	// フォント幅
+		FH			: FH,	// フォント高さ
+		getXY		: funcGetXY,
+		//
+//		mesh		: gl_MESH( gl.TRIANGLE_STRIP, gl.createBuffer(), gl.createBuffer(), null, null, 0, 0 ),
+		mesh		: gl_MESH( {
+			drawtype	:gl.TRIANGLE_STRIP, 
+			hdlPos		:gl.createBuffer(), 
+			hdlUv		:gl.createBuffer(), 
+			hdlCol		:null, 
+			hdlIndex	:null, 
+			offset		:0, 
+			length		:0
+		} ),
+
+		//
+		premesh		: gl_PREMESH(
+			{
+				drawtype	:gl.TRIANGLE_STRIP, 
+				sizePos		:2, 
+				cntVertex	:0,
+				tblPos		:new Float32Array(maxSiz),	//１文字当たりの頂点サイズ=12, 
+				tblUv		:new Float32Array(maxSiz), 
+			}
+		),
+	};
 }
 //-----------------------------------------------------------------------------
-function gl_createFont_ascii(  filename, FW, FH )
+function getUV_ascii(c)
 //-----------------------------------------------------------------------------
 {
-	// ascii配列のフォントテクスチャ作成
-	return gl_createFont( filename, FW,FH, function ( c )
-		{
-			if ( c > 255 ) c= 0;
-			let fx = (c % 16);
-			let fy = c>>4;
-			return [fx,fy];
-		}
-	);
+	if ( c > 255 ) c= 0;
+	let fx = (c % 16);
+	let fy = c>>4;
+	return [fx,fy];
 }
 //-----------------------------------------------------------------------------
-function gl_createFont_sjis(  filename, FW, FH )
+function getUV_sjis(c)
 //-----------------------------------------------------------------------------
-{
-	// sjis配列のフォントテクスチャ作成
-	return gl_createFont( filename, FW, FH, function ( c )
-		{	// コード変換アルゴリズム
-			let inf = font_utf16_to_sjis[c];
-			if ( !inf ) inf = font_utf16_to_sjis[0];
-			let fx = inf.点-1;
-			let fy = inf.区-1;
-			return [fx,fy];
-		}
-	);
+{	// コード変換アルゴリズム
+	let inf = font_utf16_to_sjis[c];
+	if ( !inf ) inf = font_utf16_to_sjis[0];
+	let fx = inf.点-1;
+	let fy = inf.区-1;
+	return [fx,fy];
 }
 
 // for FBO
+//-----------------------------------------------------------------------------
+function gl_FBO( hdl, tex_color, tex_depth, width, height )
+//-----------------------------------------------------------------------------
+{
+	return {
+		hdl			:hdl,
+		tex_color	:tex_color,
+		tex_depth	:tex_depth,
+		width		:width,
+		height		:height,
+	};
+}
 //-----------------------------------------------------------------------------
 function gl_createFramebuf( gl, width, height, flgDepth )
 //-----------------------------------------------------------------------------
@@ -4375,13 +4487,7 @@ function gl_createFramebuf( gl, width, height, flgDepth )
 	}
 	gl.bindFramebuffer( gl.FRAMEBUFFER, null );
 
-	return {
-		hdl			:hdl,
-		tex_color	:tex_color,
-		tex_depth	:tex_depth,
-		width		:width,
-		height		:height,
-	};
+	return gl_FBO( hdl, tex_color, tex_depth, width, height );
 }
 
 // シェーダー作成
@@ -4426,13 +4532,30 @@ function gl_createShader( gl, src_vs, src_fs, tblAttribute, tblUniform )
 		hashHdl[name] = gl.getUniformLocation( prog, name );
 	}
 
-	return gl_SHADER( prog, hashHdl );	// シェーダーフォーマット
+	return gl_SHADER( 
+		{
+			"Prog"	:{hdl:prog},
+			"Pos4"	:{hdl:hashHdl["Pos4"]},
+			"Pos3"	:{hdl:hashHdl["Pos3"]},
+			"Pos2"	:{hdl:hashHdl["Pos2"]},
+			"Uv"	:{hdl:hashHdl["Uv"]},
+			"Col4"	:{hdl:hashHdl["Col4"]},
+			"Col3"	:{hdl:hashHdl["Col3"]},
+			"Tex0"	:{hdl:hashHdl["Tex0"]},
+			"Tex1"	:{hdl:hashHdl["Tex1"]},
+			"Tex2"	:{hdl:hashHdl["Tex2"]},
+			"Tex3"	:{hdl:hashHdl["Tex3"]},
+			"Dot"	:{hdl:hashHdl["Dot"]},
+			"Gaus"	:{hdl:hashHdl["Gaus"],tblGaus:null,},
+			"Scl"	:{hdl:hashHdl["Scl"]},
+		},
+	);
+
 }
 
 // メッシュ作成
-
 //-----------------------------------------------------------------------------
-function gl_createMesh( gl, type, tblPos, sizePos, tblUv, tblCol, tblIndex )
+function gl_createMesh( gl, {drawtype, tblPos, sizePos, tblUv, tblCol, tblIndex} )
 //-----------------------------------------------------------------------------
 {
 	let hdlPos = null;
@@ -4440,7 +4563,7 @@ function gl_createMesh( gl, type, tblPos, sizePos, tblUv, tblCol, tblIndex )
 	{
 		hdlPos = gl.createBuffer();
 		gl.bindBuffer( gl.ARRAY_BUFFER, hdlPos );
-		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( tblPos ), gl.STATIC_DRAW );
+		gl.bufferData( gl.ARRAY_BUFFER, tblPos, gl.STATIC_DRAW );
 	}
 
 	let hdlUv = null;
@@ -4448,7 +4571,7 @@ function gl_createMesh( gl, type, tblPos, sizePos, tblUv, tblCol, tblIndex )
 	{
 		hdlUv = gl.createBuffer();
 		gl.bindBuffer( gl.ARRAY_BUFFER, hdlUv );
-		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( tblUv ), gl.STATIC_DRAW );
+		gl.bufferData( gl.ARRAY_BUFFER, tblUv, gl.STATIC_DRAW );
 	}
 
 	let hdlCol = null;
@@ -4456,7 +4579,7 @@ function gl_createMesh( gl, type, tblPos, sizePos, tblUv, tblCol, tblIndex )
 	{
 		hdlCol = gl.createBuffer();
 		gl.bindBuffer( gl.ARRAY_BUFFER, hdlCol );
-		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( tblCol ), gl.STATIC_DRAW );
+		gl.bufferData( gl.ARRAY_BUFFER, tblCol, gl.STATIC_DRAW );
 	}
 
 	let cntVertex = 0;
@@ -4465,7 +4588,7 @@ function gl_createMesh( gl, type, tblPos, sizePos, tblUv, tblCol, tblIndex )
 	{
 		hdlIndex = gl.createBuffer();
 		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, hdlIndex );
-		gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Uint16Array( tblIndex ), gl.STATIC_DRAW );
+		gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, tblIndex, gl.STATIC_DRAW );
 		cntVertex = tblIndex.length;
 	}
 	else
@@ -4473,93 +4596,161 @@ function gl_createMesh( gl, type, tblPos, sizePos, tblUv, tblCol, tblIndex )
 		cntVertex = tblPos.length / sizePos;
 	}
 
-	return gl_MESH( type, hdlPos, hdlUv, hdlCol, hdlIndex, 0, cntVertex );
+//	return gl_MESH( drawtype, hdlPos, hdlUv, hdlCol, hdlIndex, 0, cntVertex );
+	return gl_MESH( {
+		drawtype	:drawtype, 
+		hdlPos		:hdlPos, 
+		hdlUv		:hdlUv, 
+		hdlCol		:hdlCol, 
+		hdlIndex	:hdlIndex, 
+		offset		:0, 
+		length		:cntVertex
+	} );
+
+}
+//-----------------------------------------------------------------------------
+function gl_reloadMesh( gl, mesh, premesh, using )	// メッシュロード
+///-----------------------------------------------------------------------------
+{
+	if ( mesh.hdlPos && premesh.tblPos )
+	{
+		gl.bindBuffer( gl.ARRAY_BUFFER, mesh.hdlPos );
+		gl.bufferData( gl.ARRAY_BUFFER, premesh.tblPos , using );
+	}
+
+	if ( mesh.hdlUv && premesh.tblUv )
+	{
+		gl.bindBuffer( gl.ARRAY_BUFFER, mesh.hdlUv );
+		gl.bufferData( gl.ARRAY_BUFFER, premesh.tblUv , using );
+	}
+
+	if ( mesh.hdlCol && premesh.tblCol )
+	{
+		gl.bindBuffer( gl.ARRAY_BUFFER, mesh.hdlCol );
+		gl.bufferData( gl.ARRAY_BUFFER, premesh.tblCo , using );
+	}
+
+	if ( mesh.hdlIndex && premesh.tblIndex )
+	{
+		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, mesh.hdlIndex );
+		gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, premesh.tblIndex, using );
+	}
+
+	gl.bindBuffer( gl.ARRAY_BUFFER, null );
+	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null );
+	mesh.cntVertex = premesh.tblPos.length / premesh.sizePos;
+}
+
+
+//-----------------------------------------------------------------------------
+function gl_deleteMesh( gl, mesh )
+//-----------------------------------------------------------------------------
+{
+	let hdlPos = null;
+	if ( mesh.hdlPos	)	gl.deleteBuffer( mesh.hdlPos );
+	if ( mesh.hdlUv		)	gl.deleteBuffer( mesh.hdlUv );
+	if ( mesh.hdlCol	)	gl.deleteBuffer( mesh.hdlCol );
+	if ( mesh.hdlIndex	)	gl.deleteBuffer( mesh.hdlIndex );
 }
 
 // 描画
 //-----------------------------------------------------------------------------
-function gl_drawmMdl( gl, mdl, tblGaus )
+function gl_drawmMdl( gl, mdl )
 //-----------------------------------------------------------------------------
 {
 	// shader setup
-	gl.useProgram( mdl.shader.hdlProg );
+	gl.useProgram( mdl.shader["Prog"].hdl );
 	{
 
-		if ( mdl.shader.hashHdl["Pos2"] != undefined )						// Pos2
+		if ( mdl.shader["Pos2"].hdl != null )						// Pos2
 		{
 			gl.bindBuffer( gl.ARRAY_BUFFER, mdl.mesh.hdlPos );
-			gl.vertexAttribPointer( mdl.shader.hashHdl["Pos2"], 2, gl.FLOAT, false, 0, 0 );
-			gl.enableVertexAttribArray( mdl.shader.hashHdl["Pos2"] );
+			gl.vertexAttribPointer( mdl.shader["Pos2"].hdl, 2, gl.FLOAT, false, 0, 0 );
+			gl.enableVertexAttribArray( mdl.shader["Pos2"].hdl );
 		}
 
-		if ( mdl.shader.hashHdl["Pos3"] != undefined )						// Pos3
+		if ( mdl.shader["Pos3"].hdl != null )						// Pos3
 		{
 			gl.bindBuffer( gl.ARRAY_BUFFER, mdl.mesh.hdlPos );
-			gl.vertexAttribPointer( mdl.shader.hashHdl["Pos3"], 3, gl.FLOAT, false, 0, 0 );
-			gl.enableVertexAttribArray( mdl.shader.hashHdl["Pos3"] );
+			gl.vertexAttribPointer( mdl.shader["Pos3"].hdl, 3, gl.FLOAT, false, 0, 0 );
+			gl.enableVertexAttribArray( mdl.shader["Pos3"].hdl );
 		}
 
-		if ( mdl.shader.hashHdl["Pos4"] != undefined )						// Pos4
+		if ( mdl.shader["Pos4"].hdl != null )						// Pos4
 		{
 			gl.bindBuffer( gl.ARRAY_BUFFER, mdl.mesh.hdlPos );
-			gl.vertexAttribPointer( mdl.shader.hashHdl["Pos4"], 4, gl.FLOAT, false, 0, 0 );
-			gl.enableVertexAttribArray( mdl.shader.hashHdl["Pos4"] );
+			gl.vertexAttribPointer( mdl.shader["Pos4"].hdl, 4, gl.FLOAT, false, 0, 0 );
+			gl.enableVertexAttribArray( mdl.shader["Pos4"].hdl );
 		}
 
-		if ( mdl.shader.hashHdl["Uv"] != undefined )						// UV
+		if ( mdl.shader["Uv"].hdl != null )						// UV
 		{
 			gl.bindBuffer( gl.ARRAY_BUFFER, mdl.mesh.hdlUv );
-			gl.vertexAttribPointer( mdl.shader.hashHdl["Uv"], 2, gl.FLOAT, false, 0, 0 );
-			gl.enableVertexAttribArray( mdl.shader.hashHdl["Uv"] );
+			gl.vertexAttribPointer( mdl.shader["Uv"].hdl, 2, gl.FLOAT, false, 0, 0 );
+			gl.enableVertexAttribArray( mdl.shader["Uv"].hdl );
 		}
 
-		if ( mdl.shader.hashHdl["Col"] != undefined )						// UV
+		if ( mdl.shader["Col4"].hdl != null )						// RGBA
 		{
 			gl.bindBuffer( gl.ARRAY_BUFFER, mdl.mesh.hdlCol );
-			gl.vertexAttribPointer( mdl.shader.hashHdl["Col"], 3, gl.FLOAT, false, 0, 0 );
-			gl.enableVertexAttribArray( mdl.shader.hashHdl["Col"] );
+			gl.vertexAttribPointer( mdl.shader["Col4"].hdl, 3, gl.FLOAT, false, 0, 0 );
+			gl.enableVertexAttribArray( mdl.shader["Col4"].hdl );
 		}
 
-		if ( mdl.shader.hashHdl["Tex0"] != undefined )						// テクスチャ0
+		if ( mdl.shader["Col3"].hdl != null )						// RGB
+		{
+			gl.bindBuffer( gl.ARRAY_BUFFER, mdl.mesh.hdlCol );
+			gl.vertexAttribPointer( mdl.shader["Col3"].hdl, 3, gl.FLOAT, false, 0, 0 );
+			gl.enableVertexAttribArray( mdl.shader["Col3"].hdl );
+		}
+
+		if ( mdl.shader["Tex0"].hdl != null )						// テクスチャ0
 		{
 			gl.activeTexture( gl.TEXTURE0 );						
 			gl.bindTexture( gl.TEXTURE_2D, mdl.tblTex[0] );			
- 			gl.uniform1i( mdl.shader.hashHdl["Tex0"], 0 );						
-			gl.activeTexture( gl.TEXTURE0 );						
+ 			gl.uniform1i( mdl.shader["Tex0"].hdl, 0 );				
 		}
 
-		if ( mdl.shader.hashHdl["Tex1"] != undefined )						// テクスチャ1
+		if ( mdl.shader["Tex1"].hdl != null )						// テクスチャ1
 		{
 			gl.activeTexture( gl.TEXTURE1 );						
 			gl.bindTexture( gl.TEXTURE_2D, mdl.tblTex[1] );			
- 			gl.uniform1i( mdl.shader.hashHdl["Tex1"], 1 );						
+ 			gl.uniform1i( mdl.shader["Tex1"].hdl, 1 );						
 		}
 
-		if ( mdl.shader.hashHdl["Tex2"] != undefined )						// テクスチャ2
+		if ( mdl.shader["Tex2"].hdl != null )						// テクスチャ2
 		{
 			gl.activeTexture( gl.TEXTURE2 );						
 			gl.bindTexture( gl.TEXTURE_2D, mdl.tblTex[2] );			
- 			gl.uniform1i( mdl.shader.hashHdl["Tex2"], 1 );						
+ 			gl.uniform1i( mdl.shader["Tex2"].hdl, 1 );						
 		}
 
-		if ( mdl.shader.hashHdl["Tex3"] != undefined )						// テクスチャ3
+		if ( mdl.shader["Tex3"].hdl != null )						// テクスチャ3
 		{
 			gl.activeTexture( gl.TEXTURE3 );						
 			gl.bindTexture( gl.TEXTURE_2D, mdl.tblTex[3] );			
- 			gl.uniform1i( mdl.shader.hashHdl["Tex3"], 1 );						
+ 			gl.uniform1i( mdl.shader["Tex3"].hdl, 1 );						
 		}
 
-		if ( mdl.shader.hashHdl["Dot"] != undefined )						// ドットピッチ
+		if ( mdl.shader["Dot"].hdl != null )						// ドットピッチ	fs内の描画１ドットのサイズ
 		{
 			let m_viewport = gl.getParameter( gl.VIEWPORT );
-			gl.uniform2f( mdl.shader.hashHdl["Dot"], 1.0/m_viewport[2] , 1.0/m_viewport[3] );
+			let [x,y] = [ 1.0/m_viewport[2] , 1.0/m_viewport[3] ];
+			gl.uniform2f( mdl.shader["Dot"].hdl, x,y );
 		}
 
-		if ( mdl.shader.hashHdl["Gaus"] != undefined && tblGaus != null )	// Gasussian
+		if ( mdl.shader["Gaus"].hdl != null  && mdl.shader["Gaus"].tblGaus != null )	// Gasussian
 		{
-			gl.uniform1fv( mdl.shader.hashHdl["Gaus"], tblGaus );
-
+			gl.uniform1fv( mdl.shader["Gaus"].hdl, mdl.shader["Gaus"].tblGaus );
 		}
+
+		if ( mdl.shader["Scl"].hdl != null )						// ドットピッチ	vs内の移動１ドットのサイズ Dotの倍になる
+		{
+			let m_viewport = gl.getParameter( gl.VIEWPORT );
+			let [x,y] = [ 2.0/m_viewport[2] , 2.0/m_viewport[3] ];
+			gl.uniform2f( mdl.shader["Scl"].hdl, x,y );
+		}
+
 	}
 
 	// draw
@@ -4587,14 +4778,18 @@ function bloom_create( gl )
 {
 	let mesh = gl_createMesh( 
 		gl,
-		gl.TRIANGLE_STRIP,
-		[	-1.0,-1.0,	1.0,-1.0,	-1.0, 1.0,	 1.0, 1.0	],2,
-		[	 0.0, 0.0,	1.0, 0.0,	 0.0, 1.0,	 1.0, 1.0	],
-		null,
-		[	0,1,2,3	]
+		{
+			drawtype	:	gl.TRIANGLE_STRIP,
+			tblPos		:	new Float32Array([	-1.0,-1.0,	1.0,-1.0,	-1.0, 1.0,	 1.0, 1.0	]),
+			sizePos		:	2,
+			tblUv		:	new Float32Array([	 0.0, 0.0,	1.0, 0.0,	 0.0, 1.0,	 1.0, 1.0	]),
+			tblCol		:	null,
+			tblIndex	:	new Uint16Array( [	0,1,2,3	] )
+		}
 	);
 	let shader_v		= gl_createShader( gl, gl_vs_P2U, gl_fs_gaussian_v	, ["Pos2","Uv"],["Tex0","Dot","Gaus"] );
 	let shader_h		= gl_createShader( gl, gl_vs_P2U, gl_fs_gaussian_h	, ["Pos2","Uv"],["Tex0","Dot","Gaus"]  );
+	let	shader_color	= gl_createShader( gl, gl_vs_P4C, gl_fs_color		, ["Pos4","Col3"],[] );
 	let shader_const	= gl_createShader( gl, gl_vs_P2U, gl_fs_constant	, ["Pos2","Uv"],["Tex0"]   );
 	let shader_add		= gl_createShader( gl, gl_vs_P2U, gl_fs_add			, ["Pos2","Uv"],["Tex0","Tex1"]   );
 	let fbo_1			= gl_createFramebuf( gl, gl.canvas.width/1, gl.canvas.height/1, true );
@@ -4618,18 +4813,19 @@ function bloom_create( gl )
 				let u = 0; 
 				// u: μミュー	平均
 				// s: σシグマ	標準偏差
-				return 	1/( Math.sqrt( 2*Math.PI*s ) )*Math.exp( -( ( x-u )*( x-u ) ) / ( 2*s*s ) );
+				return 	1/( Math.sqrt( 2*Math.PI*s ) )*Math.exp( -( ( x-u )*( x-u ) ) / ( 2*s*s ) );	// 距離[0]は1.0(100%)
 			}
 			// size  :マトリクスの一辺の大きさ
 			// sigma :
 			let pat = new Array( size );
 			for ( let m = 0 ; m < pat.length ; m++ )
 			{
-				pat[m] = gauss( m, sigma )*rate;
+				pat[m] = gauss( m, sigma )*rate;	
 			}
 			return pat;
 		}	
-		let	tblGaus = make_gauss( 20, sigma, rate );	// 20はシェーダー内のGaus[20]より
+		shader_v["Gaus"].tblGaus = make_gauss( 20, sigma, rate );	// 20はシェーダー内のGaus[20]より
+		shader_h["Gaus"].tblGaus = make_gauss( 20, sigma, rate );
 	
 		function bf( fbo )
 		{
@@ -4644,42 +4840,42 @@ function bloom_create( gl )
 				gl.viewport( 0, 0,  fbo.width, fbo.height );
 			}
 		}
-		if ( mode=="8x8" ) // sigma=1.5;rate=0.9
+		if ( mode=="8x8" ) // sigma=10.0/8;rate=0.9
 		{
 			bf( fbo_1 );	cb_drawScene();
-			bf( fbo_2a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_const	, [fbo_1.tex_color] ), null );		// 1/2
-			bf( fbo_4a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_const	, [fbo_2a.tex_color] ), null );		// 1/4
-			bf( fbo_8a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_const	, [fbo_4a.tex_color] ), null );		// 1/8
-			bf( fbo_8b );	gl_drawmMdl( gl, gl_MDL( mesh, shader_v		, [fbo_8a.tex_color] ), tblGaus );	// 縦ブラー
-			bf( fbo_8a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_h		, [fbo_8b.tex_color] ), tblGaus );	// 横ブラー
-			bf( null );		gl_drawmMdl( gl, gl_MDL( mesh, shader_add	, [fbo_8a.tex_color, fbo_1.tex_color] ), null ); // 合成
+			bf( fbo_2a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_const	, [fbo_1.tex_color] ) );		// 1/2
+			bf( fbo_4a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_const	, [fbo_2a.tex_color] ) );		// 1/4
+			bf( fbo_8a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_const	, [fbo_4a.tex_color] ) );		// 1/8
+			bf( fbo_8b );	gl_drawmMdl( gl, gl_MDL( mesh, shader_v		, [fbo_8a.tex_color] ) );	// 縦ブラー
+			bf( fbo_8a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_h		, [fbo_8b.tex_color] ) );	// 横ブラー
+			bf( null );		gl_drawmMdl( gl, gl_MDL( mesh, shader_add	, [fbo_8a.tex_color, fbo_1.tex_color] ) ); // 合成
 		}
 		else
-		if ( mode=="4x4" ) // sigma=3;rate=0.659
+		if ( mode=="4x4" ) // sigma=10.0/3 rate=0.659
 		{
 			bf( fbo_1 );	cb_drawScene();
-			bf( fbo_2a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_const	, [fbo_1.tex_color] ), null );		// 1/4
-			bf( fbo_4a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_const	, [fbo_2a.tex_color] ), null );		// 1/16
-			bf( fbo_4b );	gl_drawmMdl( gl, gl_MDL( mesh, shader_v		, [fbo_4a.tex_color] ), tblGaus );	// 縦ブラー
-			bf( fbo_4a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_h		, [fbo_4b.tex_color] ), tblGaus );	// 横ブラー
-			bf( null );		gl_drawmMdl( gl, gl_MDL( mesh, shader_add	, [fbo_4a.tex_color, fbo_1.tex_color] ), null ); // 合成
+			bf( fbo_2a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_const	, [fbo_1.tex_color] ) );		// 1/4
+			bf( fbo_4a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_const	, [fbo_2a.tex_color] ) );		// 1/16
+			bf( fbo_4b );	gl_drawmMdl( gl, gl_MDL( mesh, shader_v		, [fbo_4a.tex_color] ) );	// 縦ブラー
+			bf( fbo_4a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_h		, [fbo_4b.tex_color] ) );	// 横ブラー
+			bf( null );		gl_drawmMdl( gl, gl_MDL( mesh, shader_add	, [fbo_4a.tex_color, fbo_1.tex_color] ) ); // 合成
 		}
 		else
-		if ( mode=="2x2" ) // sigma=3;rate=0.659
+		if ( mode=="2x2" ) // sigma=10.0/3;rate=0.659
 		{
 			bf( fbo_1 );	cb_drawScene();
-			bf( fbo_2a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_const	, [fbo_1.tex_color] ), null );		// 1/4
-			bf( fbo_2b );	gl_drawmMdl( gl, gl_MDL( mesh, shader_v		, [fbo_2a.tex_color] ), tblGaus );	// 縦ブラー
-			bf( fbo_2a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_h		, [fbo_2b.tex_color] ), tblGaus );	// 横ブラー
-			bf( null );		gl_drawmMdl( gl, gl_MDL( mesh, shader_add	, [fbo_2a.tex_color, fbo_1.tex_color] ), null ); // 合成
+			bf( fbo_2a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_const	, [fbo_1.tex_color] ) );		// 1/4
+			bf( fbo_2b );	gl_drawmMdl( gl, gl_MDL( mesh, shader_v		, [fbo_2a.tex_color] ) );	// 縦ブラー
+			bf( fbo_2a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_h		, [fbo_2b.tex_color] ) );	// 横ブラー
+			bf( null );		gl_drawmMdl( gl, gl_MDL( mesh, shader_add	, [fbo_2a.tex_color, fbo_1.tex_color] ) ); // 合成
 		}
 		else
 		if ( mode=="1x1" ) // sigma=10;rate=0.45
 		{
 			bf( fbo_1 );	cb_drawScene();
-			bf( fbo_1a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_v		, [fbo_1.tex_color] ), tblGaus );	// 縦ブラー
-			bf( fbo_1b );	gl_drawmMdl( gl, gl_MDL( mesh, shader_h		, [fbo_1a.tex_color] ), tblGaus );	// 横ブラー
-			bf( null );		gl_drawmMdl( gl, gl_MDL( mesh, shader_add	, [fbo_1b.tex_color, fbo_1.tex_color] ), null ); // 合成
+			bf( fbo_1a );	gl_drawmMdl( gl, gl_MDL( mesh, shader_v		, [fbo_1.tex_color] ) );	// 縦ブラー
+			bf( fbo_1b );	gl_drawmMdl( gl, gl_MDL( mesh, shader_h		, [fbo_1a.tex_color] ) );	// 横ブラー
+			bf( null );		gl_drawmMdl( gl, gl_MDL( mesh, shader_add	, [fbo_1b.tex_color, fbo_1.tex_color] ) ); // 合成
 		}
 		else
 		{
@@ -4729,11 +4925,14 @@ function gl_createTvram( gl, width, height, funcGetXY )
 		mesh2d		:
 			gl_createMesh( 
 				gl,
-				gl.TRIANGLE_STRIP,
-				[	 1.0, 1.0,	-1.0, 1.0,	 1.0,-1.0,	-1.0, -1.0	],2,
-				[	 1.0, 1.0,	 0.0, 1.0,	 1.0, 0.0,	 0.0,  0.0	],
-				null,
-				[	0,1,2,3	]
+				{
+					drawtype	:	gl.TRIANGLE_STRIP,
+					tblPos		:	new Float32Array([	 1.0, 1.0,	-1.0, 1.0,	 1.0,-1.0,	-1.0, -1.0	]),
+					sizePos		:	2,
+					tblUv		:	new Float32Array([	 1.0, 1.0,	 0.0, 1.0,	 1.0, 0.0,	 0.0,  0.0	]),
+					tblCol		:	null,
+					tblIndex	:	new Uint16Array([	0,1,2,3	])
+				},
 			),
 		shader			:gl_createShader( gl, gl_vs_P2U, gl_fs_constant		, ["Pos2","Uv"],["Tex0"]   ),
 	}
@@ -4752,7 +4951,7 @@ function tvram_draw_begin( tvram )
 	gl.viewport( 0, 0,  tvram.tblFbo[tvram.idxFboMain].width, tvram.tblFbo[tvram.idxFboMain].height );
 
 	// 前回のフレームバッファを描画
-	gl_drawmMdl( gl, gl_MDL( tvram.mesh2d, tvram.shader, [tvram.tblFbo[tvram.idxFboBack].tex_color] ), null );
+	gl_drawmMdl( gl, gl_MDL( tvram.mesh2d, tvram.shader, [tvram.tblFbo[tvram.idxFboBack].tex_color] ) );
 }
 //-----------------------------------------------------------------------------
 function tvram_draw_end( tvram )
@@ -4763,25 +4962,27 @@ function tvram_draw_end( tvram )
 	gl.viewport( tvram.prim_vp[0], tvram.prim_vp[1], tvram.prim_vp[2], tvram.prim_vp[3] );
 
 	// 上下反転&プライマリフレームバッファに描画
-	gl_drawmMdl( gl, gl_MDL( tvram.mesh2d, tvram.shader	, [tvram.tblFbo[tvram.idxFboMain].tex_color] ), null ); 
+	gl_drawmMdl( gl, gl_MDL( tvram.mesh2d, tvram.shader	, [tvram.tblFbo[tvram.idxFboMain].tex_color] ) ); 
 
 	// フレームバッファの入れ替え
 	[tvram.idxFboBack, tvram.idxFboMain] = [tvram.idxFboMain,tvram.idxFboBack];
 }
+
 //-----------------------------------------------------------------------------
-function font_print( font, tx, ty, str, DW,DH )
+function font_prints( font, premesh, tx, ty, str, DW,DH )
 //-----------------------------------------------------------------------------
 {
-	let hdlPos = gl.createBuffer();	// Pos
-	let hdlUv = gl.createBuffer();	// Uv
-
-	let tblPos = [];
-	let tblUv = [];
-
-	// DW,DHはドットピッチ
+	// DW,DHは移動空間(vs)内のドットピッチ
 
 	for ( let i = 0 ; i < str.length ; i++ )
 	{
+		if ( premesh.cntVertex > premesh.maxSiz ) 
+		{
+			// 表示限界
+			premesh.cntVertex = 0;
+		}
+	
+	
 		let c = str.charCodeAt(i);
 		let [fx,fy] = font.getXY( c );
 
@@ -4790,52 +4991,47 @@ function font_print( font, tx, ty, str, DW,DH )
 			const H = DH * font.FH;
 			let X = -1.0 +DW*tx+i*font.FW*DW;
 			let Y = -1.0 +DH*(2.0/DH-font.FH-ty);
-			tblPos = tblPos.concat( 
-				[
-					X	, Y+H	, //0	縮退頂点
-
-					X	, Y+H	, //0
-					X+W	, Y+H	, //2	
-					X	, Y		, //1
-					X+W	, Y		, //3
-
-					X+W	, Y		, //3	縮退頂点
-				]
-			);
+			premesh.tblPos[ premesh.cntVertex+0 ] = X	;premesh.tblPos[ premesh.cntVertex+1 ] = Y+H	; //0	縮退頂点
+			premesh.tblPos[ premesh.cntVertex+2 ] = X	;premesh.tblPos[ premesh.cntVertex+3 ] = Y+H	; //0
+			premesh.tblPos[ premesh.cntVertex+4 ] = X+W	;premesh.tblPos[ premesh.cntVertex+5 ] = Y+H	; //2	
+			premesh.tblPos[ premesh.cntVertex+6 ] = X	;premesh.tblPos[ premesh.cntVertex+7 ] = Y	; //1
+			premesh.tblPos[ premesh.cntVertex+8 ] = X+W	;premesh.tblPos[ premesh.cntVertex+9 ] = Y	; //3
+			premesh.tblPos[ premesh.cntVertex+10 ] = X+W	;premesh.tblPos[ premesh.cntVertex+11 ] = Y	; //3	縮退頂点
 		}
 		
 		{
 			// テクセルピッチ
-			const TW = 1.0 / font.width;
-			const TH = 1.0 / font.height;
+			const TW = 1.0 / font.tex.width;
+			const TH = 1.0 / font.tex.height;
 
 			let x0 = fx*font.FW;	
 			let y0 = fy*font.FH;	
 			let x1 = x0+1*font.FW;	
 			let y1 = y0+1*font.FH;	
 
-			tblUv = tblUv.concat( 
-				[
-					x1*TW	,	y0*TH,//3	縮退頂点
-
-					x0*TW	,	y0*TH, //1
-					x1*TW	,	y0*TH,//3
-					x0*TW	,	y1*TH,//0
-					x1*TW	,	y1*TH,//2
-
-					x0*TW	,	y1*TH,//0	縮退頂点
-
-				]
-			);
+			premesh.tblUv[ premesh.cntVertex+0 ] = x1*TW	;premesh.tblUv[ premesh.cntVertex+1 ] = y0*TH;//3	縮退頂点
+			premesh.tblUv[ premesh.cntVertex+2 ] = x0*TW	;premesh.tblUv[ premesh.cntVertex+3 ] = y0*TH; //1
+			premesh.tblUv[ premesh.cntVertex+4 ] = x1*TW	;premesh.tblUv[ premesh.cntVertex+5 ] = y0*TH;//3
+			premesh.tblUv[ premesh.cntVertex+6 ] = x0*TW	;premesh.tblUv[ premesh.cntVertex+7 ] = y1*TH;//0
+			premesh.tblUv[ premesh.cntVertex+8 ] = x1*TW	;premesh.tblUv[ premesh.cntVertex+9 ] = y1*TH;//2
+			premesh.tblUv[ premesh.cntVertex+10 ] = x0*TW	;premesh.tblUv[ premesh.cntVertex+11 ] = y1*TH;//0	縮退頂点
 
 		}
+
+			premesh.cntVertex+=12;
 	}
+	return premesh;
+}
+//-----------------------------------------------------------------------------
+function gl_font_prints( gl, font, tx, ty, str, DW,DH )
+//-----------------------------------------------------------------------------
+{
+	font.premesh.cntVertex=0;
 
-	////
+	font.premesh = font_prints( font, font.premesh, tx, ty, str, DW,DH );
 
-	let mesh = gl_createMesh( gl, gl.TRIANGLE_STRIP, tblPos, 2, tblUv, null, null );
-
-	return gl_MDL( mesh, font.shader, [font.hdlTexture] );
+	gl_reloadMesh( gl, font.mesh, font.premesh, gl.DYNAMIC_DRAW  );
+	return gl_MDL( font.mesh, font.shader, [font.tex.hdl] );
 }
 
 let font_utf16_to_ascii = 
@@ -4930,7 +5126,7 @@ let font_utf16_to_ascii =
 	 87:{区: 3,点:55},	// Ｗ	W
 	 88:{区: 3,点:56},	// Ｘ	X
 	 89:{区: 3,点:57},	// Ｙ	Y
-	 90:{区: 3,点:58},	// Ｚ	Z
+	 90:{区: 3,点:58},	// Ｚ	W
 	 91:{区: 1,点:46},	// ［	[
 	 92:{区: 1,点:79},	// ￥	\
 	 93:{区: 1,点:47},	// ］	]
@@ -8589,3 +8785,16 @@ let font_utf16_to_sjis =
 	0x7897:{区:47,点:50},	// 碗
 	0x8155:{区:47,点:51},	// 腕
 };
+/*
+		function expow2( sz ) // 2のべき乗に変換
+		{
+			let i = 0;
+			do 
+			{
+				sz = Math.floor(sz>>1);
+				i++;
+			} while( sz > 0 );
+			return Math.pow(2,i);
+		}
+*/
+
