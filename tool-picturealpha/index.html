@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>alpha tool</title>
+		<style>
+			body
+			{
+				text-align:center; 
+				font-family:monospace
+			}
+			span
+			{
+				display:inline-block; 
+				vertical-align: top;
+			}
+			.group-left
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:left;
+				vertical-align: top;
+			}
+
+			.outline 
+			{
+				display:inline-block; 			/* inline 文字サイズ width heightは使えない*/
+				border:1px solid #000;			/* 枠 線幅・色 */
+				width: 320px;
+				height: 320px;
+				position: relative;				/* 下につくabsoluteが相対座標になるのがポイント*/
+
+				background: 
+					linear-gradient(45deg, #888 25%, transparent 25%, transparent 75%, #888 75%),
+					linear-gradient(45deg, #888 25%, transparent 25%, transparent 75%, #888 75%);
+				background-color: #ccc;
+				background-size: 24px 24px;
+				background-position: 0 0, 12px 12px;
+			}
+			.inline 
+			{
+				image-rendering: pixelated;
+				display:inlineblock; 			/* inline 文字サイズ width heightは使えない*/
+				border:1px solid #000;				/* 枠 線幅・色 */
+				position: absolute;
+				top: 50%;
+				left: 50%;				
+				transform: translate(-50%, -50% );	/*中心に置く*/ 
+
+				background-color: #0000;
+			}
+
+			.input_file 	/* 選択中のファイルを表示しないようにするため*/
+			{
+				background-color: #eee;
+				border:1px solid #888;				/* 枠 線幅・色 */
+				padding: 6px;
+				border-radius: 2px;
+			}
+			input[type="file"] 
+			{
+			    display: none;
+			}
+		</style>
+	</head>
+	<body>
+		<H2 style="font-family:sans-serif">画像にαチャンネルを付けるツール</H2>
+		<H4 style="font-family:sans-serif">tool of add alpha channel in picture </H4>
+
+		<span>
+
+			<span>
+				<span class="outline" ondrop="html_dropColor(event)" ondragover="html_drag(event)">
+					<span class="inline">
+						<img id="html_img_col" ></img>
+					</span>
+				</span>
+				<br>
+				<label>
+					<span class="input_file">カラー画像を選択</span>					
+					<input type="file" id="html_file1"  accept='image/*' onchange="html_request('(file.color)');" />
+				</label>
+				<br>
+			</span>
+			<span>
+
+			<span>
+				<span class="outline" ondrop="html_dropAlpha(event)" ondragover="html_drag(event)">
+					<span class="inline">
+						<img id="html_img_alp" ></img>
+					</span>
+				</span>
+				<br>
+				<label>
+					<span class="input_file">αチャンネル用画像を選択</span>					
+					<input type="file" id="html_file2" accept='image/*' onchange="html_request('(file.alpha)');"/>
+				</label>
+				<input type="button" value="複写" onclick="html_request('(copy)');"/>
+				<br>
+				<input type="button" value="抜き" onclick="html_request('(nuki)');"/>
+				<input type="button" value="反転" onclick="html_request('(reverse)');"/>
+				<input type="button" value="二値化" onclick="html_request('(binary)');"/>
+					<input type="text" id="html_binary_val" value="127" size="3">
+				<input type="button" value="リセット" onclick="html_request('(reset)');"/>
+				<br>
+			</span>
+		</span>
+		<br>
+		<span>
+				<br>
+				<input type="button" value="コンバート" onclick="html_request('(convert)');"/>
+				<br>
+				<span class="outline">
+					<span class="inline">
+						<img id="html_img_out" download="a.png"></img>
+					</span>
+				</span>
+		</span>
+
+		<img id="html_img_work" style="display:none" />
+
+
+		<script src="lib.js"></script>
+		<script src="main.js"></script>
+		<br>
+
+			<p>～備考～</p>
+			<p>カラー画像に画像をセット</p>
+			<p>アルファ画像に画像をセット（自動的にモノクロになります）</p>
+		<span class="group-left">
+			[複写]　　　：カラー画像をαチャンネル画像として使う<br>
+			[抜き]　　　：左上ドットを抜き色としてアルファ画像を作製<br>
+			[二値化]　　：閾値を超える値を255、閾値以下を0のα画像を作製<br>
+			[リセット]　：リセット<br>
+			[コンバート]：合成画像生成<br>
+		</span>
+			<p>出来上がった画像をドラッグ＆ドロップか、右ボタンから保存します</p>
+			<p>※元からあるアルファチャンネルは両方無視されます</p>
+			<p>※ドラッグ＆ドロップでも画像を入力できます</p>
+		
+
+	</body>
+</html>
+
