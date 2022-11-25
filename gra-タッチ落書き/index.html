@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>alg</title>
+		<style>
+			.group
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:right;
+			}
+			.readme
+			{
+				display:inline-block; 
+				text-align:center;
+				font-size:12px;
+				font-family:monospace;
+			}
+			.button
+			{
+				display:inline-block; 
+				text-align:center;
+				font-size:14px;
+				font-family:monospace;
+			}
+html,body {
+	margin:0;
+	padding:0;
+	text-align:center;
+	font-family:Arial, Helvetica, sans-serif;
+}
+#eventname {
+	margin: 0 0 8px;
+}
+
+		</style>
+	</head>
+	<body align="center"  >
+		<H2 style="font-family:sans-serif">タッチ落書き</H2>
+
+	
+			<select id="html_reso" class="button" >
+				<option value="32" >32x32</option>
+				<option value="48" selected>48x48</option>
+				<option value="64" >64x64</option>
+				<option value="128" >128x128</option>
+				<option value="256" >256x256</option>
+				<option value="512" >512x512</option>
+			</select>
+			<input type="button" value="解像度変更" onClick="html_updateSize()" class="button" >
+
+		
+		<br>
+
+		<canvas id="html_canvas"  width="480" height="480" style="border:1px solid" ></canvas>
+
+		<script src="lib.js"></script>
+		<script src="main.js"></script>
+		<br>
+
+		<div class="readme">
+			<p>～概要～</p>
+			<p>マウスで落書き</p>
+			<p>タッチで落書き</p>
+
+		</div>
+
+	</body>
+</html>
