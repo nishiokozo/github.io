@@ -110,20 +110,16 @@ function html_getValue_radioname( name ) // ラジオボタン用
 //-----------------------------------------------------------------------------
 function putdot( ex, ey )
 //-----------------------------------------------------------------------------
-{
+{	
+    let rect = html_canvas.getBoundingClientRect();
+
+    let x= Math.floor((ex - rect.left) / html_canvas.width  * g_reso_W);
+    let y= Math.floor((ey - rect.top ) / html_canvas.height * g_reso_H);
+
+
+	if ( x >= 0 && x < g_reso_W && y >= 0 && y < g_reso_H )
 	{
-	    let rect = html_canvas.getBoundingClientRect();
-
-
-        let x= Math.floor((ex - rect.left) / html_canvas.width  * g_reso_W);
-        let y= Math.floor((ey - rect.top ) / html_canvas.height * g_reso_H);
-
-
-		if ( x >= 0 && x < g_reso_W && y >= 0 && y < g_reso_H )
-		{
-			g_bufA[ g_reso_W*y+x ] = 1;
-		}
-
+		g_bufA[ g_reso_W*y+x ] = 1;
 	}
 
 }
@@ -149,14 +145,8 @@ function mousemovedown(e)
 function touchstart(event) 
 //-----------------------------------------------------------------------------
 {
-	{
-
-		let ex = event.changedTouches[0].pageX;
-		let ey = event.changedTouches[0].pageY;
-
-		putdot( ex,ey );
-
-	}
+	let touch = event.changedTouches[0];
+	putdot( touch.clientX, touch.clientY );
 }
 
 //-----------------------------------------------------------------------------
@@ -164,12 +154,10 @@ function touchmove(event)
 //-----------------------------------------------------------------------------
 {
 	event.preventDefault(); // タッチによる画面スクロールを止める
-	{
-		let ex = event.changedTouches[0].pageX;
-		let ey = event.changedTouches[0].pageY;
 
-		putdot( ex,ey );
-	}
+	let touch = event.changedTouches[0];
+	putdot( touch.clientX, touch.clientY );
+
 
 }
 
