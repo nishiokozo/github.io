@@ -6,8 +6,8 @@ let gl = canvas_gl.getContext( "webgl", { antialias: false } );			// gl
 
 let fontdata1 = { font:null, filename:"font.bmp", W:8, H:8, getUV:getUV_ascii };
 let fontdata2 = { font:null, filename:"k8x12_jisx0208R.png", W:8, H:12, getUV:getUV_sjis };
-fontdata1.image = requestLoadImagefile( fontdata1.filename );
-fontdata2.image = requestLoadImagefile( fontdata2.filename );
+fontdata1.image = cv_requestLoadImagefile( fontdata1.filename );
+fontdata2.image = cv_requestLoadImagefile( fontdata2.filename );
 
 let tvram = gl_createTvram( gl, gl.canvas.width, gl.canvas.height );	// テキスト画面
 
@@ -78,13 +78,13 @@ window.onload = function( e )	// コンテンツがロード
 		{
 			// フォントファイルの読み込みが終わったら、ＧＬテクスチャ化して、フォント管理
 			let tex = gl_createTexFromImage( fontdata1.image );
-			fontdata1.font = gl_createFontFromTex( gl, tex, fontdata1.W,fontdata1.H, fontdata1.getUV, 2048 );
+			fontdata1.font = font_createPremeshFromTex( gl, tex, fontdata1.W,fontdata1.H, fontdata1.getUV, 2048 );
 		}
 		if ( fontdata2.image.height>0 && fontdata2.font == null )
 		{
 			// フォントファイルの読み込みが終わったら、ＧＬテクスチャ化して、フォント管理
 			let tex = gl_createTexFromImage( fontdata2.image );
-			fontdata2.font = gl_createFontFromTex( gl, tex, fontdata2.W,fontdata2.H, fontdata2.getUV, 2048 );
+			fontdata2.font = font_createPremeshFromTex( gl, tex, fontdata2.W,fontdata2.H, fontdata2.getUV, 2048 );
 			html_setMessage();
 		}
 
