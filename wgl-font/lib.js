@@ -1,3 +1,4 @@
+// 2022/11/28	gl_font_prints 追加
 // 2022/11/25	retrogra_create	追加
 // 2022/11/10	font実装用にcv_関数などと追加
 // 2022/11/03	html_系追加。<table>用
