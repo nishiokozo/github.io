@@ -1,3 +1,4 @@
+// 2022/12/03	譲位ライブラリFNT追加
 // 2022/11/28	gl_font_prints 追加
 // 2022/11/25	retrogra_create	追加
 // 2022/11/10	font実装用にcv_関数などと追加
@@ -206,6 +207,10 @@ function rand_create( type = "xorshift32" ) //2022/06/09
 // html への書き換えタイミングを管理したり、読込タイミングを管理したり
 //-----------------------------------------------------------------------------
 
+function REQ( cmd, params )
+{
+	return {cmd:cmd, params:params};
+}
 //-----------------------------------------------------------------------------
 function html_addTable( idname )
 //-----------------------------------------------------------------------------
@@ -522,7 +527,7 @@ let html =
 let original_width = null;
 let original_height = null;
 //-----------------------------------------------------------------
-function html_setFullscreen( name_canvas )
+function cv_execFullscreen( name_canvas )
 //-----------------------------------------------------------------
 {
 	let cv = window.document.getElementById( name_canvas );
@@ -4199,7 +4204,7 @@ function gl_MESH( {drawtype, hdlPos, hdlUv, hdlCol, hdlIndex, offset, length} )	
 		hdlCol		:hdlCol,
 		hdlIndex	:hdlIndex,	// インデックスド頂点でない場合はnull
 		ofsVertex	:offset,
-		cntVertex	:length,
+		cntData	:length,
 	}
 }
 //-----------------------------------------------------------------------------
@@ -4213,7 +4218,7 @@ function gl_PREMESH( {drawtype, sizePos, length=0, tblPos=null, tblUv=null, tblC
 		tblUv		:tblUv,
 		tblCol		:tblCol,
 		tblIndex	:tblIndex,
-		cntVertex	:length,
+		cntData	:length,
 	}
 }
 
@@ -4369,7 +4374,7 @@ function gl_reloadMesh( gl, mesh, premesh, using )	// メッシュロード
 
 	gl.bindBuffer( gl.ARRAY_BUFFER, null );
 	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null );
-	mesh.cntVertex = premesh.cntVertex;//blPos.length / premesh.sizePos;
+	mesh.cntData = premesh.cntData;//blPos.length / premesh.sizePos;
 }
 
 ///-----------------------------------------------------------------------------
@@ -4397,8 +4402,8 @@ function gl_createMesh(
 		offset		:0, 
 		length		:0,
 	} );
-	let cntVertex;
-	cntVertex = ( tblIndex )?tblIndex.length:tblPos.length/sizePos;
+	let cntData;
+	cntData = ( tblIndex )?tblIndex.length:tblPos.length/sizePos;
 
 	let premesh	= gl_PREMESH( 
 	{
@@ -4408,7 +4413,7 @@ function gl_createMesh(
 		tblUv		:tblUv,
 		tblCol		:tblCol,
 		tblIndex	:tblIndex,
-		length		:cntVertex,	// indexed場合はindexed頂点数の方、独立頂点の場合はtblPos.length/sizePos
+		length		:cntData,	// indexed場合はindexed頂点数の方、独立頂点の場合はtblPos.length/sizePos
 	});
 	gl_reloadMesh( gl, mesh, premesh, using  );
 	return mesh;
@@ -4518,11 +4523,11 @@ function gl_drawmMdl( gl, mdl )
 	if ( mdl.mesh.hdlIndex )
 	{
 		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, mdl.mesh.hdlIndex );
-		gl.drawElements( mdl.mesh.drawtype, mdl.mesh.cntVertex, gl.UNSIGNED_SHORT, 0 );
+		gl.drawElements( mdl.mesh.drawtype, mdl.mesh.cntData, gl.UNSIGNED_SHORT, 0 );
 	}
 	else
 	{
-		gl.drawArrays( mdl.mesh.drawtype, mdl.mesh.ofsVertex, mdl.mesh.cntVertex );
+		gl.drawArrays( mdl.mesh.drawtype, mdl.mesh.ofsVertex, mdl.mesh.cntData/2 );
 	}
 
 	// バインド解除
@@ -4706,7 +4711,7 @@ function gl_createTvram( gl, width, height, funcGetXY )
 }
 
 //-----------------------------------------------------------------------------
-function tvram_draw_begin( tvram )
+function gl_tvram_draw_begin( gl, tvram )
 //-----------------------------------------------------------------------------
 {
 	// フレームバッファとビューポートの設定を保存
@@ -4721,7 +4726,7 @@ function tvram_draw_begin( tvram )
 	gl_drawmMdl( gl, gl_MDL( tvram.mesh2d, tvram.shader, [tvram.tblFbo[tvram.idxFboBack].tex_color] ) );
 }
 //-----------------------------------------------------------------------------
-function tvram_draw_end( tvram )
+function gl_tvram_draw_end( gl_tvram )
 //-----------------------------------------------------------------------------
 {
 	// フレームバッファとビューポートの設定を元に戻す
@@ -4743,10 +4748,10 @@ function font_prints( font, premesh, tx, ty, str, DW,DH )
 
 	for ( let i = 0 ; i < str.length ; i++ )
 	{
-		if ( premesh.cntVertex > premesh.maxSiz ) 
+		if ( premesh.cntData > premesh.maxSiz ) 
 		{
-			// 表示限界
-			premesh.cntVertex = 0;
+			// リングバッファ
+			premesh.cntData = 0;
 		}
 	
 	
@@ -4758,12 +4763,13 @@ function font_prints( font, premesh, tx, ty, str, DW,DH )
 			const H = DH * font.FH;
 			let X = -1.0 +DW*tx+i*font.FW*DW;
 			let Y = -1.0 +DH*(2.0/DH-font.FH-ty);
-			premesh.tblPos[ premesh.cntVertex+0 ] = X	;premesh.tblPos[ premesh.cntVertex+1 ] = Y+H	; //0	縮退頂点
-			premesh.tblPos[ premesh.cntVertex+2 ] = X	;premesh.tblPos[ premesh.cntVertex+3 ] = Y+H	; //0
-			premesh.tblPos[ premesh.cntVertex+4 ] = X+W	;premesh.tblPos[ premesh.cntVertex+5 ] = Y+H	; //2	
-			premesh.tblPos[ premesh.cntVertex+6 ] = X	;premesh.tblPos[ premesh.cntVertex+7 ] = Y	; //1
-			premesh.tblPos[ premesh.cntVertex+8 ] = X+W	;premesh.tblPos[ premesh.cntVertex+9 ] = Y	; //3
-			premesh.tblPos[ premesh.cntVertex+10 ] = X+W	;premesh.tblPos[ premesh.cntVertex+11 ] = Y	; //3	縮退頂点
+			let pos = premesh.tblPos[ premesh.cntData+0 ];
+			premesh.tblPos[ premesh.cntData+0 ] = X		;premesh.tblPos[ premesh.cntData+1 ] = Y+H	; //0	縮退頂点
+			premesh.tblPos[ premesh.cntData+2 ] = X		;premesh.tblPos[ premesh.cntData+3 ] = Y+H	; //0
+			premesh.tblPos[ premesh.cntData+4 ] = X+W		;premesh.tblPos[ premesh.cntData+5 ] = Y+H	; //2	
+			premesh.tblPos[ premesh.cntData+6 ] = X		;premesh.tblPos[ premesh.cntData+7 ] = Y	; //1
+			premesh.tblPos[ premesh.cntData+8 ] = X+W		;premesh.tblPos[ premesh.cntData+9 ] = Y	; //3
+			premesh.tblPos[ premesh.cntData+10 ] = X+W	;premesh.tblPos[ premesh.cntData+11 ] = Y	; //3	縮退頂点
 		}
 		
 		{
@@ -4776,30 +4782,32 @@ function font_prints( font, premesh, tx, ty, str, DW,DH )
 			let x1 = x0+1*font.FW;	
 			let y1 = y0+1*font.FH;	
 
-			premesh.tblUv[ premesh.cntVertex+0 ] = x1*TW	;premesh.tblUv[ premesh.cntVertex+1 ] = y0*TH;//3	縮退頂点
-			premesh.tblUv[ premesh.cntVertex+2 ] = x0*TW	;premesh.tblUv[ premesh.cntVertex+3 ] = y0*TH; //1
-			premesh.tblUv[ premesh.cntVertex+4 ] = x1*TW	;premesh.tblUv[ premesh.cntVertex+5 ] = y0*TH;//3
-			premesh.tblUv[ premesh.cntVertex+6 ] = x0*TW	;premesh.tblUv[ premesh.cntVertex+7 ] = y1*TH;//0
-			premesh.tblUv[ premesh.cntVertex+8 ] = x1*TW	;premesh.tblUv[ premesh.cntVertex+9 ] = y1*TH;//2
-			premesh.tblUv[ premesh.cntVertex+10 ] = x0*TW	;premesh.tblUv[ premesh.cntVertex+11 ] = y1*TH;//0	縮退頂点
+			premesh.tblUv[ premesh.cntData+0 ] = x1*TW	;premesh.tblUv[ premesh.cntData+1 ] = y0*TH;//3	縮退頂点
+			premesh.tblUv[ premesh.cntData+2 ] = x0*TW	;premesh.tblUv[ premesh.cntData+3 ] = y0*TH; //1
+			premesh.tblUv[ premesh.cntData+4 ] = x1*TW	;premesh.tblUv[ premesh.cntData+5 ] = y0*TH;//3
+			premesh.tblUv[ premesh.cntData+6 ] = x0*TW	;premesh.tblUv[ premesh.cntData+7 ] = y1*TH;//0
+			premesh.tblUv[ premesh.cntData+8 ] = x1*TW	;premesh.tblUv[ premesh.cntData+9 ] = y1*TH;//2
+			premesh.tblUv[ premesh.cntData+10 ] = x0*TW	;premesh.tblUv[ premesh.cntData+11 ] = y1*TH;//0	縮退頂点
 
 		}
 
-			premesh.cntVertex+=12;
+			premesh.cntData+=12;
 	}
 	return premesh;
 }
+/*
 //-----------------------------------------------------------------------------
 function gl_font_prints( gl, font, tx, ty, str, DW,DH )
 //-----------------------------------------------------------------------------
 {
-//	font.premesh.cntVertex=0;
+//	font.premesh.cntData=0;
 
 	font.premesh = font_prints( font, font.premesh, tx, ty, str, DW,DH );
 
 	gl_reloadMesh( gl, font.mesh, font.premesh, gl.DYNAMIC_DRAW  );
 	return gl_MDL( font.mesh, font.shader, [font.tex.hdl] );
 }
+*/
 
 //-----------------------------------------------------------------------------
 function font_createPremeshFromTex( gl, tex, FW, FH, funcGetXY, max=2048 ) // max:最大表示文字数
@@ -4814,7 +4822,8 @@ function font_createPremeshFromTex( gl, tex, FW, FH, funcGetXY, max=2048 ) // ma
 		FH			: FH,	// フォント高さ
 		getXY		: funcGetXY,
 		//
-		mesh		: gl_MESH( {
+		mesh		: gl_MESH( 
+		{
 			drawtype	:gl.TRIANGLE_STRIP, 
 			hdlPos		:gl.createBuffer(), 
 			hdlUv		:gl.createBuffer(), 
@@ -9307,3 +9316,57 @@ let model_comvert_single = function( data )// 内部フォーマットに変換
 }
 
 
+// 上位ライブラリ
+//-----------------------------------------------------------------------------
+function create_FNT( filename, W, H, getUV, max = 2000 )
+//-----------------------------------------------------------------------------
+{
+	let FNT = 
+	{ 
+		font		:null, 
+		filename	:filename,
+		W			:W, 
+		H			:H, 
+		getUV		:getUV,
+		max			:max
+	};
+
+	return  FNT;
+}
+
+//-----------------------------------------
+function FNT_loadImagefile( FNT )
+//-----------------------------------------
+{
+	let image = cv_requestLoadImagefile( FNT.filename );
+	image.onload = function()
+	{
+		FNT.image = image;
+		// フォントファイルの読み込みが終わったら、ＧＬテクスチャ化して、フォント管理
+		let tex = gl_createTexFromImage( FNT.image );
+		FNT.font = font_createPremeshFromTex( gl, tex, FNT.W,FNT.H, FNT.getUV, FNT.max );//
+	}
+}
+//-----------------------------------------
+function FNT_print( FNT, x, y, str, dw, dh )
+//-----------------------------------------
+{
+	FNT.font.premesh = font_prints( FNT.font, FNT.font.premesh, x, y, str, dw,dh );
+
+//FNT.font.premesh.cntData/=2;
+}
+//-----------------------------------------
+function FNT_isOK( FNT )
+//-----------------------------------------
+{
+	return(FNT.font!=null);
+}
+//-----------------------------------------
+function gl_FNT_draw( gl, FNT )
+//-----------------------------------------
+{
+	gl_reloadMesh( gl, FNT.font.mesh, FNT.font.premesh, gl.DYNAMIC_DRAW  );
+	let font_mdl =  gl_MDL( FNT.font.mesh, FNT.font.shader, [FNT.font.tex.hdl] );
+	gl_drawmMdl( gl, font_mdl );
+	FNT.font.premesh.cntData = 0;
+}

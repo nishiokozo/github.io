@@ -41,9 +41,11 @@
 ウクライナの各地でロシア軍とウクライナ軍が戦闘を続けていて、大勢の市民が国外へ避難しています。戦闘の状況や関係各国の外交など、ウクライナ情勢をめぐる28日（日本時間）の動きを随時更新でお伝えします。
 ロシアが支配するウクライナ南部のヘルソン州ではウクライナ軍が領土の奪還に向けて中心都市ヘルソンに部隊を進めているとみられ、州の西部ではロシア軍が撤退を始めたと伝えられているほか、ロシア側がヘルソンの住民を東側へ強制的に移住させています。
 </textarea><br>
-		<br>	
-			<input type="button" value="文章更新" onClick="html_setMessage()" ></input>
-			<input type="button" value="フルスクリーン" onClick="html_setFullscreen('html_canvas')" >
+<!--
+				<input type="checkbox" name="html_bloom" id="html_bloomid" value="bloom" onClick="html_request('(bloom)')"  </input>bloom
+-->		<br>	
+			<input type="button" value="文章更新" onClick="html_request('(message)')" ></input>
+			<input type="button" value="フルスクリーン" onClick="html_request('(fullscreen)')" ></input>
 		<br>
 
 		<script src="lib.js"></script>
