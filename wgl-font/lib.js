@@ -9318,7 +9318,7 @@ let model_comvert_single = function( data )// 内部フォーマットに変換
 
 // 上位ライブラリ
 //-----------------------------------------------------------------------------
-function create_FNT( filename, W, H, getUV, max = 2000 )
+function create_FNT( filename, W, H, getUV, dw, dh, max = 2000 )
 //-----------------------------------------------------------------------------
 {
 	let FNT = 
@@ -9328,6 +9328,8 @@ function create_FNT( filename, W, H, getUV, max = 2000 )
 		W			:W, 
 		H			:H, 
 		getUV		:getUV,
+		dw			:dw,	// 1ドットの描画幅
+		dh			:dh,	// 1ドットの描画高さ
 		max			:max
 	};
 
@@ -9348,10 +9350,10 @@ function FNT_loadImagefile( FNT )
 	}
 }
 //-----------------------------------------
-function FNT_print( FNT, x, y, str, dw, dh )
+function FNT_print( FNT, x, y, str )
 //-----------------------------------------
 {
-	FNT.font.premesh = font_prints( FNT.font, FNT.font.premesh, x, y, str, dw,dh );
+	FNT.font.premesh = font_prints( FNT.font, FNT.font.premesh, x, y, str, FNT.dw,FNT.dh );
 
 //FNT.font.premesh.cntData/=2;
 }

@@ -3,8 +3,8 @@
 let canvas_out	= window.document.getElementById( "html_canvas" );		// 出力画面
 let canvas_gl	= window.document.getElementById( "html_canvas_gl" );	// g用l画面
 let gl = canvas_gl.getContext( "webgl", { antialias: false } );			// gl
-let FNTm = create_FNT( "k8x12_jisx0208R.png", 8,12, getUV_sjis );
-let FNTx = create_FNT( "font.png", 8,8, getUV_ascii );
+let FNTm = create_FNT( "k8x12_jisx0208R.png", 8,12, getUV_sjis, 2.0/canvas_gl.width, 2.0/canvas_gl.height, 2000 );
+let FNTx = create_FNT( "font.png", 8,8, getUV_ascii, 2.0/canvas_gl.width, 2.0/canvas_gl.height, 2000 );
 
 //let tvram = gl_createTvram( gl, gl.canvas.width, gl.canvas.height );	// テキスト画面
 //let g_flgOnce = true;
@@ -17,9 +17,6 @@ window.onload = function( e )	// コンテンツがロード
 {
 	let bloom = bloom_create( gl );
 
-	const dw =2.0/canvas_gl.width;
-	const dh =2.0/canvas_gl.height;
-
 	let x = 0;
 	let y = 2;
 
@@ -27,14 +24,11 @@ window.onload = function( e )	// コンテンツがロード
 	FNT_loadImagefile( FNTm );
 
 	g_reqs = [REQ("(abcd)",[]),REQ("(message)",[])];
-//	g_reqs = ["(message)"];
 
 	//-----------------------------------------------------------------
 	function put_message()
 	//-----------------------------------------------------------------
 	{
-		const dw =2.0/tvram.width;
-		const dh =2.0/tvram.height;
 		
 		let strlong = document.getElementById( "html_textarea" ).value;
 
@@ -51,12 +45,12 @@ window.onload = function( e )	// コンテンツがロード
 			{
 				let s1 = str.substr(0,40);
 				let s2 = str.substr(40);
-				FNT_print( FNTm,  x,(y  )*FNTm.H, "                                        ", dw,dh ) ;
-				FNT_print( FNTm,  x,(y++)*FNTm.H, s1, dw,dh );
+				FNT_print( FNTm,  x,(y  )*FNTm.H, "                                        " );
+				FNT_print( FNTm,  x,(y++)*FNTm.H, s1 );
 				str = s2;
 			}
-				FNT_print( FNTm,  x,(y  )*FNTm.H, "                                        ", dw,dh );
-				FNT_print( FNTm,  x,(y++)*FNTm.H, str, dw,dh );
+				FNT_print( FNTm,  x,(y  )*FNTm.H, "                                        " );
+				FNT_print( FNTm,  x,(y++)*FNTm.H, str );
 		}
 
 
@@ -73,10 +67,10 @@ window.onload = function( e )	// コンテンツがロード
 		{
 			let x = 0;
 			let y = 2;
-			FNT_print( FNTx,  x,(y++)*12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", dw,dh );
-			FNT_print( FNTx,  x,(y++)*12, "abcdefghijklmnopqrstuvwxyz", dw,dh );
-			FNT_print( FNTm,  x,(y++)*12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", dw,dh );
-			FNT_print( FNTm,  x,(y++)*12, "abcdefghijklmnopqrstuvwxyz", dw,dh );
+			FNT_print( FNTx,  x,(y++)*12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890" );
+			FNT_print( FNTx,  x,(y++)*12, "abcdefghijklmnopqrstuvwxyz" );
+			FNT_print( FNTm,  x,(y++)*12, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890" );
+			FNT_print( FNTm,  x,(y++)*12, "abcdefghijklmnopqrstuvwxyz" );
 			y++;
 		}
 		//------------------------------
@@ -98,9 +92,9 @@ window.onload = function( e )	// コンテンツがロード
 
 			let x = 0;
 			let y = 0;
-			FNT_print( FNTx,  x,y, "X1 Font8x8 "+strfloat(time,5,0), dw,dh );
+			FNT_print( FNTx,  x,y, "X1 Font8x8 "+strfloat(time,5,0) );
 			y+=FNTx.H;
-			FNT_print( FNTm,  x,y, "美咲フォント12ｘ8 "+strfloat(time,5,0), dw,dh );
+			FNT_print( FNTm,  x,y, "美咲フォント12ｘ8 "+strfloat(time,5,0) );
 			y+=FNTm.H;
 //			gl_tvram_draw_begin( gl, tvram );
 			gl_FNT_draw( gl, FNTx );
