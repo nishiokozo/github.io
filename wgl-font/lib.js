@@ -4194,7 +4194,7 @@ function gl_SHADER( {Prog=null,Pos4=null,Pos3=null,Pos2=null,Uv=null,Col4=null,C
 }
 
 //-----------------------------------------------------------------------------
-function gl_MESH( {drawtype, hdlPos, hdlUv, hdlCol, hdlIndex, offset, length} )	// メッシュフォーマット
+function gl_MESH( {drawtype, hdlPos, hdlUv, hdlCol, hdlIndex, offset, cntVertex} )	// メッシュフォーマット
 //-----------------------------------------------------------------------------
 {
 	return {
@@ -4204,11 +4204,11 @@ function gl_MESH( {drawtype, hdlPos, hdlUv, hdlCol, hdlIndex, offset, length} )	
 		hdlCol		:hdlCol,
 		hdlIndex	:hdlIndex,	// インデックスド頂点でない場合はnull
 		ofsVertex	:offset,
-		cntData	:length,
+		cntVertex	:cntVertex,
 	}
 }
 //-----------------------------------------------------------------------------
-function gl_PREMESH( {drawtype, sizePos, length=0, tblPos=null, tblUv=null, tblCol=null, tblIndex=null} )	// プリメッシュ：gl化する前のメッシュフォーマット
+function gl_PREMESH( {drawtype, sizePos, cntVertex=0, tblPos=null, tblUv=null, tblCol=null, tblIndex=null} )	// プリメッシュ：gl化する前のメッシュフォーマット
 //-----------------------------------------------------------------------------
 {
 	return {
@@ -4218,7 +4218,7 @@ function gl_PREMESH( {drawtype, sizePos, length=0, tblPos=null, tblUv=null, tblC
 		tblUv		:tblUv,
 		tblCol		:tblCol,
 		tblIndex	:tblIndex,
-		cntData	:length,
+		cntVertex	:cntVertex,
 	}
 }
 
@@ -4374,7 +4374,7 @@ function gl_reloadMesh( gl, mesh, premesh, using )	// メッシュロード
 
 	gl.bindBuffer( gl.ARRAY_BUFFER, null );
 	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null );
-	mesh.cntData = premesh.cntData;//blPos.length / premesh.sizePos;
+	mesh.cntVertex = premesh.cntVertex;
 }
 
 ///-----------------------------------------------------------------------------
@@ -4400,10 +4400,11 @@ function gl_createMesh(
 		hdlCol		:(tblCol  )?gl.createBuffer():null, 
 		hdlIndex	:(tblIndex)?gl.createBuffer():null, 
 		offset		:0, 
-		length		:0,
+		cntVertex		:0,
 	} );
-	let cntData;
-	cntData = ( tblIndex )?tblIndex.length:tblPos.length/sizePos;
+	let cntVertex;
+	// indexed場合はindexed頂点数の方、独立頂点の場合はtblPos.length/sizePos
+	cntVertex = ( tblIndex )?tblIndex.length:tblPos.length/sizePos;
 
 	let premesh	= gl_PREMESH( 
 	{
@@ -4413,7 +4414,7 @@ function gl_createMesh(
 		tblUv		:tblUv,
 		tblCol		:tblCol,
 		tblIndex	:tblIndex,
-		length		:cntData,	// indexed場合はindexed頂点数の方、独立頂点の場合はtblPos.length/sizePos
+		cntVertex	:cntVertex,	
 	});
 	gl_reloadMesh( gl, mesh, premesh, using  );
 	return mesh;
@@ -4523,11 +4524,11 @@ function gl_drawmMdl( gl, mdl )
 	if ( mdl.mesh.hdlIndex )
 	{
 		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, mdl.mesh.hdlIndex );
-		gl.drawElements( mdl.mesh.drawtype, mdl.mesh.cntData, gl.UNSIGNED_SHORT, 0 );
+		gl.drawElements( mdl.mesh.drawtype, mdl.mesh.cntVertex, gl.UNSIGNED_SHORT, 0 );
 	}
 	else
 	{
-		gl.drawArrays( mdl.mesh.drawtype, mdl.mesh.ofsVertex, mdl.mesh.cntData/2 );
+		gl.drawArrays( mdl.mesh.drawtype, mdl.mesh.ofsVertex, mdl.mesh.cntVertex );
 	}
 
 	// バインド解除
@@ -4740,20 +4741,23 @@ function gl_tvram_draw_end( gl_tvram )
 	[tvram.idxFboBack, tvram.idxFboMain] = [tvram.idxFboMain,tvram.idxFboBack];
 }
 
+const font_SZ = 12;
 //-----------------------------------------------------------------------------
 function font_prints( font, premesh, tx, ty, str, DW,DH )
 //-----------------------------------------------------------------------------
 {
 	// DW,DHは移動空間(vs)内のドットピッチ
 
+
 	for ( let i = 0 ; i < str.length ; i++ )
 	{
-		if ( premesh.cntData > premesh.maxSiz ) 
+		let idx = premesh.cntVertex*premesh.sizePos;
+	
+		if ( idx+font_SZ > premesh.maxSiz ) 
 		{
 			// リングバッファ
-			premesh.cntData = 0;
+			idx = 0;
 		}
-	
 	
 		let c = str.charCodeAt(i);
 		let [fx,fy] = font.getXY( c );
@@ -4763,13 +4767,13 @@ function font_prints( font, premesh, tx, ty, str, DW,DH )
 			const H = DH * font.FH;
 			let X = -1.0 +DW*tx+i*font.FW*DW;
 			let Y = -1.0 +DH*(2.0/DH-font.FH-ty);
-			let pos = premesh.tblPos[ premesh.cntData+0 ];
-			premesh.tblPos[ premesh.cntData+0 ] = X		;premesh.tblPos[ premesh.cntData+1 ] = Y+H	; //0	縮退頂点
-			premesh.tblPos[ premesh.cntData+2 ] = X		;premesh.tblPos[ premesh.cntData+3 ] = Y+H	; //0
-			premesh.tblPos[ premesh.cntData+4 ] = X+W		;premesh.tblPos[ premesh.cntData+5 ] = Y+H	; //2	
-			premesh.tblPos[ premesh.cntData+6 ] = X		;premesh.tblPos[ premesh.cntData+7 ] = Y	; //1
-			premesh.tblPos[ premesh.cntData+8 ] = X+W		;premesh.tblPos[ premesh.cntData+9 ] = Y	; //3
-			premesh.tblPos[ premesh.cntData+10 ] = X+W	;premesh.tblPos[ premesh.cntData+11 ] = Y	; //3	縮退頂点
+			let pos = premesh.tblPos[ idx+0 ];
+			premesh.tblPos[ idx+0 ] = X		;premesh.tblPos[ idx+1 ] = Y+H	; //0	縮退頂点
+			premesh.tblPos[ idx+2 ] = X		;premesh.tblPos[ idx+3 ] = Y+H	; //0
+			premesh.tblPos[ idx+4 ] = X+W		;premesh.tblPos[ idx+5 ] = Y+H	; //2	
+			premesh.tblPos[ idx+6 ] = X		;premesh.tblPos[ idx+7 ] = Y	; //1
+			premesh.tblPos[ idx+8 ] = X+W		;premesh.tblPos[ idx+9 ] = Y	; //3
+			premesh.tblPos[ idx+10 ] = X+W	;premesh.tblPos[ idx+11 ] = Y	; //3	縮退頂点
 		}
 		
 		{
@@ -4782,16 +4786,16 @@ function font_prints( font, premesh, tx, ty, str, DW,DH )
 			let x1 = x0+1*font.FW;	
 			let y1 = y0+1*font.FH;	
 
-			premesh.tblUv[ premesh.cntData+0 ] = x1*TW	;premesh.tblUv[ premesh.cntData+1 ] = y0*TH;//3	縮退頂点
-			premesh.tblUv[ premesh.cntData+2 ] = x0*TW	;premesh.tblUv[ premesh.cntData+3 ] = y0*TH; //1
-			premesh.tblUv[ premesh.cntData+4 ] = x1*TW	;premesh.tblUv[ premesh.cntData+5 ] = y0*TH;//3
-			premesh.tblUv[ premesh.cntData+6 ] = x0*TW	;premesh.tblUv[ premesh.cntData+7 ] = y1*TH;//0
-			premesh.tblUv[ premesh.cntData+8 ] = x1*TW	;premesh.tblUv[ premesh.cntData+9 ] = y1*TH;//2
-			premesh.tblUv[ premesh.cntData+10 ] = x0*TW	;premesh.tblUv[ premesh.cntData+11 ] = y1*TH;//0	縮退頂点
+			premesh.tblUv[ idx+0 ] = x1*TW	;premesh.tblUv[ idx+1 ] = y0*TH;//3	縮退頂点
+			premesh.tblUv[ idx+2 ] = x0*TW	;premesh.tblUv[ idx+3 ] = y0*TH; //1
+			premesh.tblUv[ idx+4 ] = x1*TW	;premesh.tblUv[ idx+5 ] = y0*TH;//3
+			premesh.tblUv[ idx+6 ] = x0*TW	;premesh.tblUv[ idx+7 ] = y1*TH;//0
+			premesh.tblUv[ idx+8 ] = x1*TW	;premesh.tblUv[ idx+9 ] = y1*TH;//2
+			premesh.tblUv[ idx+10 ] = x0*TW	;premesh.tblUv[ idx+11 ] = y1*TH;//0	縮退頂点
 
 		}
 
-			premesh.cntData+=12;
+		premesh.cntVertex = (idx+font_SZ)/premesh.sizePos;
 	}
 	return premesh;
 }
@@ -4800,7 +4804,7 @@ function font_prints( font, premesh, tx, ty, str, DW,DH )
 function gl_font_prints( gl, font, tx, ty, str, DW,DH )
 //-----------------------------------------------------------------------------
 {
-//	font.premesh.cntData=0;
+//	font.premesh.cntVertex=0;
 
 	font.premesh = font_prints( font, font.premesh, tx, ty, str, DW,DH );
 
@@ -4813,7 +4817,7 @@ function gl_font_prints( gl, font, tx, ty, str, DW,DH )
 function font_createPremeshFromTex( gl, tex, FW, FH, funcGetXY, max=2048 ) // max:最大表示文字数
 //-----------------------------------------------------------------------------
 {
-	const maxSiz = max*12;
+	const maxSiz = max*font_SZ;
 
 	return{
 		tex			: tex,
@@ -4839,7 +4843,7 @@ function font_createPremeshFromTex( gl, tex, FW, FH, funcGetXY, max=2048 ) // ma
 				drawtype	:gl.TRIANGLE_STRIP, 
 				sizePos		:2, 
 				length		:0,
-				tblPos		:new Float32Array(maxSiz),	//１文字当たりの頂点サイズ=12, 
+				tblPos		:new Float32Array(maxSiz),	//１文字当たりの頂点サイズ=12B, 
 				tblUv		:new Float32Array(maxSiz), 
 			}
 		),
@@ -8810,7 +8814,7 @@ function gra3d_create( cv )	// 2022/06/10
 				let hdlCol		= m_hdlColorbuf;
 				let hdlIndex	= null;
 				let offset		= it.offset;
-				let length		= it.count;
+				let cntVertex		= it.count;
 				let mesh		= gl_MESH( {
 					drawtype	:type, 
 					hdlPos		:hdlPos, 
@@ -8818,7 +8822,7 @@ function gra3d_create( cv )	// 2022/06/10
 					hdlCol		:hdlCol, 
 					hdlIndex	:hdlIndex, 
 					offset		:offset, 
-					length		:length
+					cntVertex	:cntVertex
 				} );
 
 
@@ -9354,8 +9358,6 @@ function FNT_print( FNT, x, y, str )
 //-----------------------------------------
 {
 	FNT.font.premesh = font_prints( FNT.font, FNT.font.premesh, x, y, str, FNT.dw,FNT.dh );
-
-//FNT.font.premesh.cntData/=2;
 }
 //-----------------------------------------
 function FNT_isOK( FNT )
@@ -9370,5 +9372,5 @@ function gl_FNT_draw( gl, FNT )
 	gl_reloadMesh( gl, FNT.font.mesh, FNT.font.premesh, gl.DYNAMIC_DRAW  );
 	let font_mdl =  gl_MDL( FNT.font.mesh, FNT.font.shader, [FNT.font.tex.hdl] );
 	gl_drawmMdl( gl, font_mdl );
-	FNT.font.premesh.cntData = 0;
+	FNT.font.premesh.cntVertex = 0;
 }
