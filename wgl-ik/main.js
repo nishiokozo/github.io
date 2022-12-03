@@ -5,9 +5,10 @@ let canvas_dbg = document.getElementById( "html_canvas_dbg" );
 let canvas_out = document.getElementById( "html_canvas" );
 
 let gl = canvas_gl.getContext( "webgl", { antialias: false } );			// gl
-let font1 = gl_createFont_ascii( "font.bmp", 8, 8 );					// X1フォント ascii配列
-let font2 = gl_createFont_sjis( "k8x12_jisx0208R.png", 8, 12 )			// 美咲フォント sjis配列
-let tvram = gl_createTvram( gl, gl.canvas.width, gl.canvas.height );	// テキスト画面
+let fontdata2 = { font:null, filename:"k8x12_jisx0208R.png", W:8, H:12, getUV:getUV_sjis };
+//let font1 = gl_createFont_ascii( "font.bmp", 8, 8 );					// X1フォント ascii配列
+//let font2 = gl_createFont_sjis( "k8x12_jisx0208R.png", 8, 12 )			// 美咲フォント sjis配列
+//let tvram = gl_createTvram( gl, gl.canvas.width, gl.canvas.height );	// テキスト画面
 
 
 	const MaxAct = 100;
@@ -1661,7 +1662,7 @@ let motiondata0= '[{"0":[{"Q":{"x":0,"y":0,"z":0.043619387365336,"w":0.999048221
 		{
 			game_play( pad, play_cam );
 		}
-				gl_drawmMdl( gl, font_print( font2, 0,0, "美咲フォント12ｘ8 "+strfloat(now,5,0), dw,dh ), null );
+//				gl_drawmMdl( gl, font_print( font2, 0,0, "美咲フォント12ｘ8 "+strfloat(now,5,0), dw,dh ), null );
 
 
 		// キャンバス2D 
