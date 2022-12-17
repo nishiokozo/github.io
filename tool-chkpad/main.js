@@ -18,10 +18,10 @@ window.onload = function( e )
 //-----------------------------------------------------------------------------
 {
 	let peri = pad_create();
-	let ey = 2;
-	let edit_cam = cam_create( vec3(  0, ey, 12 ), vec3( 0, ey ,0 ), 28, 1.0,1000.0  );
-	let play_cam = cam_create( vec3( -12, ey, 0 ), vec3( 0, ey ,0 ), 28, 1.0,1000.0  );
-	let gra3d = gra3d_create( canvas3d );
+//	let ey = 2;
+//	let edit_cam = cam_create( vec3(  0, ey, 12 ), vec3( 0, ey ,0 ), 28, 1.0,1000.0  );
+//	let play_cam = cam_create( vec3( -12, ey, 0 ), vec3( 0, ey ,0 ), 28, 1.0,1000.0  );
+//	let gra3d = gra3d_create( canvas3d );
 	let gra = gra_create( canvas2d );
 
    	let C0 =  vec3(0.32,0.32,0.32);
@@ -58,7 +58,7 @@ window.onload = function( e )
 	function	update_paint( now_time )
 	//---------------------------------------------------------------------
 	{
-		gra.backcolor([1,0,0]);
+		gra.setBackcolor([1,0,0]);
 		gra.cls();
 
 		const cx = gra.ctx.canvas.width/2;
@@ -77,23 +77,24 @@ window.onload = function( e )
 		// ビュー計算
 		peri.setCont(13,2);
 
-		let pad = peri.getinfo( 0.01 );
+		let pads = peri.getinfos();
+		let pad1 = pads[0];
+		let pad2 = pads[1];
 
-			gra.symbol( "" +strfloat(1000.0/(now_time-g_prev_time),2,0)+"fps", cx,0, 16 , "CT", 0 );
-			g_prev_time = now_time;
-		 if (pad.inf != undefined )
-		 {	
-			document.getElementById("html_info").innerHTML = pad.inf.id;
+		gra.symbol( "" +strfloat(1000.0/(now_time-g_prev_time),2,0)+"fps", cx,0, 16 , "CT", 0 );
+		g_prev_time = now_time;
+		if (pad1.id != undefined ) document.getElementById("html_info1").innerHTML = pad1.id;
+		if (pad2.id != undefined ) document.getElementById("html_info2").innerHTML = pad2.id;
+		if (pad1.id != undefined )
+		{	
 
-//			gra.symbol( "pad:" +pad.inf.id, cx,H-16, 16 , "CT", 0 );
-
-			if ( html.get("html_detail") == true )	//pad キーリスト表示
+			if ( html.get("html_detail") == true )	//pad1 キーリスト表示
 			{
 					let x = 4;
 				{
 					let y = 3;
 					let list = navigator.getGamepads();
-							gra.symbol( "///// pad /////" , x,16*(y++), 16 , "LT", 0 );
+							gra.symbol( "///// pad1 /////" , x,16*(y++), 16 , "LT", 0 );
 					for ( let i = 0 ; i < list.length ; i++ )
 					{
 						let inf = list[i];
@@ -104,9 +105,9 @@ window.onload = function( e )
 				{
 					let y = 3;
 							gra.symbol( "///// buttons /////" , x,16*(y++), 16 , "LT", 0 );
-					for ( let i = 0 ; i < pad.inf.buttons.length ; i++ )
+					for ( let i = 0 ; i < pad1.inf.buttons.length ; i++ )
 					{
-						let b = pad.inf.buttons[i];
+						let b = pad1.inf.buttons[i];
 						gra.symbol( "["+i+"]"+b.value , x,16*(y++), 16 , "LT", 0 );
 					}
 				}
@@ -114,43 +115,41 @@ window.onload = function( e )
 				{
 					let y = 3;
 							gra.symbol( "///// axis /////" , x,16*(y++), 16 , "LT", 0 );
-					for ( let i = 0 ; i < pad.inf.axes.length ; i++ )
+					for ( let i = 0 ; i < pad1.inf.axes.length ; i++ )
 					{
-						gra.symbol( "["+i+"]"+pad.inf.axes[i] , x,16*(y++), 16 , "LT", 0 );
+						gra.symbol( "["+i+"]"+pad1.inf.axes[i] , x,16*(y++), 16 , "LT", 0 );
 					}
 				}
 
 
 			}
 		}
-	//		 if (pad.inf != undefined )
-	//				gra.symbol( ""+pad.inf.axes[0] , x,16*(y++), 16 , "LT", 0 );
 
 		if(0)
 		{
-			// pad データひょうじ
+			// pad1 データひょうじ
 			let y= 1;
 			let x =414;
-					gra.symbol( "lu>"+pad.now.LU, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "ld>"+pad.now.LD, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "lr>"+pad.now.LR, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "ll>"+pad.now.LL, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "lx>"+pad.now.LX, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "ly>"+pad.now.LY, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "l1>"+pad.now.L1, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "l2>"+pad.now.L2, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "l3>"+pad.now.L3, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "ru>"+pad.now.RU, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "rd>"+pad.now.RD, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "rr>"+pad.now.RR, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "rl>"+pad.now.RL, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "rx>"+pad.now.RX, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "ry>"+pad.now.RY, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "r1>"+pad.now.R1, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "r2>"+pad.now.R2, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "r3>"+pad.now.R3, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "se>"+pad.now.SE, x,16*(y++), 16 , "LT", 0 );
-					gra.symbol( "st>"+pad.now.ST, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "lu>"+pad1.now.LU, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "ld>"+pad1.now.LD, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "lr>"+pad1.now.LR, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "ll>"+pad1.now.LL, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "lx>"+pad1.now.LX, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "ly>"+pad1.now.LY, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "l1>"+pad1.now.L1, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "l2>"+pad1.now.L2, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "l3>"+pad1.now.L3, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "ru>"+pad1.now.RU, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "rd>"+pad1.now.RD, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "rr>"+pad1.now.RR, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "rl>"+pad1.now.RL, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "rx>"+pad1.now.RX, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "ry>"+pad1.now.RY, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "r1>"+pad1.now.R1, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "r2>"+pad1.now.R2, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "r3>"+pad1.now.R3, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "se>"+pad1.now.SE, x,16*(y++), 16 , "LT", 0 );
+					gra.symbol( "st>"+pad1.now.ST, x,16*(y++), 16 , "LT", 0 );
 
 	
 		}
@@ -160,22 +159,22 @@ window.onload = function( e )
 			let b = 160-20;
 			let sc = 14;
 			{
-				if ( pad.now.LU ) gra.circlefill(cx-a    ,cy+b-sc,cr);else gra.circle(cx-a    ,cy+b-sc,cr);
-				if ( pad.now.LD ) gra.circlefill(cx-a    ,cy+b+sc,cr);else gra.circle(cx-a    ,cy+b+sc,cr);
-				if ( pad.now.LR ) gra.circlefill(cx-a+ sc,cy+b   ,cr);else gra.circle(cx-a+ sc,cy+b   ,cr);
-				if ( pad.now.LL ) gra.circlefill(cx-a- sc,cy+b   ,cr);else gra.circle(cx-a- sc,cy+b   ,cr);
-				if ( pad.now.SE ) gra.circlefill(cx-a+ sc*2,cy+b+sc,cr);else gra.circle(cx-a+ sc*2,cy+b+sc,cr);
-				if ( pad.now.L1 ) gra.circlefill(cx-a- sc*2,cy+b+sc,cr);else gra.circle(cx-a- sc*2,cy+b+sc,cr);
-				if ( pad.now.L3 ) gra.circlefill(cx-a- sc*3,cy+b+sc,cr);else gra.circle(cx-a- sc*3,cy+b+sc,cr);
+				if ( pad1.now.LU ) gra.circlefill(cx-a    ,cy+b-sc,cr);else gra.circle(cx-a    ,cy+b-sc,cr);
+				if ( pad1.now.LD ) gra.circlefill(cx-a    ,cy+b+sc,cr);else gra.circle(cx-a    ,cy+b+sc,cr);
+				if ( pad1.now.LR ) gra.circlefill(cx-a+ sc,cy+b   ,cr);else gra.circle(cx-a+ sc,cy+b   ,cr);
+				if ( pad1.now.LL ) gra.circlefill(cx-a- sc,cy+b   ,cr);else gra.circle(cx-a- sc,cy+b   ,cr);
+				if ( pad1.now.SE ) gra.circlefill(cx-a+ sc*2,cy+b+sc,cr);else gra.circle(cx-a+ sc*2,cy+b+sc,cr);
+				if ( pad1.now.L1 ) gra.circlefill(cx-a- sc*2,cy+b+sc,cr);else gra.circle(cx-a- sc*2,cy+b+sc,cr);
+				if ( pad1.now.L3 ) gra.circlefill(cx-a- sc*3,cy+b+sc,cr);else gra.circle(cx-a- sc*3,cy+b+sc,cr);
 			}
 			{
-				if ( pad.now.RU ) gra.circlefill(cx+a    ,cy+b-sc,cr);else gra.circle(cx+a    ,cy+b-sc,cr);
-				if ( pad.now.RD ) gra.circlefill(cx+a    ,cy+b+sc,cr);else gra.circle(cx+a    ,cy+b+sc,cr);
-				if ( pad.now.RR ) gra.circlefill(cx+a+ sc,cy+b   ,cr);else gra.circle(cx+a+ sc,cy+b   ,cr);
-				if ( pad.now.RL ) gra.circlefill(cx+a- sc,cy+b   ,cr);else gra.circle(cx+a- sc,cy+b   ,cr);
-				if ( pad.now.ST ) gra.circlefill(cx+a- sc*2,cy+b+sc,cr);else gra.circle(cx+a- sc*2,cy+b+sc,cr);
-				if ( pad.now.R1 ) gra.circlefill(cx+a+ sc*2,cy+b+sc,cr);else gra.circle(cx+a+ sc*2,cy+b+sc,cr);
-				if ( pad.now.R3 ) gra.circlefill(cx+a+ sc*3,cy+b+sc,cr);else gra.circle(cx+a+ sc*3,cy+b+sc,cr);
+				if ( pad1.now.RU ) gra.circlefill(cx+a    ,cy+b-sc,cr);else gra.circle(cx+a    ,cy+b-sc,cr);
+				if ( pad1.now.RD ) gra.circlefill(cx+a    ,cy+b+sc,cr);else gra.circle(cx+a    ,cy+b+sc,cr);
+				if ( pad1.now.RR ) gra.circlefill(cx+a+ sc,cy+b   ,cr);else gra.circle(cx+a+ sc,cy+b   ,cr);
+				if ( pad1.now.RL ) gra.circlefill(cx+a- sc,cy+b   ,cr);else gra.circle(cx+a- sc,cy+b   ,cr);
+				if ( pad1.now.ST ) gra.circlefill(cx+a- sc*2,cy+b+sc,cr);else gra.circle(cx+a- sc*2,cy+b+sc,cr);
+				if ( pad1.now.R1 ) gra.circlefill(cx+a+ sc*2,cy+b+sc,cr);else gra.circle(cx+a+ sc*2,cy+b+sc,cr);
+				if ( pad1.now.R3 ) gra.circlefill(cx+a+ sc*3,cy+b+sc,cr);else gra.circle(cx+a+ sc*3,cy+b+sc,cr);
 			}
 		}
 
@@ -189,15 +188,15 @@ window.onload = function( e )
 				gra.linev2( vec2(cx+0.5,cy-s  ), vec2(cx+0.5,cy+s  ) );
 			}
 
-			let aL2 = pad.now.L2;
-			let aLX = pad.now.LX;
-			let aLY = pad.now.LY;
-			let aR2 = pad.now.R2;
-			let aRX = pad.now.RX;
-			let aRY = pad.now.RY;
+			let aL2 = pad1.now.L2;
+			let aLX = pad1.now.LX;
+			let aLY = pad1.now.LY;
+			let aR2 = pad1.now.R2;
+			let aRX = pad1.now.RX;
+			let aRY = pad1.now.RY;
 
 
-			if (pad.inf != undefined )
+			if (pad1.id != undefined )
 			{	// グラフ：アナログレバー
 				g_log.unshift( {rx:aRX,ry:aRY,lx:aLX,ly:aLY,r2:aR2,l2:aL2});
 
@@ -269,7 +268,7 @@ window.onload = function( e )
 			}
 
 
-			if (pad.inf != undefined )
+			if (pad1.id != undefined )
 			{
 				gra.colorv(C0);
 				function foo_ar( x0, y0 )
