@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>2curve</title>
+		<style>
+
+			.group
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:center;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.group-left
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:left;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.group-right
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:right;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.readme
+			{
+				display:inline-block; 
+				text-align:center;
+				font-size:16px;
+//				font-family:monospace;
+			}
+			.readme-left
+			{
+				display:inline-block; 
+				text-align:left;
+				font-size:16px;
+			}
+		</style>
+		<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script>
+
+</script>
+	</head>
+	<body align="center">
+		<H1>二次曲線と放物線が等価であることの検証</H1>
+		<canvas id="html_canvas"  width="768" height="768" style="border:1px solid" ></canvas>
+		<br>
+		
+			<div class="group-right">
+			  v0<input type="text" id="html_x0" value="0.0" size="3" onchange="html_onchange();" ><input type="text" id="html_y0" value="-1.0" size="3" onchange="html_onchange();" ><br>
+			  v1<input type="text" id="html_x1" value="-1.0" size="3" onchange="html_onchange();" ><input type="text" id="html_y1" value="1.0" size="3" onchange="html_onchange();" ><br>
+			  v2<input type="text" id="html_x2" value="1.0" size="3" onchange="html_onchange();" ><input type="text" id="html_y2" value="1.0" size="3" onchange="html_onchange();" ><br>
+			  分割数<input type="text" id="html_div" value="20" size="3" onchange="html_onchange();" ><br>
+			  移動時間(秒)<input type="text" id="html_time" value="2.0" size="3" onchange="html_onchange();" ><br>
+			</div>
+			
+			<br>
+			<div class="readme">
+				<br>
+				2023/07/14			<br>
+				v10,v02のベクトルから二次のベジェ曲線（二次曲線）を描く<br>
+				位置の変異から速度、速度の変異から加速度を求める<br>
+				加速度が一定している＝重力加速度と等価にみなせる<br>
+				つまり、二次曲線で放物線を描けている<br>
+			</div>
+			
+
+		<script src="lib.js"></script>
+		<script src="main.js"></script>
+
+
+</body>
+</html> 
