@@ -64,8 +64,6 @@ function draw( v0,v1,v2,v3, div, time )
 				gra.colorv( vec3(0,0,1) );gra.psetv2( c2, 2 );
 				gra.colorv( vec3(1,0,0) );gra.linev2( c1, c2 );
 				gra.colorv( vec3(1,0,0) );gra.psetv2( d1, 4 );
-//				gra.colorv( vec3(0.75,0.75,0.75) );gra.linev2( o1, o2 );	// 横線
-//				gra.colorv( vec3(0.75,0.75,0.75) );gra.linev2( p1, p2 );	// 縦線
 				py = vcopy2(c1);
 			}
 			else
@@ -73,28 +71,20 @@ function draw( v0,v1,v2,v3, div, time )
 				gra.colorv( vec3(0,0,0) );gra.psetv2( a1, 1.5 );
 				gra.colorv( vec3(0,0,0) );gra.psetv2( a2, 1.5 );
 				gra.colorv( vec3(0,0,0) );gra.psetv2( a3, 1.5 );
-//				gra.colorv( vec3(0,0,1) );gra.psetv2( c1, 1.5 );
-//				gra.colorv( vec3(0,0,1) );gra.psetv2( c2, 1.5 );
-//				gra.colorv( vec3(0.75,0.75,0.75) );gra.psetv2( c1, 1.5);
-//				gra.colorv( vec3(0.75,0.75,0.75) );gra.psetv2( c2, 1.5);
 			} 
 			gra.colorv( vec3(1,0,0) );gra.psetv2( d1, 1.5);
-//			gra.colorv( vec3(0.75,0.75,0.75) );gra.psetv2( o1, 1.5);
-//			gra.colorv( vec3(0.75,0.75,0.75) );gra.psetv2( p2, 1.5);
 
 		}
 
 
 		let po1 = py;
 
-//		let p = length2( vsub2(po1,po0) );
 		let p = vsub2(po1,po0).y;
 		ac0 = p-sp0;
 		sp0 = p;
 		po0 = po1;
 
 		gra.colorv(vec3(0,0,0));
-//		if ( cnt >= 0 )	{gra.locatev( vec2(0.7,-0.6-0.6) );gra.print( "　位置y:"+strfloat(  po0,3,4) );}
 		if ( cnt >= 1 )	{gra.locatev( vec2(0.7,-0.7-0.6) );gra.print( "　速度:"+strfloat(  sp0,3,4) );}
 		if ( cnt >= 2 )	{gra.locatev( vec2(0.7,-0.8-0.6) );gra.print( "加速度:"+strfloat(2*ac0,3,4) );}
 		cnt++
