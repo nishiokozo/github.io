@@ -1,3 +1,4 @@
+// 2023/07/18	create_plot 追加
 // 2023/06/09	gra.pset3d()追加
 // 2023/02/11	FNT.symbol2d = function( str, pos, alighbase="CM" )
 // 2023/02/07	gra3d,line2d
@@ -3873,6 +3874,54 @@ const	KEY_UP		= 38;
 const	KEY_RIGHT	= 39;
 const	KEY_DOWN	= 40;
 
+//-----------------------------------------------------------------------------
+function create_plot( len, cols, cv, sx, sy, ex, ey )//2023/07/18
+//-----------------------------------------------------------------------------
+{
+	let gra = gra_create( cv );
+	gra.window( sx, sy, ex, ey );
+	let tbl = [];
+	for ( let n = 0 ; n < cols.length ; n++ )
+	{
+		tbl[n]={val:[],col:cols[n]};
+		
+	}
+	function entryplot( n, val )
+	{
+		if ( n >= tbl.length ) return;
+
+		if ( tbl[n].val.length > len ) tbl[n].val.shift();
+		tbl[n].val.push( val );
+	}
+	function drawplot()
+	{
+		let c1 = gra.ctx.strokeStyle;
+		let c2 = gra.ctx.fillStyle;
+		{
+			gra.cls();
+			for ( let n = 0 ; n < tbl.length ; n++ )
+			{
+				for ( let i = 0 ; i < tbl[n].val.length ; i++ )
+				{
+					let y = tbl[n].val[i];
+					gra.colorv(tbl[n].col);gra.psetv2( vec2(i,y), 1 );
+				}
+			}
+		}
+		gra.ctx.strokeStyle = c1;
+		gra.ctx.fillStyle = c2;
+	}
+
+	return {
+		sx:sx,
+		sy:sy,
+		ex:ex,
+		ey:ey,
+		gra:gra,
+		entryplot:entryplot,
+		drawplot:drawplot,
+	}
+}
 //-----------------------------------------------------------------------------
 function ene_create( cv )	// 2021/08/15 U K Eのエネルギーを算出して波形を描画
 //-----------------------------------------------------------------------------

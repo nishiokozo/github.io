@@ -1,5 +1,7 @@
 "use strict";
 
+let plot = create_plot( 120, [vec3(0,1,0),vec3(0,0,1)], html_canvas2, 0,0.15, 120, -0.15 );
+
 let gra = gra_create( html_canvas );
 const sz=1.7;
 gra.window( -sz,-sz, sz, sz );
@@ -11,6 +13,8 @@ let cnt = 0;
 let po0 = 0;
 let sp0 = 0;
 let ac0 = 0;
+let str_ac="-";
+let str_sp="-";
 //-----------------------------------------------------------------------------
 function draw( v0,v1,v2,v3, div, time )
 //-----------------------------------------------------------------------------
@@ -72,21 +76,23 @@ function draw( v0,v1,v2,v3, div, time )
 				gra.colorv( vec3(0,0,0) );gra.psetv2( a2, 1.5 );
 				gra.colorv( vec3(0,0,0) );gra.psetv2( a3, 1.5 );
 			} 
-			gra.colorv( vec3(1,0,0) );gra.psetv2( d1, 1.5);
+			gra.colorv( vec3(1,0,0) );gra.psetv2( d1, 2.0);
 
 		}
 
 
 		let po1 = py;
 
-		let p = vsub2(po1,po0).y;
-		ac0 = p-sp0;
-		sp0 = p;
+		let s = length2( vsub2(po1,po0) );
+		ac0 = s-sp0;
+		sp0 = s;
 		po0 = po1;
 
 		gra.colorv(vec3(0,0,0));
-		if ( cnt >= 1 )	{gra.locatev( vec2(0.7,-0.7-0.6) );gra.print( "　速度:"+strfloat(  sp0,3,4) );}
-		if ( cnt >= 2 )	{gra.locatev( vec2(0.7,-0.8-0.6) );gra.print( "加速度:"+strfloat(2*ac0,3,4) );}
+		if ( cnt >= 1 )	str_sp=strfloat( sp0,3,4);else str_sp ="***.***";
+		if ( cnt >= 2 )	str_ac=strfloat( ac0,3,4);else str_ac ="***.***";
+		gra.locatev( vec2(0.7,-0.7-0.6) );gra.print( "　速度:"+str_sp );
+		gra.locatev( vec2(0.7,-0.8-0.6) );gra.print( "加速度:"+str_ac );
 		cnt++
 
 		g_i++;
@@ -95,7 +101,14 @@ function draw( v0,v1,v2,v3, div, time )
 			g_i = 0;
 			cnt = 0; // 正しい加速度が求まるのに3フレーム掛かる
 		}
-		
+
+
+//		plot.entryplot( 1, sp0*(div/time)*40 );
+//		plot.entryplot( 0, ac0*(div/time)*40*5 );
+		plot.entryplot( 1, sp0 );
+		plot.entryplot( 0, ac0*5 );
+		plot.drawplot();
+		plot.gra.linev2(vec2(plot.sx,0),vec2(plot.ex,0));
 
 
 		g_id = setTimeout( draw0, time/div );
@@ -103,6 +116,7 @@ function draw( v0,v1,v2,v3, div, time )
 	po0=0;
 	sp0=0;
 	ac0=0;
+
 	draw0();
 	
 }
@@ -128,8 +142,8 @@ function html_onchange()
 	let	x3		= html.getById_textbox( "html_x3",0 )*1;
 	let	y3		= html.getById_textbox( "html_y3",0 )*1;
 
-	let	div			= html.getById_textbox( "html_div",0 )*1;
-	let	time		= html.getById_textbox( "html_time",0 )*1000;
+	let	div		= html.getById_textbox( "html_div",0 )*1;
+	let	time	= html.getById_textbox( "html_time",0 )*1000;
 	if ( g_id != -1 ) clearTimeout( g_id );
 	draw(vec2(x0,y0),vec2(x1,y1),vec2(x2,y2),vec2(x3,y3),div,time);
 }

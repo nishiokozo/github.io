@@ -60,13 +60,20 @@
 	<body align="center">
 		<H1>三次曲線</H1>
 		<canvas id="html_canvas"  width="512" height="512" style="border:1px solid" ></canvas>
+		<canvas id="html_canvas2"  width="256" height="256" style="border:1px solid" ></canvas>
 		<br>
 		
 			<div class="group-right">
+			  v0<input type="text" id="html_x0" value="-1.0" size="3" onchange="html_onchange();" ><input type="text" id="html_y0" value=" 1.0" size="3" onchange="html_onchange();" ><br>
+			  v1<input type="text" id="html_x1" value=" 0.0" size="3" onchange="html_onchange();" ><input type="text" id="html_y1" value="-1.0" size="3" onchange="html_onchange();" ><br>
+			  v2<input type="text" id="html_x2" value=" 1.0" size="3" onchange="html_onchange();" ><input type="text" id="html_y2" value=" 1.0" size="3" onchange="html_onchange();" ><br>
+			  v3<input type="text" id="html_x3" value=" 1.1" size="3" onchange="html_onchange();" ><input type="text" id="html_y3" value=" 1.0" size="3" onchange="html_onchange();" ><br>
+<!--
 			  v0<input type="text" id="html_x0" value="-1.5" size="3" onchange="html_onchange();" ><input type="text" id="html_y0" value="-0.5" size="3" onchange="html_onchange();" ><br>
 			  v1<input type="text" id="html_x1" value="-1.0" size="3" onchange="html_onchange();" ><input type="text" id="html_y1" value="-1.0" size="3" onchange="html_onchange();" ><br>
 			  v2<input type="text" id="html_x2" value="-1.0" size="3" onchange="html_onchange();" ><input type="text" id="html_y2" value=" 1.5" size="3" onchange="html_onchange();" ><br>
 			  v3<input type="text" id="html_x3" value=" 1.5" size="3" onchange="html_onchange();" ><input type="text" id="html_y3" value="-0.5" size="3" onchange="html_onchange();" ><br>
+-->
 			  分割数<input type="text" id="html_div" value="40" size="3" onchange="html_onchange();" ><br>
 			  移動時間(秒)<input type="text" id="html_time" value="2.0" size="3" onchange="html_onchange();" ><br>
 			</div>
