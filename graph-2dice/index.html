@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>btl</title>
+	</head>
+	<body align="center">
+		<H2>カタンのさいころシミュレーション</H2>
+		<canvas id="html_canvas1"  width="176" height="176" style="border:1px solid" ></canvas>
+		<canvas id="html_canvas2"  width="176" height="176" style="border:1px solid" ></canvas>
+		<canvas id="html_canvas3"  width="176" height="176" style="border:1px solid" ></canvas>
+		<canvas id="html_canvas4"  width="176" height="176" style="border:1px solid" ></canvas>
+		<canvas id="html_canvas5"  width="176" height="176" style="border:1px solid" ></canvas>
+		<canvas id="html_canvas6"  width="176" height="176" style="border:1px solid" ></canvas>
+		<canvas id="html_canvas7"  width="176" height="176" style="border:1px solid" ></canvas>
+		<canvas id="html_canvas8"  width="176" height="176" style="border:1px solid" ></canvas>
+		<canvas id="html_canvas9"  width="176" height="176" style="border:1px solid" ></canvas>
+		<canvas id="html_canvasA"  width="176" height="176" style="border:1px solid" ></canvas>
+		<script src="lib.js"></script>
+		<script src="main.js"></script>
+		<br>
+
+			さいころを振る回数 <input type="text" id="html_sampling" value="100" size="3" ><br>
+			<input type="button" value="振る" onClick="update()" >
+
+
+<br>
+<div align="center" style="font-family:monospace">
+		<input name="html_rnd" type="radio" value="Math.random" checked> Math.random
+		<input name="html_rnd" type="radio" value="XorShift32"         > XorShift32
+</div>
+			<br>
+			～概要～
+			<br>
+			2023/08/17 二個のさいころを振った時のシミュレーション
+
+	</body>
+</html>
