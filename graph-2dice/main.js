@@ -15,7 +15,7 @@ let gras =
 
 let rnd0= rand_create( "Math" );
 let rnd1 = rand_create( "xorshift32-seed" );
-let rnd = rnd0
+let rnd = rnd0;
 
 //-----------------------------------------------------------------------------
 function drawGraph( gra, tblDice,  r_smp, scale )
@@ -32,6 +32,20 @@ function drawGraph( gra, tblDice,  r_smp, scale )
 		let d_wide = 16;
 		let b_wide = 15;
 
+		{
+			let n = gra.ctx.canvas.height/scale;	// 最大高さ数
+			if ( n < 100 )
+			{
+				gra.colorv(vec3(0.75,0.75,0.75));
+				for ( let i = 0 ; i < gra.ctx.canvas.height ; i++ ) 
+				{
+					let y = Math.floor(i*scale);
+					gra.line(gra.sx,y,gra.ex,y);
+				}
+			}
+		}
+
+		gra.colorv(vec3(0,0,0));
 		let x = 0;
 		for ( let i = 2 ; i < tblDice.length ; i++ ) 
 		{
@@ -103,7 +117,7 @@ function update()
 			}
 		}
 	}
-	scale = 600/samples;
+	scale = 500/samples;
 	for ( let i = 0 ; i < gras.length ; i++ )
 	{
 		drawGraph( gras[i], tblRes[i].tblDice, tblRes[i].smp, scale );
