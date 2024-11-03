@@ -15,6 +15,7 @@ let gras =
 
 let rnd0= rand_create( "Math" );
 let rnd1 = rand_create( "xorshift32-seed" );
+let rnd2 = rand_create( "mt" );
 let rnd = rnd0;
 
 //-----------------------------------------------------------------------------
@@ -69,8 +70,15 @@ function update()
 		{
 			if ( l.checked ) 
 			{	
-				if ( l.value == "Math.random" ) rnd = rnd0;
-				if ( l.value == "XorShift32"  ) rnd = rnd1;
+				if ( l.value == "Math.random" 	) rnd = rnd0;
+				else
+				if ( l.value == "XorShift32"  	) rnd = rnd1;
+				else
+				if ( l.value == "mt"  			) rnd = rnd2;
+				else
+				{
+					alert("err dice type:"+l.value);
+				}
 				break;
 			}
 		}
