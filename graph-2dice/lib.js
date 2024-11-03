@@ -207,7 +207,57 @@ function cam_create( pos, at, up, fovy, near=1.0, far=1000.0 )
 	//	let V= mlookat( cam.pos, cam.at );
 }
 
-//-----------------------------------------------------------------------------
+class MersenneTwister 
+{
+	constructor(seed = new Date().getTime()) 
+	{
+		this.mt = new Array(624);
+		this.index = 0;
+		this.mt[0] = seed;
+
+		for (let i = 1; i < 624; i++) 
+		{
+			this.mt[i] = 0x6c078965 * (this.mt[i - 1] ^ (this.mt[i - 1] >>> 30)) + i;
+			this.mt[i] &= 0xffffffff; // 32bit整数に制限
+		}
+	}
+
+	generate() 
+	{
+		if (this.index === 0) 
+		{
+			this.twist();
+		}
+
+		let y = this.mt[this.index];
+		y ^= y >>> 11;
+		y ^= (y << 7) & 0x9d2c5680;
+		y ^= (y << 15) & 0xefc60000;
+		y ^= y >>> 18;
+
+		this.index = (this.index + 1) % 624;
+		return y >>> 0;
+	}
+
+	random() 
+	{
+		return this.generate() / 0xffffffff;
+	}
+
+	twist() 
+	{
+		for (let i = 0; i < 624; i++) 
+		{
+			const y = (this.mt[i] & 0x80000000) + (this.mt[(i + 1) % 624] & 0x7fffffff);
+			this.mt[i] = this.mt[(i + 397) % 624] ^ (y >>> 1);
+
+			if (y % 2 !== 0) 
+			{
+				this.mt[i] ^= 0x9908b0df;
+			}
+		}
+	}
+}//-----------------------------------------------------------------------------
 function rand_create( type = "xorshift32" ) //2022/06/09 rand
 //-----------------------------------------------------------------------------
 {
@@ -234,7 +284,13 @@ function rand_create( type = "xorshift32" ) //2022/06/09 rand
 			return Math.abs(body.y/((1<<31)));
 		}
 		break;
-
+	case "mt":			// メルセンヌツイスター 2024/11/03
+		const mt = new MersenneTwister(12345); // シードを指定
+		body.random = function()	
+		{
+			return mt.random();
+		}
+		break;
 	case "Math":				// javascript Math
 		body.random = function()
 		{
