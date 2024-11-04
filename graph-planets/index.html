@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>惑星軌道</title>
+		<style>
+
+			.group
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:center;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.group-left
+			{
+				display:inline-block; 
+				padding: 6px; 
+				border-radius: 7px; 
+				border:1px solid #aaa;
+				text-align:left;
+				vertical-align: top;
+				font-size:16px;
+				font-family:monospace;
+			}
+			.readme
+			{
+				display:inline-block; 
+				text-align:center;
+				font-size:16px;
+//				font-family:monospace;
+			}
+			.readme-left
+			{
+				display:inline-block; 
+				text-align:left;
+				font-size:12px;
+//				font-family:monospace;
+			}
+		</style>
+		<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script>
+
+</script>
+	</head>
+	<body align="center">
+		<H1>惑星軌道</H1>
+
+	    <canvas id="html_canvas1" width="800" height="800" style="display:none"></canvas>
+		<canvas id="html_canvas2"  width="800" height="800" style="display:none" ></canvas>
+	    <canvas id="html_canvas3" width="800" height="800"style="border:1px solid"></canvas>
+
+		<br>
+		<div class="group">
+			<div class="group">
+				中心:
+				<input type="radio" name="html_radio" value="Sun" checked>太陽
+				<input type="radio" name="html_radio" value="Mer" >水星
+				<input type="radio" name="html_radio" value="Ven" >金星
+				<input type="radio" name="html_radio" value="Ear" >地球
+				<input type="radio" name="html_radio" value="Moo" >月
+				<input type="radio" name="html_radio" value="Mar" >火星
+				<input type="radio" name="html_radio" value="Jup" >木星
+				<input type="radio" name="html_radio" value="Sat" >土星
+				<input type="radio" name="html_radio" value="Ura" >天王星
+				<input type="radio" name="html_radio" value="Nep" >海王星
+			</div>
+			<br>
+			<div class="group">
+				表示:
+				<input type="checkbox" name="html_checkbox_Sun" value="1" checked >太陽
+				<input type="checkbox" name="html_checkbox_Mer" value="Mer" checked >水星
+				<input type="checkbox" name="html_checkbox_Ven" value="Ven" checked >金星
+				<input type="checkbox" name="html_checkbox_Ear" value="Ear" checked >地球
+				<input type="checkbox" name="html_checkbox_Moo" value="Moo"  >月
+				<input type="checkbox" name="html_checkbox_Mar" value="Mar" checked >火星
+				<input type="checkbox" name="html_checkbox_Jup" value="Jup" checked >木星
+				<input type="checkbox" name="html_checkbox_Sat" value="Sat" checked >土星
+				<input type="checkbox" name="html_checkbox_Ura" value="Ura" checked >天王星
+				<input type="checkbox" name="html_checkbox_Nep" value="Nep" checked >海王星
+			</div>
+			<br>
+			表示サイズ(軌道長半径) <input type="text" id="html_size" value="3" size="3" >(au)
+			<input type="button" value="更新" onClick="html_request()" >
+		</div>
+			<br>
+
+
+		<script src="main.js"></script>
+
+		<div class="readme">
+							<p>～概要 2024/11/04～</p>
+		<div class="readme">
+
+			
+		</div>
+
+</body>
+</html> 
