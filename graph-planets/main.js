@@ -128,6 +128,19 @@ let html =
 		}
 	},
 };
+function strfloat(v, r = 4, f = 2) {
+  if (typeof v !== 'number') {
+    throw new Error('Input must be a number');
+  }
+
+  // 小数点以下 f 桁で固定小数点表記に変換
+  const fixed = v.toFixed(f);
+
+  // 必要に応じてスペースで埋める
+  const formatted = fixed.padStart(r + f + 1, ' '); // `+1` は小数点分
+
+  return formatted;
+}
 //-----------------------------------------------------------------------------
 function gra_create( cv )	//2021/06/01 window関数実装
 //-----------------------------------------------------------------------------
@@ -380,7 +393,12 @@ function main()
 				{
 					for ( let i = 0 ; i < tree.length ; i++ )
 					{
-//						gra2.print( tree[i].stellar.name, 0,y+=16 );
+						let s = tree[i].stellar;
+						let str = "公転周期="+strfloat(s.orbital_period,3,4)+"(年)";
+						gra2.print( s.name, 0,y );
+						gra2.print( str, 60,y );
+						y+=20;
+
 						if ( tree[i].child.length > 0 ) foo( tree[i].child );
 					}
 				}
@@ -437,8 +455,9 @@ function main()
 			param_tblStellar["Nep"].visible=g_req_stat["Nep"].visible;
 			param_center = g_req_stat["Center"].id;
 			param_size = g_req_stat["Size"].size*1.0;
-			gra1.cls();
 
+			gra1.cls();
+			year=0
 			g_req_stat = null;
 		}
 
