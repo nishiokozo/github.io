@@ -3,10 +3,9 @@
 let html =
 {
 	//---------------------------------------------------------------------
-	"getById_textbox":function( name )
+	"getById_textbox":function( name, val )
 	//---------------------------------------------------------------------
 	{
-		let val = "";
 		if ( document.getElementById( name ) )
 		{
 			val = document.getElementById( name ).value;
@@ -23,10 +22,9 @@ let html =
 		}
 	},
 	//---------------------------------------------------------------------
-	"getById_innerHTML":function( name )
+	"getById_innerHTML":function( name, val )
 	//---------------------------------------------------------------------
 	{
-		let val = "";
 		if ( document.getElementById( name ) )
 		{
 			let val = document.getElementById( name ).innerHTML;
@@ -43,10 +41,9 @@ let html =
 		}
 	},
 	//---------------------------------------------------------------------
-	"getByName_radio":function( name )
+	"getByName_radio":function( name, val )
 	//---------------------------------------------------------------------
 	{
-		let val = false;
 		let list = document.getElementsByName( name ) ;
 		for ( let l of list )
 		{
@@ -74,10 +71,9 @@ let html =
 		return val;
 	},
 	//---------------------------------------------------------------------
-	"getByName_checkbox":function( name )
+	"getByName_checkbox":function( name, val )	// bool
 	//---------------------------------------------------------------------
 	{
-		let val = false;
 		if ( document.getElementsByName( name ).length > 0 ) 
 		{
 			if ( document.getElementsByName( name )[0] ) 
@@ -100,10 +96,9 @@ let html =
 		}
 	},
 	//---------------------------------------------------------------------
-	"getById_selectbox":function( name )
+	"getById_selectbox":function( name, val )
 	//---------------------------------------------------------------------
 	{
-		let val = false;
 		let select = document.getElementById( name );
 		if ( select)
 		{
@@ -126,7 +121,7 @@ let html =
 				}
 			}
 		}
-	},
+	}
 };
 function strfloat(v, r = 4, f = 2) {
   if (typeof v !== 'number') {
@@ -303,6 +298,7 @@ function main()
 //-----------------------------------------------------------------------------
 {
 	const Au = 1.496e+8;
+	let param_speed = 1;
 	let param_size = 20;
 	let param_center = "Sun";
 	let param_tblStellar =
@@ -344,7 +340,7 @@ function main()
 	function frame_update( time )
 	//-------------------------------------------------------------------------
 	{
-		let step = 1;//(日)
+		let step = param_speed;//(日)
 
 		//calc
 
@@ -443,18 +439,19 @@ function main()
 	{
 		if ( g_req_stat != null )
 		{
-			param_tblStellar["Sun"].visible=g_req_stat["Sun"].visible;
-			param_tblStellar["Mer"].visible=g_req_stat["Mer"].visible;
-			param_tblStellar["Ven"].visible=g_req_stat["Ven"].visible;
-			param_tblStellar["Ear"].visible=g_req_stat["Ear"].visible;
-			param_tblStellar["Moo"].visible=g_req_stat["Moo"].visible;
-			param_tblStellar["Mar"].visible=g_req_stat["Mar"].visible;
-			param_tblStellar["Jup"].visible=g_req_stat["Jup"].visible;
-			param_tblStellar["Sat"].visible=g_req_stat["Sat"].visible;
-			param_tblStellar["Ura"].visible=g_req_stat["Ura"].visible;
-			param_tblStellar["Nep"].visible=g_req_stat["Nep"].visible;
-			param_center = g_req_stat["Center"].id;
-			param_size = g_req_stat["Size"].size*1.0;
+			param_tblStellar["Sun"].visible=g_req_stat["Sun"].value;
+			param_tblStellar["Mer"].visible=g_req_stat["Mer"].value;
+			param_tblStellar["Ven"].visible=g_req_stat["Ven"].value;
+			param_tblStellar["Ear"].visible=g_req_stat["Ear"].value;
+			param_tblStellar["Moo"].visible=g_req_stat["Moo"].value;
+			param_tblStellar["Mar"].visible=g_req_stat["Mar"].value;
+			param_tblStellar["Jup"].visible=g_req_stat["Jup"].value;
+			param_tblStellar["Sat"].visible=g_req_stat["Sat"].value;
+			param_tblStellar["Ura"].visible=g_req_stat["Ura"].value;
+			param_tblStellar["Nep"].visible=g_req_stat["Nep"].value;
+			param_center = g_req_stat["Center"].value+"";
+			param_size = g_req_stat["Size"].value;
+			param_speed = g_req_stat["Speed"].value;
 
 			gra1.cls();
 			year=0
@@ -491,18 +488,19 @@ function html_request()
 {
 	let new_stat = 
 	{
-		"Sun"	:{visible:html.getByName_checkbox("html_checkbox_Sun")},
-		"Mer"	:{visible:html.getByName_checkbox("html_checkbox_Mer")},
-		"Ven"	:{visible:html.getByName_checkbox("html_checkbox_Ven")},
-		"Ear"	:{visible:html.getByName_checkbox("html_checkbox_Ear")},
-		"Moo"	:{visible:html.getByName_checkbox("html_checkbox_Moo")},
-		"Mar"	:{visible:html.getByName_checkbox("html_checkbox_Mar")},
-		"Jup"	:{visible:html.getByName_checkbox("html_checkbox_Jup")},
-		"Sat"	:{visible:html.getByName_checkbox("html_checkbox_Sat")},
-		"Ura"	:{visible:html.getByName_checkbox("html_checkbox_Ura")},
-		"Nep"	:{visible:html.getByName_checkbox("html_checkbox_Nep")},
-		"Center":{id:html.getByName_radio("html_radio")},
-		"Size"	:{size:html.getById_textbox("html_size")},
+		"Sun"	:{value:html.getByName_checkbox("html_checkbox_Sun",false)},
+		"Mer"	:{value:html.getByName_checkbox("html_checkbox_Mer",false)},
+		"Ven"	:{value:html.getByName_checkbox("html_checkbox_Ven",false)},
+		"Ear"	:{value:html.getByName_checkbox("html_checkbox_Ear",false)},
+		"Moo"	:{value:html.getByName_checkbox("html_checkbox_Moo",false)},
+		"Mar"	:{value:html.getByName_checkbox("html_checkbox_Mar",false)},
+		"Jup"	:{value:html.getByName_checkbox("html_checkbox_Jup",false)},
+		"Sat"	:{value:html.getByName_checkbox("html_checkbox_Sat",false)},
+		"Ura"	:{value:html.getByName_checkbox("html_checkbox_Ura",false)},
+		"Nep"	:{value:html.getByName_checkbox("html_checkbox_Nep",false)},
+		"Center":{value:html.getByName_radio("html_radio","Sun")+""},
+		"Size"	:{value:html.getById_textbox("html_size","1")*1.0},
+		"Speed"	:{value:html.getById_textbox("html_speed","1")*1.0},
 	}
 
 	g_req_stat = new_stat;
