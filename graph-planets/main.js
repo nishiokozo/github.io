@@ -451,7 +451,6 @@ function main()
 						let x = r*Math.cos(s.rad);
 						let y = r*Math.sin(s.rad);
 
-console.log(param_flgDeferent,param_flgEpicycle);
 						if ( param_flgDeferent ) gra1.dotty( x,y, 1 );
 						if ( param_flgEpicycle ) gra2.circle( x,y,epir );
 					}
